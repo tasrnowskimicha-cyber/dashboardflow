@@ -18,9 +18,9 @@
   --small:   #34d17a;
   --medium:  #f5922f;
   --large:   #f04f4f;
-  --p50:     #9b7dff;
-  --p85:     #4da6ff;
-  --p95:     #ff6eb4;
+  --p50:     #34d17a;
+  --p85:     #f5922f;
+  --p95:     #f04f4f;
   --accent:  #4da6ff;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -473,9 +473,9 @@ function renderKPIs(){
   const lg=wd.filter(i=>i.sz==='large');
   const kpis=[
     {label:'Active Items',  val:wd.length,            sub:`of ${allItems.filter(i=>i.days!=null).length} total`, col:'#4da6ff'},
-    {label:'P50 Median',    val:p50v.toFixed(1)+'d',  sub:'50% delivered within',   col:'#9b7dff'},
-    {label:'P85',           val:p85v.toFixed(1)+'d',  sub:'85th percentile',        col:'#4da6ff'},
-    {label:'P95',           val:p95v.toFixed(1)+'d',  sub:'95th percentile',        col:'#ff6eb4'},
+    {label:'P50 Median',    val:p50v.toFixed(1)+'d',  sub:'50% delivered within',   col:'#34d17a'},
+    {label:'P85',           val:p85v.toFixed(1)+'d',  sub:'85th percentile',        col:'#f5922f'},
+    {label:'P95',           val:p95v.toFixed(1)+'d',  sub:'95th percentile',        col:'#f04f4f'},
     {label:'Avg Lead Time', val:avgv.toFixed(1)+'d',  sub:`min ${Math.min(...days).toFixed(0)}d · max ${Math.max(...days).toFixed(0)}d`, col:'#f5922f'},
     {label:'Large Items',   val:lg.length,            sub:wd.length?`${((lg.length/wd.length)*100).toFixed(0)}% of active`:'—', col:'#f04f4f'},
   ];
@@ -626,7 +626,7 @@ function drawScatter(){
   if(wd.length>=2){
     const days=wd.map(i=>i.days);
     const p50v=pct(days,50),p85v=pct(days,85),p95v=pct(days,95);
-    [{val:p50v,col:'#9b7dff',lbl:'P50'},{val:p85v,col:'#4da6ff',lbl:'P85'},{val:p95v,col:'#ff6eb4',lbl:'P95'}].forEach(p=>{
+    [{val:p50v,col:'#34d17a',lbl:'P50'},{val:p85v,col:'#f5922f',lbl:'P85'},{val:p95v,col:'#f04f4f',lbl:'P95'}].forEach(p=>{
       const y=scY(p.val);
       svgEl('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:p.col,'stroke-width':'1.5','stroke-dasharray':'5,4',opacity:'0.85'},svg);
       svgEl('text',{x:PL+pw+4,y:y+4,fill:p.col,'font-size':'8.5','font-weight':'600'},svg).textContent=`${p.lbl} ${p.val.toFixed(0)}d`;
@@ -654,9 +654,10 @@ function drawScatter(){
     const cx=scX(item.cDate), cy=scY(item.days);
     const c=svgEl('circle',{cx,cy,r:7,fill:item.col,stroke:'#0b0c0f','stroke-width':'1.5',opacity:'0.9',style:'cursor:pointer'},svg);
     svgEl('text',{x:cx,y:cy-10,'text-anchor':'middle',fill:item.col,'font-size':'7.5','pointer-events':'none'},svg).textContent=item.id.slice(-4);
-    c.addEventListener('mouseenter',e=>showTip(e,`<strong>#${item.id}</strong><br>${item.title}<br><br>Activated: ${fmtD(item.aDate)}<br>Closed: ${fmtD(item.cDate)}<br>Lead time: <strong>${item.days.toFixed(1)}d</strong> · ${item.sz}`));
+    c.addEventListener('mouseenter',e=>showTip(e,`<strong>#${item.id}</strong><br>${item.title}<br><br>Activated: ${fmtD(item.aDate)}<br>Closed: ${fmtD(item.cDate)}<br>Lead time: <strong>${item.days.toFixed(1)}d</strong> · ${item.sz}<br><br><em>Click to hide</em>`));
     c.addEventListener('mousemove',moveTip);
     c.addEventListener('mouseleave',hideTip);
+    c.addEventListener('click',()=>{ hideTip(); toggleItem(item.id); });
   });
 }
 
@@ -694,7 +695,7 @@ function drawBar(){
   // overall percentile lines
   const days=wd.map(i=>i.days);
   const p50v=pct(days,50),p85v=pct(days,85),p95v=pct(days,95);
-  [{val:p50v,col:'#9b7dff',lbl:'P50'},{val:p85v,col:'#4da6ff',lbl:'P85'},{val:p95v,col:'#ff6eb4',lbl:'P95'}].forEach(p=>{
+  [{val:p50v,col:'#34d17a',lbl:'P50'},{val:p85v,col:'#f5922f',lbl:'P85'},{val:p95v,col:'#f04f4f',lbl:'P95'}].forEach(p=>{
     const x=scX(p.val);
     svgEl('line',{x1:x,y1:PT-4,x2:x,y2:H-PB,stroke:p.col,'stroke-width':'1.5','stroke-dasharray':'5,4',opacity:'0.85'},svg);
     svgEl('text',{x,y:PT-18,'text-anchor':'middle',fill:p.col,'font-size':'8','font-weight':'600'},svg).textContent=`${p.lbl}`;
