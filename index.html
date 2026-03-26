@@ -263,7 +263,108 @@ tbody td { padding:9px 12px; color:#c0c8de; }
 }
 .toggle-action-btn:hover { color: var(--text); border-color: var(--dim); }
 
-@media(max-width:1100px) {
+/* ── MODAL ── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.7);
+  backdrop-filter:blur(6px); z-index:300;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background:var(--surf); border:1px solid var(--border2);
+  border-radius:10px; width:480px; max-width:calc(100vw - 32px);
+  box-shadow:0 24px 64px rgba(0,0,0,.6);
+  transform:translateY(12px); transition:transform .2s;
+}
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 22px 14px; border-bottom:1px solid var(--border);
+}
+.modal-title { font-weight:700; font-size:0.95rem; letter-spacing:-.3px; }
+.modal-close {
+  background:none; border:none; color:var(--muted); font-size:1.2rem;
+  cursor:pointer; line-height:1; padding:2px 6px; border-radius:4px;
+  transition:color .12s;
+}
+.modal-close:hover { color:var(--text); }
+.modal-tabs {
+  display:flex; border-bottom:1px solid var(--border);
+}
+.modal-tab {
+  flex:1; padding:10px; text-align:center;
+  font-family:'IBM Plex Mono',monospace; font-size:0.65rem;
+  text-transform:uppercase; letter-spacing:1.5px; color:var(--muted);
+  cursor:pointer; border-bottom:2px solid transparent;
+  transition:color .12s, border-color .12s;
+}
+.modal-tab.active { color:var(--accent); border-color:var(--accent); }
+.modal-body { padding:22px; }
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+.form-row { margin-bottom:16px; }
+.form-label {
+  display:block; font-family:'IBM Plex Mono',monospace;
+  font-size:0.62rem; text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--muted); margin-bottom:7px;
+}
+.form-input {
+  width:100%; background:var(--surf2); border:1px solid var(--border2);
+  border-radius:5px; padding:9px 12px; color:var(--text);
+  font-family:'IBM Plex Mono',monospace; font-size:0.78rem;
+  outline:none; transition:border-color .12s;
+}
+.form-input:focus { border-color:var(--accent); }
+.form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.form-hint { font-size:0.65rem; color:var(--muted); margin-top:6px; font-family:'IBM Plex Mono',monospace; }
+.form-result {
+  margin-top:12px; padding:10px 12px; border-radius:5px;
+  font-family:'IBM Plex Mono',monospace; font-size:0.7rem;
+  display:none;
+}
+.form-result.info { background:rgba(77,166,255,.08); border:1px solid rgba(77,166,255,.2); color:#4da6ff; display:block; }
+.form-result.warn { background:rgba(245,146,47,.08); border:1px solid rgba(245,146,47,.2); color:#f5922f; display:block; }
+.form-result.err  { background:rgba(240,79,79,.08);  border:1px solid rgba(240,79,79,.2);  color:#f04f4f; display:block; }
+.btn-primary {
+  width:100%; padding:10px; border-radius:6px; border:none;
+  background:var(--accent); color:#0b0c0f; font-weight:700;
+  font-family:'IBM Plex Mono',monospace; font-size:0.75rem;
+  cursor:pointer; letter-spacing:.5px; transition:opacity .12s;
+  margin-top:4px;
+}
+.btn-primary:hover { opacity:.85; }
+.btn-danger {
+  width:100%; padding:10px; border-radius:6px;
+  border:1px solid rgba(240,79,79,.4); background:rgba(240,79,79,.08);
+  color:#f04f4f; font-weight:700; font-family:'IBM Plex Mono',monospace;
+  font-size:0.75rem; cursor:pointer; letter-spacing:.5px; transition:opacity .12s;
+  margin-top:4px;
+}
+.btn-danger:hover { opacity:.75; }
+
+/* ── FAB ── */
+.fab-group {
+  position:fixed; bottom:32px; right:32px;
+  display:flex; flex-direction:column; gap:10px; z-index:100;
+}
+.fab {
+  width:48px; height:48px; border-radius:50%; border:none;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:1.2rem; font-weight:700;
+  box-shadow:0 4px 20px rgba(0,0,0,.4); transition:transform .15s, opacity .15s;
+}
+.fab:hover { transform:scale(1.08); }
+.fab-add  { background:var(--accent); color:#0b0c0f; }
+.fab-del  { background:rgba(240,79,79,.15); color:#f04f4f; border:1px solid rgba(240,79,79,.3); }
+.fab-label {
+  position:absolute; right:56px; background:#1a1e2b;
+  padding:4px 10px; border-radius:4px; font-family:'IBM Plex Mono',monospace;
+  font-size:0.62rem; color:var(--text); white-space:nowrap;
+  border:1px solid var(--border2); pointer-events:none;
+  opacity:0; transition:opacity .15s;
+}
+.fab:hover .fab-label { opacity:1; }
   .kpi-row { grid-template-columns:repeat(3,1fr); }
   .row-3 { grid-template-columns:1fr 1fr; }
 }
@@ -364,6 +465,87 @@ tbody td { padding:9px 12px; color:#c0c8de; }
     </div>
   </div>
 
+</div>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Manage Data</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <div class="modal-tab active" id="tab-add" onclick="switchTab('add')">Add Point</div>
+      <div class="modal-tab" id="tab-remove" onclick="switchTab('remove')">Remove by Date</div>
+    </div>
+    <div class="modal-body">
+
+      <!-- ADD TAB -->
+      <div class="tab-pane active" id="pane-add">
+        <div class="form-row">
+          <label class="form-label">Title</label>
+          <input class="form-input" id="add-title" type="text" placeholder="Feature name or description">
+        </div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">Activated date</label>
+            <input class="form-input" id="add-act" type="date">
+          </div>
+          <div>
+            <label class="form-label">Closed date</label>
+            <input class="form-input" id="add-closed" type="date">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">Team</label>
+            <select class="form-input" id="add-team">
+              <option value="ØBP">ØBP</option>
+              <option value="ØBS">ØBS</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Work item ID (optional)</label>
+            <input class="form-input" id="add-id" type="text" placeholder="e.g. 2200001">
+          </div>
+        </div>
+        <div class="form-result" id="add-result"></div>
+        <button class="btn-primary" onclick="addPoint()">Add to dashboard</button>
+      </div>
+
+      <!-- REMOVE TAB -->
+      <div class="tab-pane" id="pane-remove">
+        <div class="form-row">
+          <label class="form-label">Remove items closed between</label>
+          <div class="form-row-2" style="margin-bottom:0">
+            <div>
+              <label class="form-label">From date</label>
+              <input class="form-input" id="rm-from" type="date">
+            </div>
+            <div>
+              <label class="form-label">To date</label>
+              <input class="form-input" id="rm-to" type="date">
+            </div>
+          </div>
+          <div class="form-hint">Items closed within this range will be permanently deleted from the dashboard.</div>
+        </div>
+        <div class="form-result" id="rm-preview"></div>
+        <button class="btn-primary" style="background:var(--surf2);color:var(--text);border:1px solid var(--border2);margin-bottom:8px" onclick="previewRemove()">Preview affected items</button>
+        <button class="btn-danger" id="rm-confirm-btn" style="display:none" onclick="confirmRemove()">Permanently remove these items</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── FABs ── -->
+<div class="fab-group">
+  <div style="position:relative">
+    <button class="fab fab-add" onclick="openModal('add')" title="Add data point">＋<span class="fab-label">Add data point</span></button>
+  </div>
+  <div style="position:relative">
+    <button class="fab fab-del" onclick="openModal('remove')" title="Remove by date">🗑<span class="fab-label">Remove by date</span></button>
+  </div>
 </div>
 
 <div id="tip"></div>
@@ -764,6 +946,112 @@ function drawBox(){
   });
 
   if(!groups.length) svgEl('text',{x:W/2,y:H/2,'text-anchor':'middle',fill:'#3a4258','font-size':'11'},svg).textContent='No active items';
+}
+
+// ── MODAL ──────────────────────────────────────────────
+let pendingRemoveIds=[];
+
+function openModal(tab){
+  document.getElementById('modalOverlay').classList.add('open');
+  switchTab(tab);
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  pendingRemoveIds=[];
+  document.getElementById('rm-confirm-btn').style.display='none';
+  document.getElementById('rm-preview').className='form-result';
+  document.getElementById('add-result').className='form-result';
+}
+document.getElementById('modalOverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modalOverlay')) closeModal();
+});
+
+function switchTab(tab){
+  ['add','remove'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('pane-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+// ── ADD POINT ──────────────────────────────────────────
+let addCounter=9000000;
+function addPoint(){
+  const title=document.getElementById('add-title').value.trim();
+  const actVal=document.getElementById('add-act').value;
+  const closedVal=document.getElementById('add-closed').value;
+  const team=document.getElementById('add-team').value;
+  const idVal=document.getElementById('add-id').value.trim();
+  const res=document.getElementById('add-result');
+
+  if(!title){ res.className='form-result err'; res.textContent='Title is required.'; return; }
+  if(!closedVal){ res.className='form-result err'; res.textContent='Closed date is required.'; return; }
+
+  const cDate=new Date(closedVal);
+  const aDate=actVal ? new Date(actVal) : null;
+  if(aDate && aDate>=cDate){ res.className='form-result err'; res.textContent='Activated date must be before closed date.'; return; }
+
+  const days=aDate ? (cDate-aDate)/86400000 : null;
+  const sz=days!=null?szOf(days):null;
+  const id=idVal || String(++addCounter);
+  const newItem={
+    id, title,
+    closed: closedVal, act: actVal||null,
+    aDate, cDate, days, sz,
+    col: sz?colOf(sz):null,
+    team,
+    _added: true
+  };
+  allItems.push(newItem);
+  buildToggles();
+  renderThroughput();
+  redrawAll();
+
+  res.className='form-result info';
+  res.textContent=`✓ Added "${title.slice(0,40)}${title.length>40?'…':''}" (${days!=null?days.toFixed(1)+'d lead time':'no activation date'})`;
+
+  // reset fields
+  document.getElementById('add-title').value='';
+  document.getElementById('add-act').value='';
+  document.getElementById('add-closed').value='';
+  document.getElementById('add-id').value='';
+}
+
+// ── REMOVE BY DATE ─────────────────────────────────────
+function previewRemove(){
+  const from=document.getElementById('rm-from').value;
+  const to=document.getElementById('rm-to').value;
+  const res=document.getElementById('rm-preview');
+  const btn=document.getElementById('rm-confirm-btn');
+  pendingRemoveIds=[];
+
+  if(!from&&!to){ res.className='form-result err'; res.textContent='Please set at least one date.'; btn.style.display='none'; return; }
+
+  const fromD=from?new Date(from):new Date('2000-01-01');
+  const toD=to?new Date(to+'T23:59:59'):new Date('2099-12-31');
+
+  const matches=allItems.filter(i=>i.cDate>=fromD && i.cDate<=toD);
+  if(!matches.length){
+    res.className='form-result warn'; res.textContent='No items found in this date range.';
+    btn.style.display='none'; return;
+  }
+  pendingRemoveIds=matches.map(i=>i.id);
+  res.className='form-result info';
+  res.innerHTML=`Found <strong>${matches.length}</strong> item${matches.length>1?'s':''}:<br>`
+    +matches.map(i=>`• ${i.id.slice(-5)} — ${i.title.slice(0,45)}${i.title.length>45?'…':''}`).join('<br>');
+  btn.style.display='block';
+}
+
+function confirmRemove(){
+  pendingRemoveIds.forEach(id=>{
+    const idx=allItems.findIndex(i=>i.id===id);
+    if(idx>-1) allItems.splice(idx,1);
+    hidden.delete(id);
+  });
+  buildToggles();
+  renderThroughput();
+  redrawAll();
+  closeModal();
+  pendingRemoveIds=[];
 }
 
 // ── FULL REDRAW ────────────────────────────────────────
