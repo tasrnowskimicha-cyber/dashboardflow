@@ -449,6 +449,68 @@ tbody td { padding:9px 12px; color:#c0c8de; }
   font-weight:700; cursor:pointer; transition:opacity .12s;
 }
 .toast-undo:hover { opacity:.8; }
+
+/* ── NAV BOOKMARKS ── */
+.nav-bookmarks {
+  display: flex; gap: 4px; align-items: center;
+}
+.nav-bookmark {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
+  text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted);
+  padding: 5px 12px; border-radius: 5px; border: 1px solid transparent;
+  cursor: pointer; text-decoration: none; transition: color .15s, border-color .15s, background .15s;
+  white-space: nowrap;
+}
+.nav-bookmark:hover { color: var(--text); border-color: var(--border2); background: var(--surf2); }
+.nav-bookmark.active { color: var(--accent); border-color: var(--accent); background: rgba(77,166,255,.07); }
+
+/* ── SECTION ANCHOR HEADING ── */
+.section-heading {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 20px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.section-heading-title { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.4px; }
+.section-heading-title em { font-style:normal; color: var(--accent); }
+.section-heading-sub { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--muted); }
+
+/* ── PBC ── */
+.pbc-legend {
+  display: flex; flex-wrap: wrap; gap: 18px;
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted);
+}
+.pbc-leg { display:flex; align-items:center; gap:7px; }
+.pbc-leg-swatch { width:22px; height:3px; flex-shrink:0; border-radius:2px; }
+.pbc-leg-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.pbc-stats { display:flex; flex-direction:column; gap:10px; }
+.pbc-stat {
+  background:var(--surf2); border:1px solid var(--border); border-radius:6px; padding:12px 14px;
+}
+.pbc-stat::before {
+  content:''; display:block; height:2px; border-radius:1px;
+  background: var(--pbc-col, var(--accent)); margin-bottom:8px;
+}
+.pbc-stat-label {
+  font-family:'IBM Plex Mono',monospace; font-size:0.58rem;
+  text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); margin-bottom:5px;
+}
+.pbc-stat-val { font-size:1.3rem; font-weight:800; line-height:1; }
+.pbc-stat-sub { font-size:0.65rem; color:var(--muted); margin-top:3px; font-family:'IBM Plex Mono',monospace; }
+.signals-list { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+.signal-item {
+  display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border-radius:5px;
+  background:rgba(255,110,180,.06); border:1px solid rgba(255,110,180,.2);
+  font-family:'IBM Plex Mono',monospace; font-size:0.62rem; color:var(--muted);
+}
+.signal-item-dot { width:7px; height:7px; border-radius:50%; background:#ff6eb4; flex-shrink:0; margin-top:2px; }
+.no-signals {
+  padding:12px 14px; border-radius:6px; background:rgba(52,209,122,.05);
+  border:1px solid rgba(52,209,122,.15); font-family:'IBM Plex Mono',monospace;
+  font-size:0.65rem; color:#34d17a;
+}
+
+@media(max-width:1100px) {
   .kpi-row { grid-template-columns:repeat(3,1fr); }
   .row-3 { grid-template-columns:1fr 1fr; }
 }
@@ -464,6 +526,10 @@ tbody td { padding:9px 12px; color:#c0c8de; }
 
 <div class="topbar">
   <h1>Delivery <em>Analytics</em></h1>
+  <nav class="nav-bookmarks">
+    <a class="nav-bookmark active" href="#sec-overview" onclick="setNav(this)">Overview</a>
+    <a class="nav-bookmark" href="#sec-pbc" onclick="setNav(this)">Process Behaviour</a>
+  </nav>
   <div class="topbar-meta">
     SNOW / ØBP Features · PI4-2025 → PI1-2026<br>
     17 items · 15 with full cycle data
@@ -472,6 +538,7 @@ tbody td { padding:9px 12px; color:#c0c8de; }
 
 <div class="page">
 
+  <div id="sec-overview">
   <!-- Toggle panel -->
   <div class="toggle-panel">
     <div class="toggle-panel-header">
@@ -546,6 +613,43 @@ tbody td { padding:9px 12px; color:#c0c8de; }
         </thead>
         <tbody id="tableBody"></tbody>
       </table>
+    </div>
+  </div>
+
+  </div><!-- /sec-overview -->
+
+  <!-- ── PROCESS BEHAVIOUR CHART SECTION ── -->
+  <div id="sec-pbc" style="margin-top:40px; padding-bottom:60px;">
+    <div class="section-heading">
+      <div>
+        <div class="section-heading-title">Process <em>Behaviour</em> Chart</div>
+        <div class="section-heading-sub">XmR chart · individual values + moving range · arithmetic mean · natural process limits (±3σ)</div>
+      </div>
+    </div>
+
+    <!-- Individual Values chart -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="section-label">X chart — individual lead times by close date</div>
+      <svg id="pbc-chart" width="100%" style="display:block"></svg>
+      <div class="pbc-legend">
+        <div class="pbc-leg"><div class="pbc-leg-swatch" style="background:var(--accent)"></div>Lead time (days)</div>
+        <div class="pbc-leg"><div class="pbc-leg-swatch" style="background:#f5c842"></div>Mean x̄</div>
+        <div class="pbc-leg"><div class="pbc-leg-swatch" style="background:rgba(240,79,79,.65)"></div>UCL</div>
+        <div class="pbc-leg"><div class="pbc-leg-swatch" style="background:rgba(52,209,122,.65)"></div>LCL</div>
+        <div class="pbc-leg"><div class="pbc-leg-dot" style="background:#ff6eb4"></div>Signal (beyond limits)</div>
+      </div>
+    </div>
+
+    <!-- Moving Range chart -->
+    <div class="card">
+      <div class="section-label">mR chart — moving range between successive values</div>
+      <svg id="pbc-mr-chart" width="100%" style="display:block"></svg>
+      <div class="pbc-legend">
+        <div class="pbc-leg"><div class="pbc-leg-swatch" style="background:#c084fc"></div>Moving range</div>
+        <div class="pbc-leg"><div class="pbc-leg-swatch" style="background:#f5c842"></div>Mean mR̄</div>
+        <div class="pbc-leg"><div class="pbc-leg-swatch" style="background:rgba(240,79,79,.65)"></div>URL (Upper Range Limit = 3.267 × mR̄)</div>
+        <div class="pbc-leg"><div class="pbc-leg-dot" style="background:#ff6eb4"></div>Signal (above URL)</div>
+      </div>
     </div>
   </div>
 
@@ -1060,9 +1164,6 @@ function openModal(tab){
 }
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('open');
-  pendingRemoveIds=[];
-  document.getElementById('rm-confirm-btn').style.display='none';
-  document.getElementById('rm-preview').className='form-result';
   document.getElementById('add-result').className='form-result';
 }
 document.getElementById('modalOverlay').addEventListener('click',e=>{
@@ -1289,6 +1390,191 @@ function setupSliderDrag(){
   thumbR.addEventListener('touchstart',e=>startDrag(thumbR,false),{passive:true});
 }
 
+// ── PROCESS BEHAVIOUR CHART (XmR) ─────────────────────
+function drawPBC(){
+  const wd = activeWithD().slice().sort((a,b)=>+a.cDate - +b.cDate);
+
+  // ── shared helpers ──
+  const NS='http://www.w3.org/2000/svg';
+  function se(tag,attrs,parent){
+    const e=document.createElementNS(NS,tag);
+    Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+    if(parent)parent.appendChild(e);
+    return e;
+  }
+  const fmtD=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+
+  const xSvg = document.getElementById('pbc-chart');
+  const mSvg = document.getElementById('pbc-mr-chart');
+  if(!xSvg||!mSvg) return;
+
+  function clearSvg(svg, msg){
+    const W=svg.parentElement.clientWidth-44;
+    svg.setAttribute('viewBox',`0 0 ${W} 80`);
+    svg.setAttribute('height',80);
+    svg.innerHTML='';
+    if(msg) se('text',{x:W/2,y:44,'text-anchor':'middle',fill:'#3a4258','font-size':'11'},svg).textContent=msg;
+  }
+
+  if(wd.length < 2){
+    clearSvg(xSvg,'Need at least 2 active items');
+    clearSvg(mSvg,'');
+    return;
+  }
+
+  const vals = wd.map(i=>i.days);
+  const n    = vals.length;
+  const dates = wd.map(i=>+i.cDate);
+
+  // ── statistics ──
+  const mean  = vals.reduce((a,b)=>a+b,0)/n;
+  const mRs   = [];
+  for(let i=1;i<n;i++) mRs.push(Math.abs(vals[i]-vals[i-1]));
+  const mRbar = mRs.reduce((a,b)=>a+b,0)/mRs.length;
+  const d2    = 1.128;
+  const sigma = mRbar/d2;
+  const UCL   = mean + 3*sigma;
+  const LCL   = Math.max(0, mean - 3*sigma);
+  const URL_mr = 3.267 * mRbar;  // D4 constant for n=2
+
+  // shared x scale (same date range for both charts)
+  const dMin = new Date(Math.min(...dates) - 10*86400000);
+  const dMax = new Date(Math.max(...dates) + 10*86400000);
+
+  // ── draw function ──────────────────────────────────────
+  function drawChart(svg, cfg){
+    const {
+      dataPoints,  // [{x:Date, y:number, item, isSignal}]
+      mean: mu, ucl, lcl, yLabel,
+      lineCol, dotCol, signalCol,
+      ucl_label, lcl_label, mean_label,
+    } = cfg;
+
+    const W = svg.parentElement.clientWidth - 44;
+    const H = Math.min(280, Math.max(200, W*0.3));
+    const PL=54, PR=16, PT=28, PB=46;
+    const pw=W-PL-PR, ph=H-PT-PB;
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    svg.setAttribute('height',H);
+    svg.innerHTML='';
+
+    const yMax = Math.max(ucl*1.12, Math.max(...dataPoints.map(p=>p.y))*1.1);
+    const yMin = 0;
+    const scX = d => PL + ((d-dMin)/(dMax-dMin))*pw;
+    const scY = v => PT + ph - ((v-yMin)/(yMax-yMin))*ph;
+
+    // y grid
+    const rawStep = (yMax-yMin)/5;
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const yStep = Math.ceil(rawStep/mag)*mag||10;
+    for(let v=0; v<=yMax+yStep; v+=yStep){
+      const y=scY(v);
+      if(y<PT-2||y>PT+ph+2) continue;
+      se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#1a1e2b','stroke-width':'1'},svg);
+      se('text',{x:PL-6,y:y+4,'text-anchor':'end',fill:'#3a4258','font-size':'9'},svg).textContent=v.toFixed(0)+'d';
+    }
+
+    // x ticks (month bands)
+    const cur=new Date(dMin); cur.setDate(1);
+    while(cur<=dMax){
+      const xB=scX(cur);
+      if(xB>=PL&&xB<=PL+pw) se('line',{x1:xB,y1:PT,x2:xB,y2:PT+ph,stroke:'#1a1e2b','stroke-width':'1'},svg);
+      const next=new Date(cur); next.setMonth(next.getMonth()+1);
+      const xMid=scX(new Date((+cur + +next)/2));
+      if(xMid>=PL&&xMid<=PL+pw)
+        se('text',{x:xMid,y:PT+ph+14,'text-anchor':'middle',fill:'#3a4258','font-size':'9'},svg)
+          .textContent=cur.toLocaleDateString('en-GB',{month:'short',year:'2-digit'});
+      cur.setMonth(cur.getMonth()+1);
+    }
+
+    // axes
+    se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#2a3045','stroke-width':'1.5'},svg);
+    se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#2a3045','stroke-width':'1.5'},svg);
+
+    // y-axis label
+    se('text',{x:12,y:PT+ph/2,'text-anchor':'middle',fill:'#3a4258','font-size':'8',
+      transform:`rotate(-90,12,${PT+ph/2})`},svg).textContent=yLabel;
+
+    // zone fills
+    const yUCL=scY(ucl), yMu=scY(mu), yLCL=scY(lcl>0?lcl:0);
+    se('rect',{x:PL,y:yUCL,width:pw,height:yMu-yUCL,fill:'rgba(240,79,79,.04)'},svg);
+    if(lcl>0) se('rect',{x:PL,y:yMu,width:pw,height:yLCL-yMu,fill:'rgba(52,209,122,.04)'},svg);
+
+    // UCL line
+    se('line',{x1:PL,y1:yUCL,x2:PL+pw,y2:yUCL,stroke:'rgba(240,79,79,.7)','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
+    se('text',{x:PL+5,y:yUCL-5,fill:'rgba(240,79,79,.9)','font-size':'8.5','font-weight':'600'},svg).textContent=`${ucl_label} ${ucl.toFixed(1)}d`;
+
+    // LCL line
+    if(lcl>0){
+      se('line',{x1:PL,y1:yLCL,x2:PL+pw,y2:yLCL,stroke:'rgba(52,209,122,.7)','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
+      se('text',{x:PL+5,y:yLCL+11,fill:'rgba(52,209,122,.9)','font-size':'8.5','font-weight':'600'},svg).textContent=`${lcl_label} ${lcl.toFixed(1)}d`;
+    }
+
+    // Mean line
+    se('line',{x1:PL,y1:yMu,x2:PL+pw,y2:yMu,stroke:'#f5c842','stroke-width':'2'},svg);
+    se('text',{x:PL+5,y:yMu-6,fill:'#f5c842','font-size':'8.5','font-weight':'700'},svg).textContent=`${mean_label} ${mu.toFixed(1)}d`;
+
+    // connecting line
+    const pts=dataPoints.map(p=>`${scX(+p.x)},${scY(p.y)}`).join(' ');
+    se('polyline',{points:pts,fill:'none',stroke:`${lineCol}`,'stroke-width':'1.5',opacity:'0.5'},svg);
+
+    // dots
+    dataPoints.forEach(p=>{
+      const cx=scX(+p.x), cy=scY(p.y);
+      if(p.isSignal) se('circle',{cx,cy,r:13,fill:'rgba(255,110,180,.1)'},svg);
+      const dot=se('circle',{cx,cy,r:p.isSignal?7:5,
+        fill:p.isSignal?signalCol:dotCol,
+        stroke:'#0b0c0f','stroke-width':'1.5',opacity:'0.92',style:'cursor:pointer'},svg);
+      dot.addEventListener('mouseenter',e=>showTip(e,p.tipHtml));
+      dot.addEventListener('mousemove',moveTip);
+      dot.addEventListener('mouseleave',hideTip);
+      if(p.item) dot.addEventListener('click',()=>{ hideTip(); toggleItem(p.item.id); });
+    });
+  }
+
+  // ── X chart (individual values) ──────────────────────
+  const xPoints = wd.map(item=>{
+    const isSignal = item.days>UCL || item.days<LCL;
+    return {
+      x: item.cDate, y: item.days, item, isSignal,
+      tipHtml: `<strong>#${item.id}</strong><br>${item.title}<br><br>Closed: ${fmtD(item.cDate)}<br>Lead time: <strong>${item.days.toFixed(1)}d</strong>${isSignal?'<br><span style="color:#ff6eb4">⚠ Signal: outside control limits</span>':'<br><span style="color:#34d17a">✓ Within limits</span>'}`
+    };
+  });
+
+  drawChart(xSvg, {
+    dataPoints: xPoints,
+    mean: mean, ucl: UCL, lcl: LCL,
+    yLabel: 'Lead time (d)',
+    lineCol: '#4da6ff', dotCol: '#4da6ff', signalCol: '#ff6eb4',
+    ucl_label:'UCL', lcl_label:'LCL', mean_label:'x̄',
+  });
+
+  // ── mR chart (moving range) ───────────────────────────
+  // mR points sit between consecutive items; we place them at the later item's x
+  const mrPoints = mRs.map((mr, i)=>{
+    const item = wd[i+1];
+    const isSignal = mr > URL_mr;
+    return {
+      x: item.cDate, y: mr, item: null, isSignal,
+      tipHtml: `mR between <strong>#${wd[i].id.slice(-5)}</strong> → <strong>#${item.id.slice(-5)}</strong><br>|${wd[i].days.toFixed(1)} − ${item.days.toFixed(1)}| = <strong>${mr.toFixed(1)}d</strong>${isSignal?'<br><span style="color:#ff6eb4">⚠ Signal: above URL</span>':'<br><span style="color:#34d17a">✓ Within URL</span>'}`
+    };
+  });
+
+  drawChart(mSvg, {
+    dataPoints: mrPoints,
+    mean: mRbar, ucl: URL_mr, lcl: 0,
+    yLabel: 'Moving range (d)',
+    lineCol: '#c084fc', dotCol: '#c084fc', signalCol: '#ff6eb4',
+    ucl_label:'URL', lcl_label:'', mean_label:'mR̄',
+  });
+}
+
+// ── NAV BOOKMARKS ──────────────────────────────────────
+function setNav(el){
+  document.querySelectorAll('.nav-bookmark').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
 // ── FULL REDRAW ────────────────────────────────────────
 function redrawAll(){
   renderKPIs();
@@ -1298,6 +1584,7 @@ function redrawAll(){
   drawScatter();
   drawBar();
   drawBox();
+  drawPBC();
 }
 
 // ── INIT ───────────────────────────────────────────────
@@ -1307,7 +1594,7 @@ window.addEventListener('load',()=>{
   redrawAll();
   setupSliderDrag();
 });
-window.addEventListener('resize',()=>{ drawScatter(); drawBar(); drawBox(); });
+window.addEventListener('resize',()=>{ drawScatter(); drawBar(); drawBox(); drawPBC(); });
 </script>
 </body>
 </html>
