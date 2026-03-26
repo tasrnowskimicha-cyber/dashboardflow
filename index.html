@@ -1,1 +1,427 @@
-It works. Thank you Rajesh, you can close the ticket now. 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Time Distribution</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f14;
+    --surface: #15171f;
+    --border: #252836;
+    --text: #e8eaf0;
+    --muted: #6b7080;
+    --small: #4ade80;
+    --medium: #fb923c;
+    --large: #f87171;
+    --p50: #a78bfa;
+    --p85: #60a5fa;
+    --p95: #f472b6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 40px 32px;
+  }
+
+  header {
+    margin-bottom: 36px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  header p {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    margin-top: 6px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+
+  /* Chart area */
+  #chartWrap {
+    position: relative;
+    overflow: visible;
+  }
+
+  svg text { font-family: 'DM Mono', monospace; }
+
+  /* Stats panel */
+  .stats-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #1b1d27;
+    border: 1px solid var(--border);
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+  }
+
+  .stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .legend {
+    margin-top: 24px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-line {
+    width: 24px; height: 2px;
+    flex-shrink: 0;
+    border-top: 2px dashed;
+  }
+
+  .table-wrap {
+    grid-column: 1 / -1;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #1e2030;
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: #1b1d27; }
+
+  tbody td {
+    padding: 9px 12px;
+    color: #c8cad8;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-small  { background: rgba(74,222,128,0.15); color: var(--small); }
+  .badge-medium { background: rgba(251,146,60,0.15);  color: var(--medium); }
+  .badge-large  { background: rgba(248,113,113,0.15); color: var(--large); }
+
+  .no-act { color: #3a3e52; font-style: italic; }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+    .table-wrap { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Lead Time Distribution</h1>
+  <p>Features · Cycle time from activation to closure · 16 items with activation date</p>
+</header>
+
+<div class="grid">
+
+  <!-- Chart -->
+  <div class="card" id="chartWrap">
+    <div class="card-title">Days · ordered by lead time</div>
+    <svg id="chart" width="100%" style="display:block;"></svg>
+  </div>
+
+  <!-- Stats + Legend -->
+  <div style="display:flex;flex-direction:column;gap:24px;">
+    <div class="card">
+      <div class="card-title">Percentiles</div>
+      <div class="stats-grid" id="statsGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Size Legend</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--small)"></div>Small — ≤ 30 days</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--medium)"></div>Medium — 31–90 days</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--large)"></div>Large — &gt; 90 days</div>
+        <div class="legend-item"><div class="legend-line" style="border-color:var(--p50)"></div>P50 median</div>
+        <div class="legend-item"><div class="legend-line" style="border-color:var(--p85)"></div>P85</div>
+        <div class="legend-item"><div class="legend-line" style="border-color:var(--p95)"></div>P95</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card table-wrap">
+    <div class="card-title">All items</div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Activated</th>
+          <th>Closed</th>
+          <th>Days</th>
+          <th>Size</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// ---------- DATA ----------
+const raw = [
+  {id:"1883186", title:"SNOW ØBS BAM integration to ServiceNow PI4-2025",           closed:"12/10/2025 3:16:09 PM",  act:"10/20/2025 11:32:40 AM"},
+  {id:"1966736", title:"SNOW ØBS Analyse connection – Master data FAC SPIKE PI4-2025",closed:"12/10/2025 3:13:42 PM", act:null},
+  {id:"1992979", title:"SNOW ØBS Prio 2 – Form enhancement PI4-2025",                closed:"11/13/2025 8:17:05 AM",  act:"10/20/2025 11:32:49 AM"},
+  {id:"2014194", title:"SNOW 2025 Upgrade testing",                                  closed:"11/7/2025 1:35:57 PM",   act:"10/28/2025 7:21:03 AM"},
+  {id:"2021404", title:"ØBP SNOW Performance Improvement PI4-2025",                  closed:"12/10/2025 3:12:25 PM",  act:"11/12/2025 2:24:59 PM"},
+  {id:"2025233", title:"ØBP SNOW Prio2. List view on material level PI4-2025",       closed:"11/12/2025 2:14:16 PM",  act:"9/17/2025 10:49:40 AM"},
+  {id:"2042364", title:"ØBP SNOW Filters Define & Design PI4-2025",                  closed:"12/10/2025 3:12:19 PM",  act:"10/30/2025 10:26:19 AM"},
+  {id:"2063272", title:"SNOW ØBS Hypercare Master data FAC PI4-2025",                closed:"11/28/2025 8:59:48 AM",  act:"11/24/2025 10:56:56 AM"},
+  {id:"2046522", title:"ØBP SNOW (PAP-IPL) – Multiple contracts for one catalog item",closed:"1/23/2026 9:11:46 AM",  act:"10/24/2025 11:39:49 AM"},
+  {id:"2088452", title:"ØBP SNOW / SAP (PAP-IPL) – BUG PR/PO created several times", closed:"1/19/2026 9:29:40 AM",  act:null},
+  {id:"2025772", title:"ØBP SNOW (PAP-IPL) – Control ID & Short description",        closed:"1/30/2026 12:09:58 PM", act:"12/15/2025 2:11:53 PM"},
+  {id:"1993704", title:"SNOW ØBS (PAP-IPL) – Internal Entities info form Change",     closed:"2/22/2026 3:00:20 PM",  act:"1/30/2026 7:42:36 AM"},
+  {id:"2022796", title:"ØBP SNOW (PAP-IPL) – Bugs & Enhancement PI1-2026 (sprint 1-2)",closed:"2/24/2026 10:44:11 AM",act:"1/30/2026 12:00:21 PM"},
+  {id:"2048806", title:"ØBP SNOW (PAP-IPL) – Material Group not correctly sent SNOW→SAP",closed:"3/9/2026 5:51:26 PM",act:"1/9/2026 9:40:42 AM"},
+  {id:"2055150", title:"SNOW ØBS (PAP-IPL) – Maintain Procurement Master data",      closed:"3/10/2026 9:46:25 AM",  act:"2/3/2026 10:52:42 AM"},
+  {id:"2148024", title:"SNOW ØBS (PAP-IPL) – Add WBS form into production & hypercare",closed:"3/9/2026 7:15:05 AM", act:"1/16/2026 9:09:58 AM"},
+  {id:"2021491", title:"ØBP SNOW (PAP-IPL) – Refinement Search Engine PI4-2025/PI1-2026",closed:"3/18/2026 11:12:30 AM",act:"10/14/2025 2:05:35 PM"},
+];
+
+function parseDate(s) {
+  if (!s) return null;
+  return new Date(s);
+}
+
+function leadDays(a, c) {
+  if (!a || !c) return null;
+  return (c - a) / (1000 * 60 * 60 * 24);
+}
+
+function size(d) {
+  if (d <= 30) return 'small';
+  if (d <= 90) return 'medium';
+  return 'large';
+}
+
+function sizeColor(s) {
+  return s === 'small' ? '#4ade80' : s === 'medium' ? '#fb923c' : '#f87171';
+}
+
+const items = raw.map(r => {
+  const a = parseDate(r.act), c = parseDate(r.closed);
+  const days = leadDays(a, c);
+  return { ...r, aDate: a, cDate: c, days, sz: days != null ? size(days) : null };
+}).sort((a, b) => {
+  if (a.days == null) return 1;
+  if (b.days == null) return -1;
+  return a.days - b.days;
+});
+
+const withDays = items.filter(i => i.days != null).map(i => i.days).sort((a,b)=>a-b);
+
+function percentile(arr, p) {
+  const idx = (p / 100) * (arr.length - 1);
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  return arr[lo] + (arr[hi] - arr[lo]) * (idx - lo);
+}
+
+const p50 = percentile(withDays, 50);
+const p85 = percentile(withDays, 85);
+const p95 = percentile(withDays, 95);
+
+// ---------- STATS ----------
+const statsData = [
+  { label: 'P50 Median',   value: p50,  color: '#a78bfa' },
+  { label: 'P85',          value: p85,  color: '#60a5fa' },
+  { label: 'P95',          value: p95,  color: '#f472b6' },
+  { label: 'Min',          value: Math.min(...withDays), color: '#4ade80' },
+  { label: 'Max',          value: Math.max(...withDays), color: '#f87171' },
+  { label: 'Avg',          value: withDays.reduce((a,b)=>a+b,0)/withDays.length, color: '#94a3b8' },
+];
+
+const sg = document.getElementById('statsGrid');
+statsData.forEach(s => {
+  sg.innerHTML += `<div class="stat-row">
+    <span class="stat-label">${s.label}</span>
+    <span class="stat-value" style="color:${s.color}">${s.value.toFixed(1)} d</span>
+  </div>`;
+});
+
+// ---------- TABLE ----------
+const tb = document.getElementById('tableBody');
+items.forEach(item => {
+  const fmtDate = d => d ? d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+  const daysCell = item.days != null ? `${item.days.toFixed(1)}` : '<span class="no-act">no act. date</span>';
+  const badgeCell = item.sz ? `<span class="badge badge-${item.sz}">${item.sz}</span>` : '—';
+  tb.innerHTML += `<tr>
+    <td>${item.id}</td>
+    <td style="max-width:340px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title}</td>
+    <td>${fmtDate(item.aDate)}</td>
+    <td>${fmtDate(item.cDate)}</td>
+    <td>${daysCell}</td>
+    <td>${badgeCell}</td>
+  </tr>`;
+});
+
+// ---------- SVG CHART ----------
+function drawChart() {
+  const wrap = document.getElementById('chartWrap');
+  const svg  = document.getElementById('chart');
+  const W = wrap.clientWidth - 48;  // card padding
+  const BAR_H = 28, GAP = 8, PAD_LEFT = 60, PAD_RIGHT = 60, PAD_TOP = 16, PAD_BOT = 40;
+  const chartItems = items.filter(i => i.days != null);
+  const H = PAD_TOP + chartItems.length * (BAR_H + GAP) + PAD_BOT;
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+  svg.innerHTML = '';
+
+  const maxD = Math.max(...withDays) * 1.05;
+  const scaleX = d => PAD_LEFT + (d / maxD) * (W - PAD_LEFT - PAD_RIGHT);
+
+  const ns = 'http://www.w3.org/2000/svg';
+
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k, v));
+    parent.appendChild(e);
+    return e;
+  }
+
+  // Grid lines
+  [0, 30, 60, 90, 120, 150, 180].forEach(v => {
+    if (v > maxD) return;
+    const x = scaleX(v);
+    el('line', { x1:x, y1:PAD_TOP, x2:x, y2:H-PAD_BOT, stroke:'#252836', 'stroke-width':'1' }, svg);
+    el('text', { x, y:H-PAD_BOT+14, 'text-anchor':'middle', fill:'#4b5063', 'font-size':'10' }, svg).textContent = v+'d';
+  });
+
+  // Bars
+  chartItems.forEach((item, i) => {
+    const y = PAD_TOP + i * (BAR_H + GAP);
+    const bw = scaleX(item.days) - PAD_LEFT;
+    const col = sizeColor(item.sz);
+
+    // bar bg
+    el('rect', { x:PAD_LEFT, y, width: W - PAD_LEFT - PAD_RIGHT, height:BAR_H, rx:4, fill:'#1b1d27' }, svg);
+    // bar fill
+    el('rect', { x:PAD_LEFT, y, width: Math.max(bw, 4), height:BAR_H, rx:4, fill:col, opacity:'0.85' }, svg);
+
+    // ID label left
+    const idTxt = el('text', { x:PAD_LEFT-6, y:y+BAR_H/2+4, 'text-anchor':'end', fill:'#4b5063', 'font-size':'9' }, svg);
+    idTxt.textContent = item.id.slice(-5);
+
+    // days label right of bar
+    const lx = scaleX(item.days) + 6;
+    const lTxt = el('text', { x:lx, y:y+BAR_H/2+4, fill:col, 'font-size':'10', 'font-weight':'500' }, svg);
+    lTxt.textContent = item.days.toFixed(1) + 'd';
+  });
+
+  // Percentile lines
+  const percents = [
+    { val: p50, color: '#a78bfa', label: 'P50' },
+    { val: p85, color: '#60a5fa', label: 'P85' },
+    { val: p95, color: '#f472b6', label: 'P95' },
+  ];
+
+  percents.forEach(p => {
+    const x = scaleX(p.val);
+    const dashed = el('line', {
+      x1:x, y1:PAD_TOP - 4,
+      x2:x, y2:H - PAD_BOT,
+      stroke: p.color,
+      'stroke-width': '1.5',
+      'stroke-dasharray': '5,4',
+      opacity: '0.9'
+    }, svg);
+
+    // label at top
+    const lbl = el('text', { x, y:PAD_TOP-8, 'text-anchor':'middle', fill:p.color, 'font-size':'10', 'font-weight':'600' }, svg);
+    lbl.textContent = `${p.label} ${p.val.toFixed(0)}d`;
+  });
+}
+
+window.addEventListener('load', drawChart);
+window.addEventListener('resize', drawChart);
+</script>
+</body>
+</html>
