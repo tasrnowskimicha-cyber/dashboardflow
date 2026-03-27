@@ -6,93 +6,79 @@
 <title>DnD System Team — Delivery Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:     #08090c;
-  --surf:   #0f1116;
-  --surf2:  #161820;
-  --border: #1e2130;
-  --bord2:  #262c3e;
-  --text:   #e2e6f4;
-  --muted:  #52596e;
-  --accent: #5b8cff;
-  --green:  #3ecf82;
-  --red:    #f0504f;
-  --purple: #b47fff;
-  --cyan:   #38c9d4;
-  --median: #f5c842;
-  --signal: #ff6eb4;
+:root{
+  --bg:#08090c;--surf:#0f1116;--surf2:#161820;
+  --border:#1e2130;--bord2:#262c3e;
+  --text:#e2e6f4;--muted:#52596e;
+  --accent:#5b8cff;--green:#3ecf82;--red:#f0504f;
+  --purple:#b47fff;--cyan:#38c9d4;--amber:#f5a623;
+  --median:#f5c842;--signal:#ff6eb4;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Familjen Grotesk',sans-serif;min-height:100vh}
 svg text{font-family:'JetBrains Mono',monospace}
 
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:18px 36px 14px;border-bottom:1px solid var(--border);
-  position:sticky;top:0;z-index:50;
-  background:rgba(8,9,12,.94);backdrop-filter:blur(14px);
-}
-.brand{display:flex;align-items:baseline;gap:10px}
-.brand h1{font-size:1.1rem;font-weight:700;letter-spacing:-.4px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 32px 12px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;background:rgba(8,9,12,.94);backdrop-filter:blur(14px)}
+.brand h1{font-size:1.05rem;font-weight:700;letter-spacing:-.4px}
 .brand h1 em{font-style:normal;color:var(--accent)}
-.badge{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);
-  background:var(--surf2);border:1px solid var(--bord2);padding:3px 10px;border-radius:4px;white-space:nowrap}
-.nav{display:flex;gap:2px}
-.nav-a{font-family:'JetBrains Mono',monospace;font-size:0.57rem;text-transform:uppercase;
-  letter-spacing:1.5px;color:var(--muted);padding:5px 12px;border-radius:4px;
+.badge{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted);
+  background:var(--surf2);border:1px solid var(--bord2);padding:2px 8px;border-radius:4px}
+.nav{display:flex;gap:2px;flex-wrap:wrap}
+.nav-a{font-family:'JetBrains Mono',monospace;font-size:0.55rem;text-transform:uppercase;
+  letter-spacing:1.2px;color:var(--muted);padding:4px 10px;border-radius:4px;
   border:1px solid transparent;cursor:pointer;text-decoration:none;
-  transition:color .15s,border-color .15s,background .15s}
+  transition:color .15s,border-color .15s,background .15s;white-space:nowrap}
 .nav-a:hover{color:var(--text);border-color:var(--bord2);background:var(--surf2)}
 .nav-a.active{color:var(--accent);border-color:var(--accent);background:rgba(91,140,255,.07)}
-.topbar-meta{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);text-align:right;line-height:1.9;white-space:nowrap}
+.topbar-meta{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted);text-align:right;line-height:1.8;white-space:nowrap}
 
-.page{padding:26px 36px 80px}
-
-.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:24px}
+.page{padding:24px 32px 80px}
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:22px}
 .kpi{background:var(--surf);border:1px solid var(--border);border-radius:8px;
-  padding:13px 15px 11px;position:relative;overflow:hidden}
+  padding:12px 14px 10px;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--accent))}
-.kpi-lbl{font-family:'JetBrains Mono',monospace;font-size:0.53rem;text-transform:uppercase;
-  letter-spacing:1.5px;color:var(--muted);margin-bottom:6px}
-.kpi-val{font-size:1.45rem;font-weight:700;line-height:1;color:var(--kc,var(--text))}
-.kpi-sub{font-size:0.62rem;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono',monospace}
+.kpi-lbl{font-family:'JetBrains Mono',monospace;font-size:0.52rem;text-transform:uppercase;
+  letter-spacing:1.4px;color:var(--muted);margin-bottom:5px}
+.kpi-val{font-size:1.4rem;font-weight:700;line-height:1;color:var(--kc,var(--text))}
+.kpi-sub{font-size:0.6rem;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono',monospace}
 
-.section{margin-bottom:36px}
-.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;
-  padding-bottom:12px;border-bottom:1px solid var(--border)}
-.sec-title{font-size:.95rem;font-weight:700;letter-spacing:-.3px}
+.section{margin-bottom:32px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;
+  padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sec-title{font-size:.9rem;font-weight:700;letter-spacing:-.3px}
 .sec-title em{font-style:normal;color:var(--accent)}
-.sec-sub{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted)}
+.sec-sub{font-family:'JetBrains Mono',monospace;font-size:0.56rem;color:var(--muted)}
 
-.card{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:14px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:12px}
 .card:last-child{margin-bottom:0}
-.card-lbl{font-family:'JetBrains Mono',monospace;font-size:0.56rem;text-transform:uppercase;
-  letter-spacing:2px;color:var(--muted);margin-bottom:14px}
+.card-lbl{font-family:'JetBrains Mono',monospace;font-size:0.54rem;text-transform:uppercase;
+  letter-spacing:2px;color:var(--muted);margin-bottom:12px}
 
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-.leg{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted)}
-.leg-sw{width:18px;height:3px;border-radius:2px;flex-shrink:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.leg{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted)}
+.leg-sw{width:16px;height:3px;border-radius:2px;flex-shrink:0}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.leg-dash{width:18px;height:0;border-top:2px dashed;flex-shrink:0}
+.leg-dash{width:16px;height:0;border-top:2px dashed;flex-shrink:0}
 
-/* method note */
-.method-note{
-  display:flex;align-items:flex-start;gap:10px;
+.note{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);
   background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.15);
-  border-radius:6px;padding:10px 14px;margin-bottom:14px;
-  font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted);line-height:1.6;
-}
-.method-note strong{color:var(--median)}
+  border-radius:5px;padding:8px 12px;margin-bottom:12px;line-height:1.6}
+.note strong{color:var(--median)}
 
 #tip{position:fixed;background:#13161e;border:1px solid var(--bord2);color:var(--text);
-  padding:10px 14px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:0.62rem;
-  pointer-events:none;opacity:0;transition:opacity .12s;max-width:290px;line-height:1.75;
-  z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.65)}
+  padding:9px 13px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:0.61rem;
+  pointer-events:none;opacity:0;transition:opacity .12s;max-width:280px;line-height:1.7;
+  z-index:200;box-shadow:0 8px 28px rgba(0,0,0,.65)}
 #tip.on{opacity:1}
 
-@media(max-width:1000px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:680px){.kpi-row{grid-template-columns:repeat(2,1fr)};.page{padding:14px 16px};.topbar{padding:12px 14px;flex-wrap:wrap}}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.kpi-row{grid-template-columns:repeat(2,1fr)};.row2,.row3{grid-template-columns:1fr};.page{padding:14px 14px}}
 </style>
 </head>
 <body>
@@ -100,93 +86,136 @@ svg text{font-family:'JetBrains Mono',monospace}
 <div class="topbar">
   <div class="brand">
     <h1>DnD <em>System Team</em></h1>
-    <span class="badge">User Story · Bug · Task · Issue</span>
+    <span class="badge">US · Bug · Task · Issue</span>
   </div>
   <nav class="nav">
-    <a class="nav-a active" href="#daily" onclick="setNav(this)">Throughput dzienny</a>
-    <a class="nav-a" href="#throughput" onclick="setNav(this)">Throughput tygodniowy</a>
-    <a class="nav-a" href="#pbc" onclick="setNav(this)">Process Behaviour</a>
+    <a class="nav-a active" href="#daily"      onclick="setNav(this)">Dzienny</a>
+    <a class="nav-a"        href="#weekly"     onclick="setNav(this)">Tygodniowy</a>
+    <a class="nav-a"        href="#pbc"        onclick="setNav(this)">Process Behaviour</a>
+    <a class="nav-a"        href="#signals"    onclick="setNav(this)">Sygnały</a>
   </nav>
-  <div class="topbar-meta">494 items · Oct 2025 – Mar 2026<br>Feature &amp; Objective excluded</div>
+  <div class="topbar-meta">494 items · Paź 2025 – Mar 2026<br>Feature &amp; Objective wykluczone</div>
 </div>
 
 <div class="page">
 
   <div class="kpi-row" id="kpiRow"></div>
 
-  <!-- ── DAILY THROUGHPUT ── -->
+  <!-- ── 1. DZIENNY THROUGHPUT ── -->
   <div class="section" id="daily">
     <div class="sec-head">
       <div class="sec-title">Throughput <em>dzienny</em></div>
-      <div class="sec-sub">liczba elementów zamkniętych każdego dnia · Feature &amp; Objective wykluczone · dni bez zamknięć = 0</div>
+      <div class="sec-sub">liczba elementów zamkniętych każdego dnia roboczego (Pn–Pt) · bez weekendów</div>
     </div>
     <div class="card">
-      <div class="card-lbl">Items closed per day — 30 Sep 2025 → 27 Mar 2026 (179 dni)</div>
+      <div class="card-lbl">Items closed per working day — 129 dni roboczych (30 Sep 2025 → 27 Mar 2026)</div>
       <svg id="daily-svg" width="100%" style="display:block"></svg>
       <div class="legend">
         <div class="leg"><div class="leg-sw" style="background:var(--accent)"></div>User Story</div>
         <div class="leg"><div class="leg-sw" style="background:var(--red)"></div>Bug</div>
         <div class="leg"><div class="leg-sw" style="background:var(--purple)"></div>Task</div>
         <div class="leg"><div class="leg-sw" style="background:var(--cyan)"></div>Issue</div>
-        <div class="leg" style="margin-left:auto"><span style="color:var(--muted);font-size:0.58rem">Weekend = szary pas</span></div>
+        <div class="leg"><div class="leg-dash" style="border-color:var(--median)"></div>Mediana x̃ = 3</div>
+        <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.6)"></div>UCL = 8.3</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--signal)"></div>Sygnał</div>
       </div>
     </div>
   </div>
 
-  <!-- ── WEEKLY THROUGHPUT ── -->
-  <div class="section" id="throughput">
+  <!-- ── 2. TYGODNIOWY THROUGHPUT ── -->
+  <div class="section" id="weekly">
     <div class="sec-head">
-      <div class="sec-title">Throughput <em>Chart</em></div>
-      <div class="sec-sub">daily completions aggregated to weekly (Mon–Sun) · Feature &amp; Objective excluded · stacked by type</div>
+      <div class="sec-title">Throughput <em>tygodniowy</em></div>
+      <div class="sec-sub">agregacja dzienna → tygodniowa (Pn–Nd) · 26 tygodni</div>
     </div>
     <div class="card">
-      <div class="card-lbl">Items closed per week — 26 weeks · Oct 2025 → Mar 2026</div>
-      <svg id="tp-svg" width="100%" style="display:block"></svg>
+      <div class="card-lbl">Items closed per week</div>
+      <svg id="weekly-svg" width="100%" style="display:block"></svg>
       <div class="legend">
         <div class="leg"><div class="leg-sw" style="background:var(--accent)"></div>User Story</div>
         <div class="leg"><div class="leg-sw" style="background:var(--red)"></div>Bug</div>
         <div class="leg"><div class="leg-sw" style="background:var(--purple)"></div>Task</div>
         <div class="leg"><div class="leg-sw" style="background:var(--cyan)"></div>Issue</div>
-        <div class="leg"><div class="leg-dash" style="border-color:var(--median)"></div>Median x̃</div>
+        <div class="leg"><div class="leg-dash" style="border-color:var(--median)"></div>Mediana x̃ = 20</div>
       </div>
     </div>
   </div>
 
-  <!-- ── PBC ── -->
+  <!-- ── 3. PROCESS BEHAVIOUR (XmR) ── -->
   <div class="section" id="pbc">
     <div class="sec-head">
-      <div class="sec-title">Process <em>Behaviour</em> Chart</div>
-      <div class="sec-sub">XmR · median-based centre line · natural process limits x̃ ± 3σ where σ = median(mR) / d₂</div>
+      <div class="sec-title">Process <em>Behaviour</em> Chart (XmR)</div>
+      <div class="sec-sub">oparty o mediany · x̃ ± 3σ gdzie σ = mR̃/d₂, d₂=1.128 · tygodniowe wartości</div>
     </div>
-
-    <div class="method-note">
-      <span>📐</span>
-      <span>
-        <strong>Median-based XmR:</strong> Centre lines use <strong>x̃</strong> (median of weekly totals) and <strong>mR̃</strong> (median of moving ranges) instead of arithmetic means — more robust to extreme values.
-        σ = mR̃ / d₂ (d₂ = 1.128) · UCL = x̃ + 3σ · LCL = max(0, x̃ − 3σ) · URL = D₄ × mR̃ (D₄ = 3.267)
-      </span>
-    </div>
-
+    <div class="note"><strong>Medianowe limity:</strong> centrum = mediana x̃ i mR̃ (odporniejsze na wartości skrajne niż średnia arytmetyczna) · UCL = x̃ + 3σ · LCL = max(0, x̃ − 3σ) · URL = 3.267 × mR̃</div>
     <div class="card">
-      <div class="card-lbl">X chart — weekly throughput vs natural process limits</div>
+      <div class="card-lbl">X chart — tygodniowy throughput vs granice naturalne</div>
       <svg id="x-svg" width="100%" style="display:block"></svg>
       <div class="legend">
-        <div class="leg"><div class="leg-sw" style="background:var(--accent)"></div>Weekly throughput</div>
-        <div class="leg"><div class="leg-sw" style="background:var(--median)"></div>Median x̃ = 20</div>
-        <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.75)"></div>UCL = x̃ + 3σ = 38.6</div>
-        <div class="leg"><div class="leg-sw" style="background:rgba(62,207,130,.75)"></div>LCL = x̃ − 3σ = 1.4</div>
-        <div class="leg"><div class="leg-dot" style="background:var(--signal)"></div>Signal — beyond limits</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--accent)"></div>Tygodniowy throughput</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--median)"></div>Mediana x̃ = 20.0</div>
+        <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.75)"></div>UCL = 38.6</div>
+        <div class="leg"><div class="leg-sw" style="background:rgba(62,207,130,.75)"></div>LCL = 1.4</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--signal)"></div>Sygnał</div>
       </div>
     </div>
-
     <div class="card">
-      <div class="card-lbl">mR chart — moving range |xᵢ − xᵢ₋₁| vs upper range limit</div>
+      <div class="card-lbl">mR chart — zakres ruchomy |xᵢ − xᵢ₋₁|</div>
       <svg id="mr-svg" width="100%" style="display:block"></svg>
       <div class="legend">
         <div class="leg"><div class="leg-sw" style="background:var(--purple)"></div>Moving range</div>
-        <div class="leg"><div class="leg-sw" style="background:var(--median)"></div>Median mR̃ = 7</div>
-        <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.75)"></div>URL = D₄ × mR̃ = 22.9</div>
-        <div class="leg"><div class="leg-dot" style="background:var(--signal)"></div>Signal — above URL</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--median)"></div>Mediana mR̃ = 7.0</div>
+        <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.75)"></div>URL = 22.9</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--signal)"></div>Sygnał</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. SYGNAŁY – dodatkowe wykresy ── -->
+  <div class="section" id="signals">
+    <div class="sec-head">
+      <div class="sec-title">Dodatkowe <em>sygnały</em></div>
+      <div class="sec-sub">rolling average · rozkład dzienny (dzień tygodnia) · skład typów w czasie</div>
+    </div>
+
+    <!-- 4a. Rolling 5-day average -->
+    <div class="card">
+      <div class="card-lbl">Rolling 5-dniowa średnia throughputu (dni robocze) — wygładza szum, pokazuje trendy</div>
+      <svg id="roll-svg" width="100%" style="display:block"></svg>
+      <div class="legend">
+        <div class="leg"><div class="leg-sw" style="background:rgba(91,140,255,.35)"></div>Dzienny throughput</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--amber)"></div>Rolling avg 5 dni</div>
+        <div class="leg"><div class="leg-dash" style="border-color:var(--median)"></div>Mediana x̃ = 3</div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <!-- 4b. Day-of-week heatmap (barchart) -->
+      <div class="card">
+        <div class="card-lbl">Throughput wg dnia tygodnia — gdzie zamykamy najwięcej?</div>
+        <svg id="dow-svg" width="100%" style="display:block"></svg>
+      </div>
+
+      <!-- 4c. Zero-day streaks / delivery gaps -->
+      <div class="card">
+        <div class="card-lbl">Dni bez deliveries (zero throughput) — luki w dostarczaniu</div>
+        <svg id="zero-svg" width="100%" style="display:block"></svg>
+        <div class="legend">
+          <div class="leg"><div class="leg-sw" style="background:var(--red);opacity:.7"></div>Dzień bez zamknięcia</div>
+          <div class="leg"><div class="leg-sw" style="background:var(--green);opacity:.7"></div>Dzień z dostarczeniem</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4d. Type composition over time (100% stacked) -->
+    <div class="card">
+      <div class="card-lbl">Skład typów w czasie (% tygodniowy) — czy rośnie udział Issues/Bugów?</div>
+      <svg id="comp-svg" width="100%" style="display:block"></svg>
+      <div class="legend">
+        <div class="leg"><div class="leg-sw" style="background:var(--accent)"></div>User Story</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--red)"></div>Bug</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--purple)"></div>Task</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--cyan)"></div>Issue</div>
       </div>
     </div>
   </div>
@@ -196,516 +225,295 @@ svg text{font-family:'JetBrains Mono',monospace}
 <div id="tip"></div>
 
 <script>
-// ── DATA: daily closed dates aggregated to weekly (Mon-based), Feature & Objective excluded
-const weeks = [
-  {w:'2025-09-29',total:7,  'User Story':6,  Bug:0, Task:1, Issue:0},
-  {w:'2025-10-06',total:11, 'User Story':11, Bug:0, Task:0, Issue:0},
-  {w:'2025-10-13',total:16, 'User Story':15, Bug:0, Task:1, Issue:0},
-  {w:'2025-10-20',total:18, 'User Story':18, Bug:0, Task:0, Issue:0},
-  {w:'2025-10-27',total:22, 'User Story':21, Bug:1, Task:0, Issue:0},
-  {w:'2025-11-03',total:23, 'User Story':21, Bug:1, Task:1, Issue:0},
-  {w:'2025-11-10',total:10, 'User Story':7,  Bug:0, Task:3, Issue:0},
-  {w:'2025-11-17',total:15, 'User Story':13, Bug:1, Task:1, Issue:0},
-  {w:'2025-11-24',total:15, 'User Story':14, Bug:0, Task:1, Issue:0},
-  {w:'2025-12-01',total:22, 'User Story':19, Bug:0, Task:3, Issue:0},
-  {w:'2025-12-08',total:21, 'User Story':16, Bug:2, Task:3, Issue:0},
-  {w:'2025-12-15',total:31, 'User Story':26, Bug:4, Task:1, Issue:0},
-  {w:'2025-12-22',total:5,  'User Story':5,  Bug:0, Task:0, Issue:0},
-  {w:'2025-12-29',total:6,  'User Story':6,  Bug:0, Task:0, Issue:0},
-  {w:'2026-01-05',total:8,  'User Story':6,  Bug:2, Task:0, Issue:0},
-  {w:'2026-01-12',total:24, 'User Story':22, Bug:0, Task:2, Issue:0},
-  {w:'2026-01-19',total:19, 'User Story':18, Bug:0, Task:1, Issue:0},
-  {w:'2026-01-26',total:31, 'User Story':26, Bug:1, Task:4, Issue:0},
-  {w:'2026-02-02',total:29, 'User Story':27, Bug:1, Task:1, Issue:0},
-  {w:'2026-02-09',total:21, 'User Story':18, Bug:1, Task:2, Issue:0},
-  {w:'2026-02-16',total:13, 'User Story':13, Bug:0, Task:0, Issue:0},
-  {w:'2026-02-23',total:34, 'User Story':31, Bug:0, Task:0, Issue:3},
-  {w:'2026-03-02',total:25, 'User Story':13, Bug:0, Task:1, Issue:11},
-  {w:'2026-03-09',total:35, 'User Story':17, Bug:0, Task:1, Issue:17},
-  {w:'2026-03-16',total:26, 'User Story':17, Bug:0, Task:0, Issue:9},
-  {w:'2026-03-23',total:7,  'User Story':2,  Bug:0, Task:0, Issue:5},
-];
+// ── DANE DZIENNE (tylko dni robocze Pn-Pt) ──────────────────────────────────
+const days=[{"day":"2025-09-30","dow":"Tue","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-01","dow":"Wed","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-02","dow":"Thu","total":4,"User Story":4,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-03","dow":"Fri","total":2,"User Story":1,"Bug":0,"Task":1,"Issue":0},{"day":"2025-10-06","dow":"Mon","total":6,"User Story":6,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-07","dow":"Tue","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-08","dow":"Wed","total":2,"User Story":2,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-09","dow":"Thu","total":2,"User Story":2,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-10","dow":"Fri","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-13","dow":"Mon","total":4,"User Story":4,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-14","dow":"Tue","total":2,"User Story":2,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-15","dow":"Wed","total":2,"User Story":1,"Bug":0,"Task":1,"Issue":0},{"day":"2025-10-16","dow":"Thu","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-17","dow":"Fri","total":8,"User Story":8,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-20","dow":"Mon","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-21","dow":"Tue","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-22","dow":"Wed","total":8,"User Story":8,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-23","dow":"Thu","total":2,"User Story":2,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-24","dow":"Fri","total":7,"User Story":7,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-27","dow":"Mon","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-28","dow":"Tue","total":5,"User Story":5,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-29","dow":"Wed","total":3,"User Story":2,"Bug":1,"Task":0,"Issue":0},{"day":"2025-10-30","dow":"Thu","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2025-10-31","dow":"Fri","total":8,"User Story":8,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-03","dow":"Mon","total":13,"User Story":13,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-04","dow":"Tue","total":4,"User Story":4,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-05","dow":"Wed","total":2,"User Story":2,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-06","dow":"Thu","total":2,"User Story":1,"Bug":0,"Task":1,"Issue":0},{"day":"2025-11-07","dow":"Fri","total":2,"User Story":1,"Bug":1,"Task":0,"Issue":0},{"day":"2025-11-10","dow":"Mon","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-11","dow":"Tue","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-12","dow":"Wed","total":5,"User Story":4,"Bug":0,"Task":1,"Issue":0},{"day":"2025-11-13","dow":"Thu","total":3,"User Story":2,"Bug":0,"Task":1,"Issue":0},{"day":"2025-11-14","dow":"Fri","total":2,"User Story":1,"Bug":0,"Task":1,"Issue":0},{"day":"2025-11-17","dow":"Mon","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-18","dow":"Tue","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-19","dow":"Wed","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-20","dow":"Thu","total":9,"User Story":7,"Bug":1,"Task":1,"Issue":0},{"day":"2025-11-21","dow":"Fri","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-24","dow":"Mon","total":7,"User Story":7,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-25","dow":"Tue","total":4,"User Story":4,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-26","dow":"Wed","total":2,"User Story":2,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-27","dow":"Thu","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-11-28","dow":"Fri","total":2,"User Story":1,"Bug":0,"Task":1,"Issue":0},{"day":"2025-12-01","dow":"Mon","total":4,"User Story":3,"Bug":0,"Task":1,"Issue":0},{"day":"2025-12-02","dow":"Tue","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-03","dow":"Wed","total":13,"User Story":12,"Bug":0,"Task":1,"Issue":0},{"day":"2025-12-04","dow":"Thu","total":2,"User Story":1,"Bug":0,"Task":1,"Issue":0},{"day":"2025-12-05","dow":"Fri","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-08","dow":"Mon","total":6,"User Story":4,"Bug":2,"Task":0,"Issue":0},{"day":"2025-12-09","dow":"Tue","total":5,"User Story":4,"Bug":0,"Task":1,"Issue":0},{"day":"2025-12-10","dow":"Wed","total":3,"User Story":2,"Bug":0,"Task":1,"Issue":0},{"day":"2025-12-11","dow":"Thu","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-12","dow":"Fri","total":6,"User Story":5,"Bug":0,"Task":1,"Issue":0},{"day":"2025-12-15","dow":"Mon","total":14,"User Story":11,"Bug":2,"Task":1,"Issue":0},{"day":"2025-12-16","dow":"Tue","total":4,"User Story":4,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-17","dow":"Wed","total":6,"User Story":6,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-18","dow":"Thu","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-19","dow":"Fri","total":6,"User Story":4,"Bug":2,"Task":0,"Issue":0},{"day":"2025-12-22","dow":"Mon","total":5,"User Story":5,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-23","dow":"Tue","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-24","dow":"Wed","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-25","dow":"Thu","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-26","dow":"Fri","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-29","dow":"Mon","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-30","dow":"Tue","total":4,"User Story":4,"Bug":0,"Task":0,"Issue":0},{"day":"2025-12-31","dow":"Wed","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-01","dow":"Thu","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-02","dow":"Fri","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-05","dow":"Mon","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-06","dow":"Tue","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-07","dow":"Wed","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-08","dow":"Thu","total":2,"User Story":1,"Bug":1,"Task":0,"Issue":0},{"day":"2026-01-09","dow":"Fri","total":2,"User Story":1,"Bug":1,"Task":0,"Issue":0},{"day":"2026-01-12","dow":"Mon","total":9,"User Story":7,"Bug":0,"Task":2,"Issue":0},{"day":"2026-01-13","dow":"Tue","total":5,"User Story":5,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-14","dow":"Wed","total":6,"User Story":6,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-15","dow":"Thu","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-16","dow":"Fri","total":4,"User Story":4,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-19","dow":"Mon","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-20","dow":"Tue","total":6,"User Story":5,"Bug":0,"Task":1,"Issue":0},{"day":"2026-01-21","dow":"Wed","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-22","dow":"Thu","total":7,"User Story":7,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-23","dow":"Fri","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-26","dow":"Mon","total":6,"User Story":5,"Bug":0,"Task":1,"Issue":0},{"day":"2026-01-27","dow":"Tue","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2026-01-28","dow":"Wed","total":7,"User Story":6,"Bug":1,"Task":0,"Issue":0},{"day":"2026-01-29","dow":"Thu","total":6,"User Story":5,"Bug":0,"Task":1,"Issue":0},{"day":"2026-01-30","dow":"Fri","total":11,"User Story":9,"Bug":0,"Task":2,"Issue":0},{"day":"2026-02-02","dow":"Mon","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-03","dow":"Tue","total":7,"User Story":6,"Bug":1,"Task":0,"Issue":0},{"day":"2026-02-04","dow":"Wed","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-05","dow":"Thu","total":8,"User Story":8,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-06","dow":"Fri","total":10,"User Story":9,"Bug":0,"Task":1,"Issue":0},{"day":"2026-02-09","dow":"Mon","total":6,"User Story":5,"Bug":1,"Task":0,"Issue":0},{"day":"2026-02-10","dow":"Tue","total":5,"User Story":5,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-11","dow":"Wed","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-12","dow":"Thu","total":6,"User Story":4,"Bug":0,"Task":2,"Issue":0},{"day":"2026-02-13","dow":"Fri","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-16","dow":"Mon","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-17","dow":"Tue","total":5,"User Story":5,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-18","dow":"Wed","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-19","dow":"Thu","total":1,"User Story":1,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-20","dow":"Fri","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-23","dow":"Mon","total":12,"User Story":12,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-24","dow":"Tue","total":8,"User Story":7,"Bug":0,"Task":0,"Issue":1},{"day":"2026-02-25","dow":"Wed","total":4,"User Story":4,"Bug":0,"Task":0,"Issue":0},{"day":"2026-02-26","dow":"Thu","total":7,"User Story":5,"Bug":0,"Task":0,"Issue":2},{"day":"2026-02-27","dow":"Fri","total":3,"User Story":3,"Bug":0,"Task":0,"Issue":0},{"day":"2026-03-02","dow":"Mon","total":6,"User Story":3,"Bug":0,"Task":1,"Issue":2},{"day":"2026-03-03","dow":"Tue","total":8,"User Story":4,"Bug":0,"Task":0,"Issue":4},{"day":"2026-03-04","dow":"Wed","total":6,"User Story":4,"Bug":0,"Task":0,"Issue":2},{"day":"2026-03-05","dow":"Thu","total":2,"User Story":1,"Bug":0,"Task":0,"Issue":1},{"day":"2026-03-06","dow":"Fri","total":3,"User Story":1,"Bug":0,"Task":0,"Issue":2},{"day":"2026-03-09","dow":"Mon","total":9,"User Story":5,"Bug":0,"Task":1,"Issue":3},{"day":"2026-03-10","dow":"Tue","total":6,"User Story":6,"Bug":0,"Task":0,"Issue":0},{"day":"2026-03-11","dow":"Wed","total":6,"User Story":2,"Bug":0,"Task":0,"Issue":4},{"day":"2026-03-12","dow":"Thu","total":8,"User Story":3,"Bug":0,"Task":0,"Issue":5},{"day":"2026-03-13","dow":"Fri","total":6,"User Story":1,"Bug":0,"Task":0,"Issue":5},{"day":"2026-03-16","dow":"Mon","total":5,"User Story":2,"Bug":0,"Task":0,"Issue":3},{"day":"2026-03-17","dow":"Tue","total":3,"User Story":1,"Bug":0,"Task":0,"Issue":2},{"day":"2026-03-18","dow":"Wed","total":8,"User Story":6,"Bug":0,"Task":0,"Issue":2},{"day":"2026-03-19","dow":"Thu","total":10,"User Story":8,"Bug":0,"Task":0,"Issue":2},{"day":"2026-03-20","dow":"Fri","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2026-03-23","dow":"Mon","total":0,"User Story":0,"Bug":0,"Task":0,"Issue":0},{"day":"2026-03-24","dow":"Tue","total":2,"User Story":2,"Bug":0,"Task":0,"Issue":0},{"day":"2026-03-25","dow":"Wed","total":1,"User Story":0,"Bug":0,"Task":0,"Issue":1},{"day":"2026-03-26","dow":"Thu","total":3,"User Story":0,"Bug":0,"Task":0,"Issue":3},{"day":"2026-03-27","dow":"Fri","total":1,"User Story":0,"Bug":0,"Task":0,"Issue":1}];
 
-const TYPE_ORDER = ['User Story','Bug','Task','Issue'];
-const TYPE_COL   = {'User Story':'#5b8cff', Bug:'#f0504f', Task:'#b47fff', Issue:'#38c9d4'};
+// ── DANE TYGODNIOWE ──────────────────────────────────────────────────────────
+const weeks=[{w:'2025-09-29',total:7,'User Story':6,Bug:0,Task:1,Issue:0},{w:'2025-10-06',total:11,'User Story':11,Bug:0,Task:0,Issue:0},{w:'2025-10-13',total:16,'User Story':15,Bug:0,Task:1,Issue:0},{w:'2025-10-20',total:18,'User Story':18,Bug:0,Task:0,Issue:0},{w:'2025-10-27',total:22,'User Story':21,Bug:1,Task:0,Issue:0},{w:'2025-11-03',total:23,'User Story':21,Bug:1,Task:1,Issue:0},{w:'2025-11-10',total:10,'User Story':7,Bug:0,Task:3,Issue:0},{w:'2025-11-17',total:15,'User Story':13,Bug:1,Task:1,Issue:0},{w:'2025-11-24',total:15,'User Story':14,Bug:0,Task:1,Issue:0},{w:'2025-12-01',total:22,'User Story':19,Bug:0,Task:3,Issue:0},{w:'2025-12-08',total:21,'User Story':16,Bug:2,Task:3,Issue:0},{w:'2025-12-15',total:31,'User Story':26,Bug:4,Task:1,Issue:0},{w:'2025-12-22',total:5,'User Story':5,Bug:0,Task:0,Issue:0},{w:'2025-12-29',total:6,'User Story':6,Bug:0,Task:0,Issue:0},{w:'2026-01-05',total:8,'User Story':6,Bug:2,Task:0,Issue:0},{w:'2026-01-12',total:24,'User Story':22,Bug:0,Task:2,Issue:0},{w:'2026-01-19',total:19,'User Story':18,Bug:0,Task:1,Issue:0},{w:'2026-01-26',total:31,'User Story':26,Bug:1,Task:4,Issue:0},{w:'2026-02-02',total:29,'User Story':27,Bug:1,Task:1,Issue:0},{w:'2026-02-09',total:21,'User Story':18,Bug:1,Task:2,Issue:0},{w:'2026-02-16',total:13,'User Story':13,Bug:0,Task:0,Issue:0},{w:'2026-02-23',total:34,'User Story':31,Bug:0,Task:0,Issue:3},{w:'2026-03-02',total:25,'User Story':13,Bug:0,Task:1,Issue:11},{w:'2026-03-09',total:35,'User Story':17,Bug:0,Task:1,Issue:17},{w:'2026-03-16',total:26,'User Story':17,Bug:0,Task:0,Issue:9},{w:'2026-03-23',total:7,'User Story':2,Bug:0,Task:0,Issue:5}];
 
-// ── Median helper ─────────────────────────────────────────────────────────────
-function median(arr){
-  const s=[...arr].sort((a,b)=>a-b), n=s.length;
-  return n%2===1 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2;
-}
+const TYPE_ORDER=['User Story','Bug','Task','Issue'];
+const TYPE_COL={'User Story':'#5b8cff',Bug:'#f0504f',Task:'#b47fff',Issue:'#38c9d4'};
 
-// ── Statistics (MEDIAN-based) ─────────────────────────────────────────────────
-const counts  = weeks.map(w=>w.total);
-const N       = counts.length;
-const medX    = median(counts);                    // x̃
-const mRs     = counts.slice(1).map((v,i)=>Math.abs(v-counts[i]));
-const medMR   = median(mRs);                       // mR̃
-const d2      = 1.128, D4 = 3.267;
-const sigma   = medMR / d2;
-const UCL     = medX + 3*sigma;
-const LCL     = Math.max(0, medX - 3*sigma);
-const URL     = D4 * medMR;
+// ── STATYSTYKI ───────────────────────────────────────────────────────────────
+function med(arr){const s=[...arr].sort((a,b)=>a-b),n=s.length;return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2;}
 
-const xSigs   = weeks.filter(w=>w.total>UCL||w.total<LCL).length;
-const mrSigs  = mRs.filter(mr=>mr>URL).length;
-const total   = counts.reduce((a,b)=>a+b,0);
+// Daily (workdays)
+const dailyTotals=days.map(d=>d.total);
+const medD=med(dailyTotals);
+const mRsD=dailyTotals.slice(1).map((v,i)=>Math.abs(v-dailyTotals[i]));
+const medMRD=med(mRsD);
+const sigD=medMRD/1.128;
+const UCLD=medD+3*sigD, LCLD=Math.max(0,medD-3*sigD), URLD=3.267*medMRD;
 
-// ── KPIs ──────────────────────────────────────────────────────────────────────
-document.getElementById('kpiRow').innerHTML = [
-  {lbl:'Total Items',   val:total,           sub:'excl. Feature & Objective', c:'#5b8cff'},
-  {lbl:'Weeks',         val:N,               sub:'Oct 2025 – Mar 2026',       c:'#38c9d4'},
-  {lbl:'Median x̃',     val:medX.toFixed(1), sub:'items / week (median)',      c:'#f5c842'},
-  {lbl:'UCL',           val:UCL.toFixed(1),  sub:'x̃ + 3σ',                  c:'#f0504f'},
-  {lbl:'LCL',           val:LCL.toFixed(1),  sub:'x̃ − 3σ (floor 0)',         c:'#3ecf82'},
-  {lbl:'Signals X',     val:xSigs,           sub:'weeks beyond limits',        c:xSigs>0?'#ff6eb4':'#3ecf82'},
-].map(k=>`<div class="kpi" style="--kc:${k.c}">
-  <div class="kpi-lbl">${k.lbl}</div>
-  <div class="kpi-val">${k.val}</div>
-  <div class="kpi-sub">${k.sub}</div>
-</div>`).join('');
+// Weekly
+const wkTotals=weeks.map(w=>w.total);
+const medW=med(wkTotals);
+const mRsW=wkTotals.slice(1).map((v,i)=>Math.abs(v-wkTotals[i]));
+const medMRW=med(mRsW);
+const sigW=medMRW/1.128;
+const UCLW=medW+3*sigW, LCLW=Math.max(0,medW-3*sigW), URLW=3.267*medMRW;
 
-// ── SVG helpers ───────────────────────────────────────────────────────────────
+const xSigsW=weeks.filter(w=>w.total>UCLW||w.total<LCLW).length;
+const mrSigsW=mRsW.filter(mr=>mr>URLW).length;
+const xSigsD=days.filter(d=>d.total>UCLD||(LCLD>0&&d.total<LCLD)).length;
+const totalItems=dailyTotals.reduce((a,b)=>a+b,0);
+
+// ── KPIs ─────────────────────────────────────────────────────────────────────
+document.getElementById('kpiRow').innerHTML=[
+  {lbl:'Total Items',    val:totalItems,          sub:'494 · excl. Feature/Obj',   c:'#5b8cff'},
+  {lbl:'Dni robocze',    val:days.length,          sub:'129 Pn–Pt',                 c:'#38c9d4'},
+  {lbl:'Mediana dzienna',val:medD.toFixed(1),      sub:'x̃ / dzień roboczy',        c:'#f5c842'},
+  {lbl:'UCL dzienny',    val:UCLD.toFixed(1),      sub:'x̃ + 3σ',                  c:'#f0504f'},
+  {lbl:'Mediana tyg.',   val:medW.toFixed(1),      sub:'x̃ / tydzień',             c:'#f5c842'},
+  {lbl:'Sygnały X (tyg)',val:xSigsW,               sub:'tygodnie poza granicami',   c:xSigsW>0?'#ff6eb4':'#3ecf82'},
+].map(k=>`<div class="kpi" style="--kc:${k.c}"><div class="kpi-lbl">${k.lbl}</div><div class="kpi-val">${k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+
+// ── SVG HELPERS ───────────────────────────────────────────────────────────────
 const NS='http://www.w3.org/2000/svg';
 function se(tag,a,p){const e=document.createElementNS(NS,tag);Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v));if(p)p.appendChild(e);return e;}
 const tip=document.getElementById('tip');
 function showTip(ev,h){tip.innerHTML=h;tip.classList.add('on');mv(ev);}
-function mv(ev){let x=ev.clientX+14,y=ev.clientY-12;if(x+300>innerWidth)x=ev.clientX-300;tip.style.cssText=`left:${x}px;top:${y}px`;}
+function mv(ev){let x=ev.clientX+14,y=ev.clientY-12;if(x+290>innerWidth)x=ev.clientX-290;tip.style.cssText=`left:${x}px;top:${y}px`;}
 function hideTip(){tip.classList.remove('on');}
-
-function fmtShort(s){const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});}
-function fmtFull(s){
-  const d=new Date(s+'T00:00:00'), e=new Date(d); e.setDate(e.getDate()+6);
-  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' – '+e.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-}
+function fmtD(s){return new Date(s+'T00:00:00').toLocaleDateString('pl-PL',{day:'2-digit',month:'short'});}
 function monthLbl(s){return new Date(s+'T00:00:00').toLocaleDateString('en-GB',{month:'short',year:'2-digit'});}
-function niceStep(maxV,ticks){
-  const raw=maxV/ticks, mag=Math.pow(10,Math.floor(Math.log10(raw||1)));
-  return Math.ceil(raw/mag)*mag||5;
+function niceStep(maxV,ticks){const raw=maxV/ticks,mag=Math.pow(10,Math.floor(Math.log10(raw||1)));return Math.ceil(raw/mag)*mag||2;}
+function initSvg(id,H){
+  const svg=document.getElementById(id);
+  const W=svg.parentElement.clientWidth-36;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('height',H);svg.innerHTML='';
+  return {svg,W};
 }
-
-// ── THROUGHPUT CHART ──────────────────────────────────────────────────────────
-function drawTP(){
-  const svg=document.getElementById('tp-svg');
-  const W=svg.parentElement.clientWidth-44;
-  const PL=46,PR=16,PT=20,PB=40;
-  const pw=W-PL-PR;
-  const maxC=Math.max(...counts)*1.1;
-  const H=Math.max(230,Math.min(340,W*0.34));
-  const ph=H-PT-PB;
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.setAttribute('height',H);
-  svg.innerHTML='';
-
-  const BAR=Math.max(6,(pw/N)*0.74);
-  const GAP=pw/N;
-  const scY=v=>PT+ph-(v/maxC)*ph;
-  const scX=i=>PL+i*GAP+GAP/2;
-
-  // y grid
-  const step=niceStep(maxC,6);
-  for(let v=0;v<=maxC+step;v+=step){
-    const y=scY(v); if(y<PT-2) break;
-    se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);
-    se('text',{x:PL-6,y:y+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v;
-  }
-  // axes
+function yGrid(svg,PL,PT,pw,ph,maxV,ticks){
+  const step=niceStep(maxV,ticks);
+  for(let v=0;v<=maxV+step;v+=step){const y=PT+ph-(v/maxV)*ph;if(y<PT-2)break;se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);se('text',{x:PL-5,y:y+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v;}
+}
+function axes(svg,PL,PT,pw,ph){
   se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
   se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
-
-  // median line
-  const ym=scY(medX);
-  se('line',{x1:PL,y1:ym,x2:PL+pw,y2:ym,stroke:'#f5c842','stroke-width':'2','stroke-dasharray':'6,3'},svg);
-  se('text',{x:PL+pw-4,y:ym-5,'text-anchor':'end',fill:'#f5c842','font-size':'8.5','font-weight':'600'},svg)
-    .textContent=`x̃ ${medX.toFixed(0)}`;
-
-  // stacked bars + x-labels
-  let prevM='';
-  weeks.forEach((wk,i)=>{
-    const cx=scX(i), x=cx-BAR/2;
-    let cumY=PT+ph;
-    TYPE_ORDER.forEach(type=>{
-      const v=wk[type]||0; if(!v) return;
-      const bh=(v/maxC)*ph;
-      const r=se('rect',{x,y:cumY-bh,width:BAR,height:bh,rx:1,
-        fill:TYPE_COL[type],opacity:'0.86',style:'cursor:pointer'},svg);
-      cumY-=bh;
-      r.addEventListener('mouseenter',ev=>showTip(ev,
-        `<strong>Week ${fmtFull(wk.w)}</strong><br>`+
-        `Total closed: <strong>${wk.total}</strong><br><br>`+
-        TYPE_ORDER.filter(t=>wk[t]>0).map(t=>`<span style="color:${TYPE_COL[t]}">${t}: ${wk[t]}</span>`).join('<br>')));
-      r.addEventListener('mousemove',mv);
-      r.addEventListener('mouseleave',hideTip);
-    });
-    // month divider + label
-    const m=monthLbl(wk.w);
-    if(m!==prevM){
-      if(prevM) se('line',{x1:cx-GAP/2,y1:PT,x2:cx-GAP/2,y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'3,3'},svg);
-      se('text',{x:cx,y:PT+ph+16,'text-anchor':'middle',fill:'#5a627a','font-size':'9','font-weight':'600'},svg).textContent=m;
-      prevM=m;
-    }
-  });
 }
-
-// ── XmR CHART HELPER ─────────────────────────────────────────────────────────
-function drawXmR(svgId, pts, cfg){
-  const svg=document.getElementById(svgId);
-  const W=svg.parentElement.clientWidth-44;
-  const PL=46,PR=16,PT=28,PB=38;
-  const pw=W-PL-PR;
-  const H=Math.max(190,Math.min(270,W*0.27));
-  const ph=H-PT-PB;
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.setAttribute('height',H);
-  svg.innerHTML='';
-
-  const {mu,ucl,lcl,lineCol,dotCol,uclLbl,lclLbl,meanLbl}=cfg;
-  const vals=pts.map(p=>p.y);
-  const maxV=Math.max(ucl*1.15,...vals);
-  const n=pts.length;
-  const GAP=pw/(n-1||1);
-  const scX=i=>PL+i*GAP;
-  const scY=v=>PT+ph-(v/maxV)*ph;
-
-  // y grid
-  const step=niceStep(maxV,5);
-  for(let v=0;v<=maxV+step;v+=step){
-    const y=scY(v); if(y<PT-2) break;
-    se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);
-    se('text',{x:PL-6,y:y+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v;
-  }
-  se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
-  se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
-
-  // zone fills
-  const yU=scY(ucl),yM=scY(mu),yL=scY(lcl>0?lcl:0);
+function hLine(svg,PL,pw,y,col,dash,lbl,lblPos='left'){
+  se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:col,'stroke-width':1.5,'stroke-dasharray':dash||'none'},svg);
+  if(lbl){const x=lblPos==='right'?PL+pw-3:PL+5;se('text',{x,y:y-4,fill:col,'font-size':'8','font-weight':'600','text-anchor':lblPos==='right'?'end':'start'},svg).textContent=lbl;}
+}
+function ctrlZones(svg,PL,pw,yU,yM,yL){
   se('rect',{x:PL,y:yU,width:pw,height:yM-yU,fill:'rgba(240,80,79,.04)'},svg);
-  if(lcl>0) se('rect',{x:PL,y:yM,width:pw,height:yL-yM,fill:'rgba(62,207,130,.04)'},svg);
-
-  // UCL
-  se('line',{x1:PL,y1:yU,x2:PL+pw,y2:yU,stroke:'rgba(240,80,79,.8)','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
-  se('text',{x:PL+5,y:yU-5,fill:'rgba(240,80,79,.9)','font-size':'8.5','font-weight':'600'},svg)
-    .textContent=`${uclLbl} ${ucl.toFixed(1)}`;
-  // LCL
-  if(lcl>0){
-    se('line',{x1:PL,y1:yL,x2:PL+pw,y2:yL,stroke:'rgba(62,207,130,.8)','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
-    se('text',{x:PL+5,y:yL+12,fill:'rgba(62,207,130,.9)','font-size':'8.5','font-weight':'600'},svg)
-      .textContent=`${lclLbl} ${lcl.toFixed(1)}`;
-  }
-  // Median centre line
-  se('line',{x1:PL,y1:yM,x2:PL+pw,y2:yM,stroke:'#f5c842','stroke-width':'2'},svg);
-  se('text',{x:PL+5,y:yM-5,fill:'#f5c842','font-size':'8.5','font-weight':'700'},svg)
-    .textContent=`${meanLbl} ${mu.toFixed(1)}`;
-
-  // connecting line
-  se('polyline',{points:pts.map((p,i)=>`${scX(i)},${scY(p.y)}`).join(' '),
-    fill:'none',stroke:lineCol,'stroke-width':'1.5',opacity:'0.45'},svg);
-
-  // dots + x-labels
+  if(yL<yM) se('rect',{x:PL,y:yM,width:pw,height:yL-yM,fill:'rgba(62,207,130,.04)'},svg);
+}
+function stackedBar(svg,x,bw,PT,ph,maxC,typVals,onEnter,onMove,onLeave){
+  let cumY=PT+ph;
+  TYPE_ORDER.forEach(type=>{const v=typVals[type]||0;if(!v)return;const bh=(v/maxC)*ph;const r=se('rect',{x,y:cumY-bh,width:bw,height:bh,rx:1,fill:TYPE_COL[type],opacity:'0.87',style:'cursor:pointer'},svg);cumY-=bh;r.addEventListener('mouseenter',onEnter);r.addEventListener('mousemove',onMove);r.addEventListener('mouseleave',onLeave);});
+}
+function monthDividers(svg,data,scX,PT,ph,getDate){
   let prevM='';
-  pts.forEach((p,i)=>{
-    const cx=scX(i),cy=scY(p.y);
-    const sig=p.y>ucl||(lcl>0&&p.y<lcl);
-    if(sig) se('circle',{cx,cy,r:13,fill:'rgba(255,110,180,.1)'},svg);
-    const dot=se('circle',{cx,cy,r:sig?7:5,fill:sig?'#ff6eb4':dotCol,
-      stroke:'#08090c','stroke-width':'1.5',opacity:'0.92',style:'cursor:pointer'},svg);
-    dot.addEventListener('mouseenter',ev=>showTip(ev,p.tip));
-    dot.addEventListener('mousemove',mv);
-    dot.addEventListener('mouseleave',hideTip);
-    if(p.wStr){
-      const m=monthLbl(p.wStr);
-      if(m!==prevM){
-        se('text',{x:cx,y:PT+ph+15,'text-anchor':'middle',fill:'#5a627a','font-size':'9','font-weight':'600'},svg).textContent=m;
-        prevM=m;
-      }
-    }
-  });
+  data.forEach((d,i)=>{const m=monthLbl(getDate(d));if(m!==prevM){const x=scX(i);if(prevM)se('line',{x1:x-0.5,y1:PT,x2:x-0.5,y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'3,2'},svg);se('text',{x,y:PT+ph+15,'text-anchor':'middle',fill:'#5a627a','font-size':'8.5','font-weight':'600'},svg).textContent=m;prevM=m;}});
 }
 
-// ── X CHART ───────────────────────────────────────────────────────────────────
-function drawX(){
-  drawXmR('x-svg', weeks.map(wk=>({
-    y:wk.total, wStr:wk.w,
-    tip:`<strong>Week ${fmtFull(wk.w)}</strong><br>`+
-        `Closed: <strong>${wk.total}</strong> items<br>`+
-        `Median x̃ = ${medX.toFixed(0)}<br>`+
-        (wk.total>UCL?`<span style="color:#ff6eb4">⚠ Signal — above UCL (${UCL.toFixed(1)})</span>`:
-         wk.total<LCL?`<span style="color:#ff6eb4">⚠ Signal — below LCL (${LCL.toFixed(1)})</span>`:
-         `<span style="color:#3ecf82">✓ Within natural limits</span>`)
-  })), {mu:medX,ucl:UCL,lcl:LCL,lineCol:'#5b8cff',dotCol:'#5b8cff',uclLbl:'UCL',lclLbl:'LCL',meanLbl:'x̃'});
-}
-
-// ── mR CHART ──────────────────────────────────────────────────────────────────
-function drawMR(){
-  drawXmR('mr-svg', mRs.map((mr,i)=>({
-    y:mr, wStr:weeks[i+1].w,
-    tip:`<strong>mR: ${fmtShort(weeks[i].w)} → ${fmtShort(weeks[i+1].w)}</strong><br>`+
-        `|${weeks[i].total} − ${weeks[i+1].total}| = <strong>${mr}</strong><br>`+
-        `Median mR̃ = ${medMR}<br>`+
-        (mr>URL?`<span style="color:#ff6eb4">⚠ Signal — above URL (${URL.toFixed(1)})</span>`:
-         `<span style="color:#3ecf82">✓ Within URL</span>`)
-  })), {mu:medMR,ucl:URL,lcl:0,lineCol:'#b47fff',dotCol:'#b47fff',uclLbl:'URL',lclLbl:'',meanLbl:'mR̃'});
-}
-
-// ── DAILY DATA (all calendar days, zeros included) ────────────────────────────
-// day: ISO date, dow: weekday (Mon-Fri=workday, Sat-Sun=weekend)
-const days = [
-  {day:'2025-09-30',dow:'Tue',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-01',dow:'Wed',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-02',dow:'Thu',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-03',dow:'Fri',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
-  {day:'2025-10-04',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-05',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-06',dow:'Mon',total:6,'User Story':6,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-07',dow:'Tue',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-08',dow:'Wed',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-09',dow:'Thu',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-10',dow:'Fri',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-11',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-12',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-13',dow:'Mon',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-14',dow:'Tue',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-15',dow:'Wed',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
-  {day:'2025-10-16',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-17',dow:'Fri',total:8,'User Story':8,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-18',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-19',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-20',dow:'Mon',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-21',dow:'Tue',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-22',dow:'Wed',total:8,'User Story':8,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-23',dow:'Thu',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-24',dow:'Fri',total:7,'User Story':7,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-25',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-26',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-27',dow:'Mon',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-28',dow:'Tue',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-29',dow:'Wed',total:3,'User Story':2,Bug:1,Task:0,Issue:0},
-  {day:'2025-10-30',dow:'Thu',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2025-10-31',dow:'Fri',total:8,'User Story':8,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-01',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-02',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-03',dow:'Mon',total:13,'User Story':13,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-04',dow:'Tue',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-05',dow:'Wed',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-06',dow:'Thu',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
-  {day:'2025-11-07',dow:'Fri',total:2,'User Story':1,Bug:1,Task:0,Issue:0},
-  {day:'2025-11-08',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-09',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-10',dow:'Mon',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-11',dow:'Tue',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-12',dow:'Wed',total:5,'User Story':4,Bug:0,Task:1,Issue:0},
-  {day:'2025-11-13',dow:'Thu',total:3,'User Story':2,Bug:0,Task:1,Issue:0},
-  {day:'2025-11-14',dow:'Fri',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
-  {day:'2025-11-15',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-16',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-17',dow:'Mon',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-18',dow:'Tue',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-19',dow:'Wed',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-20',dow:'Thu',total:9,'User Story':7,Bug:1,Task:1,Issue:0},
-  {day:'2025-11-21',dow:'Fri',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-22',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-23',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-24',dow:'Mon',total:7,'User Story':7,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-25',dow:'Tue',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-26',dow:'Wed',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-27',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-28',dow:'Fri',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
-  {day:'2025-11-29',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-11-30',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-01',dow:'Mon',total:4,'User Story':3,Bug:0,Task:1,Issue:0},
-  {day:'2025-12-02',dow:'Tue',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-03',dow:'Wed',total:13,'User Story':12,Bug:0,Task:1,Issue:0},
-  {day:'2025-12-04',dow:'Thu',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
-  {day:'2025-12-05',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-06',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-07',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-08',dow:'Mon',total:6,'User Story':4,Bug:2,Task:0,Issue:0},
-  {day:'2025-12-09',dow:'Tue',total:5,'User Story':4,Bug:0,Task:1,Issue:0},
-  {day:'2025-12-10',dow:'Wed',total:3,'User Story':2,Bug:0,Task:1,Issue:0},
-  {day:'2025-12-11',dow:'Thu',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-12',dow:'Fri',total:6,'User Story':5,Bug:0,Task:1,Issue:0},
-  {day:'2025-12-13',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-14',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-15',dow:'Mon',total:14,'User Story':11,Bug:2,Task:1,Issue:0},
-  {day:'2025-12-16',dow:'Tue',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-17',dow:'Wed',total:6,'User Story':6,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-18',dow:'Thu',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-19',dow:'Fri',total:6,'User Story':4,Bug:2,Task:0,Issue:0},
-  {day:'2025-12-20',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-21',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-22',dow:'Mon',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-23',dow:'Tue',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-24',dow:'Wed',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-25',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-26',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-27',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-28',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-29',dow:'Mon',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-30',dow:'Tue',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
-  {day:'2025-12-31',dow:'Wed',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-01',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-02',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-03',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-04',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-05',dow:'Mon',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-06',dow:'Tue',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-07',dow:'Wed',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-08',dow:'Thu',total:2,'User Story':1,Bug:1,Task:0,Issue:0},
-  {day:'2026-01-09',dow:'Fri',total:2,'User Story':1,Bug:1,Task:0,Issue:0},
-  {day:'2026-01-10',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-11',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-12',dow:'Mon',total:9,'User Story':7,Bug:0,Task:2,Issue:0},
-  {day:'2026-01-13',dow:'Tue',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-14',dow:'Wed',total:6,'User Story':6,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-15',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-16',dow:'Fri',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-17',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-18',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-19',dow:'Mon',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-20',dow:'Tue',total:6,'User Story':5,Bug:0,Task:1,Issue:0},
-  {day:'2026-01-21',dow:'Wed',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-22',dow:'Thu',total:7,'User Story':7,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-23',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-24',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-25',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-26',dow:'Mon',total:6,'User Story':5,Bug:0,Task:1,Issue:0},
-  {day:'2026-01-27',dow:'Tue',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2026-01-28',dow:'Wed',total:7,'User Story':6,Bug:1,Task:0,Issue:0},
-  {day:'2026-01-29',dow:'Thu',total:6,'User Story':5,Bug:0,Task:1,Issue:0},
-  {day:'2026-01-30',dow:'Fri',total:11,'User Story':9,Bug:0,Task:2,Issue:0},
-  {day:'2026-01-31',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-01',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-02',dow:'Mon',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-03',dow:'Tue',total:7,'User Story':6,Bug:1,Task:0,Issue:0},
-  {day:'2026-02-04',dow:'Wed',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-05',dow:'Thu',total:8,'User Story':8,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-06',dow:'Fri',total:10,'User Story':9,Bug:0,Task:1,Issue:0},
-  {day:'2026-02-07',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-08',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-09',dow:'Mon',total:6,'User Story':5,Bug:1,Task:0,Issue:0},
-  {day:'2026-02-10',dow:'Tue',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-11',dow:'Wed',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-12',dow:'Thu',total:6,'User Story':4,Bug:0,Task:2,Issue:0},
-  {day:'2026-02-13',dow:'Fri',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-14',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-15',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-16',dow:'Mon',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-17',dow:'Tue',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-18',dow:'Wed',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-19',dow:'Thu',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-20',dow:'Fri',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-21',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-22',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-23',dow:'Mon',total:12,'User Story':12,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-24',dow:'Tue',total:8,'User Story':7,Bug:0,Task:0,Issue:1},
-  {day:'2026-02-25',dow:'Wed',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-26',dow:'Thu',total:7,'User Story':5,Bug:0,Task:0,Issue:2},
-  {day:'2026-02-27',dow:'Fri',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
-  {day:'2026-02-28',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-01',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-02',dow:'Mon',total:6,'User Story':3,Bug:0,Task:1,Issue:2},
-  {day:'2026-03-03',dow:'Tue',total:8,'User Story':4,Bug:0,Task:0,Issue:4},
-  {day:'2026-03-04',dow:'Wed',total:6,'User Story':4,Bug:0,Task:0,Issue:2},
-  {day:'2026-03-05',dow:'Thu',total:2,'User Story':1,Bug:0,Task:0,Issue:1},
-  {day:'2026-03-06',dow:'Fri',total:3,'User Story':1,Bug:0,Task:0,Issue:2},
-  {day:'2026-03-07',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-08',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-09',dow:'Mon',total:9,'User Story':5,Bug:0,Task:1,Issue:3},
-  {day:'2026-03-10',dow:'Tue',total:6,'User Story':6,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-11',dow:'Wed',total:6,'User Story':2,Bug:0,Task:0,Issue:4},
-  {day:'2026-03-12',dow:'Thu',total:8,'User Story':3,Bug:0,Task:0,Issue:5},
-  {day:'2026-03-13',dow:'Fri',total:6,'User Story':1,Bug:0,Task:0,Issue:5},
-  {day:'2026-03-14',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-15',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-16',dow:'Mon',total:5,'User Story':2,Bug:0,Task:0,Issue:3},
-  {day:'2026-03-17',dow:'Tue',total:3,'User Story':1,Bug:0,Task:0,Issue:2},
-  {day:'2026-03-18',dow:'Wed',total:8,'User Story':6,Bug:0,Task:0,Issue:2},
-  {day:'2026-03-19',dow:'Thu',total:10,'User Story':8,Bug:0,Task:0,Issue:2},
-  {day:'2026-03-20',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-21',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-22',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-23',dow:'Mon',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-24',dow:'Tue',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
-  {day:'2026-03-25',dow:'Wed',total:1,'User Story':0,Bug:0,Task:0,Issue:1},
-  {day:'2026-03-26',dow:'Thu',total:3,'User Story':0,Bug:0,Task:0,Issue:3},
-  {day:'2026-03-27',dow:'Fri',total:1,'User Story':0,Bug:0,Task:0,Issue:1},
-];
-
-// ── DAILY THROUGHPUT CHART ────────────────────────────────────────────────────
+// ── WYKRES DZIENNY ───────────────────────────────────────────────────────────
 function drawDaily(){
-  const svg=document.getElementById('daily-svg');
-  const W=svg.parentElement.clientWidth-44;
-  const PL=44,PR=16,PT=20,PB=40;
-  const pw=W-PL-PR;
-  const N=days.length;
-  const maxC=Math.max(...days.map(d=>d.total))*1.12||1;
-  const H=Math.max(220,Math.min(320,W*0.32));
-  const ph=H-PT-PB;
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.setAttribute('height',H);
-  svg.innerHTML='';
-
-  const BAR=Math.max(1.5,(pw/N)*0.82);
-  const GAP=pw/N;
-  const scY=v=>PT+ph-(v/maxC)*ph;
-  const scX=i=>PL+i*GAP+GAP/2;
-  const isWeekend=d=>d.dow==='Sat'||d.dow==='Sun';
-
-  // y grid
-  const step=niceStep(maxC,5);
-  for(let v=0;v<=maxC+step;v+=step){
-    const y=scY(v); if(y<PT-2) break;
-    se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);
-    se('text',{x:PL-6,y:y+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v;
-  }
-  // axes
-  se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
-  se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
-
-  // weekend shading + bars
+  const {svg,W}=initSvg('daily-svg', Math.max(220,Math.min(320,document.getElementById('daily-svg').parentElement.clientWidth*0.32)));
+  const PL=44,PR=16,PT=20,PB=36;
+  const pw=W-PL-PR, N=days.length;
+  const H=Math.max(220,Math.min(320,(W+44)*0.32));
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('height',H); svg.innerHTML='';
+  const maxC=Math.max(...dailyTotals)*1.1||1, ph=H-PT-PB;
+  const BAR=Math.max(2,(pw/N)*0.76), GAP=pw/N;
+  const scY=v=>PT+ph-(v/maxC)*ph, scX=i=>PL+i*GAP+GAP/2;
+  yGrid(svg,PL,PT,pw,ph,maxC,5); axes(svg,PL,PT,pw,ph);
+  // UCL zone + lines
+  const yU=scY(UCLD),yM=scY(medD);
+  se('rect',{x:PL,y:yU,width:pw,height:yM-yU,fill:'rgba(240,80,79,.04)'},svg);
+  hLine(svg,PL,pw,yU,'rgba(240,80,79,.75)','5,3',`UCL ${UCLD.toFixed(1)}`,'right');
+  hLine(svg,PL,pw,yM,'#f5c842','none',`x̃ ${medD.toFixed(0)}`, 'left');
+  // bars
   let prevM='';
   days.forEach((d,i)=>{
-    const cx=scX(i), x=cx-BAR/2;
-
-    // weekend bg stripe
-    if(isWeekend(d)){
-      se('rect',{x:cx-GAP/2,y:PT,width:GAP,height:ph,fill:'rgba(255,255,255,.025)'},svg);
-    }
-
-    // stacked bar
+    const cx=scX(i),x=cx-BAR/2;
     if(d.total>0){
-      let cumY=PT+ph;
-      TYPE_ORDER.forEach(type=>{
-        const v=d[type]||0; if(!v) return;
-        const bh=(v/maxC)*ph;
-        const r=se('rect',{x,y:cumY-bh,width:BAR,height:bh,rx:1,
-          fill:TYPE_COL[type],opacity:'0.87',style:'cursor:pointer'},svg);
-        cumY-=bh;
-        r.addEventListener('mouseenter',ev=>showTip(ev,
-          `<strong>${d.day} (${d.dow})</strong><br>`+
-          `Total closed: <strong>${d.total}</strong><br><br>`+
-          TYPE_ORDER.filter(t=>d[t]>0).map(t=>`<span style="color:${TYPE_COL[t]}">${t}: ${d[t]}</span>`).join('<br>')));
-        r.addEventListener('mousemove',mv);
-        r.addEventListener('mouseleave',hideTip);
-      });
+      stackedBar(svg,x,BAR,PT,ph,maxC,d,
+        ev=>showTip(ev,`<strong>${d.day} (${d.dow})</strong><br>Total: <strong>${d.total}</strong><br>`+TYPE_ORDER.filter(t=>d[t]>0).map(t=>`<span style="color:${TYPE_COL[t]}">${t}: ${d[t]}</span>`).join('<br>')),mv,hideTip);
+      // signal ring
+      if(d.total>UCLD){const cy=scY(d.total);se('circle',{cx,cy,r:9,fill:'rgba(255,110,180,.15)'},svg);se('circle',{cx,cy,r:5,fill:'#ff6eb4',stroke:'#08090c','stroke-width':'1.2',opacity:'0.9'},svg);}
     }
-
-    // month label on first day of each month
-    const m=new Date(d.day+'T00:00:00').toLocaleDateString('en-GB',{month:'short',year:'2-digit'});
-    if(m!==prevM){
-      se('line',{x1:cx-GAP/2,y1:PT,x2:cx-GAP/2,y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'3,2'},svg);
-      se('text',{x:cx,y:PT+ph+16,'text-anchor':'middle',fill:'#5a627a','font-size':'9','font-weight':'600'},svg).textContent=m;
-      prevM=m;
-    }
+    const m=monthLbl(d.day);
+    if(m!==prevM){if(prevM)se('line',{x1:cx-GAP/2,y1:PT,x2:cx-GAP/2,y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'3,2'},svg);se('text',{x:cx,y:PT+ph+15,'text-anchor':'middle',fill:'#5a627a','font-size':'8.5','font-weight':'600'},svg).textContent=m;prevM=m;}
   });
 }
 
-function setNav(el){
-  document.querySelectorAll('.nav-a').forEach(a=>a.classList.remove('active'));
-  el.classList.add('active');
+// ── WYKRES TYGODNIOWY ────────────────────────────────────────────────────────
+function drawWeekly(){
+  const svg=document.getElementById('weekly-svg');
+  const W=svg.parentElement.clientWidth-36;
+  const PL=44,PR=16,PT=18,PB=36,N=weeks.length;
+  const maxC=Math.max(...wkTotals)*1.1, H=Math.max(210,Math.min(300,W*0.3));
+  const ph=H-PT-PB, pw=W-PL-PR;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('height',H);svg.innerHTML='';
+  const BAR=Math.max(6,(pw/N)*0.74),GAP=pw/N;
+  const scY=v=>PT+ph-(v/maxC)*ph,scX=i=>PL+i*GAP+GAP/2;
+  yGrid(svg,PL,PT,pw,ph,maxC,5);axes(svg,PL,PT,pw,ph);
+  hLine(svg,PL,pw,scY(medW),'#f5c842','5,3',`x̃ ${medW.toFixed(0)}`,'right');
+  let prevM='';
+  weeks.forEach((wk,i)=>{
+    const cx=scX(i),x=cx-BAR/2;
+    stackedBar(svg,x,BAR,PT,ph,maxC,wk,
+      ev=>showTip(ev,`<strong>Tydzień ${wk.w}</strong><br>Total: <strong>${wk.total}</strong><br>`+TYPE_ORDER.filter(t=>wk[t]>0).map(t=>`<span style="color:${TYPE_COL[t]}">${t}: ${wk[t]}</span>`).join('<br>')),mv,hideTip);
+    const m=monthLbl(wk.w);
+    if(m!==prevM){if(prevM)se('line',{x1:cx-GAP/2,y1:PT,x2:cx-GAP/2,y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'3,2'},svg);se('text',{x:cx,y:PT+ph+15,'text-anchor':'middle',fill:'#5a627a','font-size':'8.5','font-weight':'600'},svg).textContent=m;prevM=m;}
+  });
 }
 
-function drawAll(){drawDaily();drawTP();drawX();drawMR();}
+// ── XmR HELPER ───────────────────────────────────────────────────────────────
+function drawXmR(svgId,pts,cfg){
+  const svg=document.getElementById(svgId);
+  const W=svg.parentElement.clientWidth-36;
+  const PL=44,PR=16,PT=26,PB=36,n=pts.length;
+  const {mu,ucl,lcl,lineCol,dotCol,uclLbl,lclLbl,meanLbl}=cfg;
+  const vals=pts.map(p=>p.y),maxV=Math.max(ucl*1.15,...vals);
+  const H=Math.max(180,Math.min(250,W*0.24)),ph=H-PT-PB,pw=W-PL-PR;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('height',H);svg.innerHTML='';
+  const GAP=pw/(n-1||1),scX=i=>PL+i*GAP,scY=v=>PT+ph-(v/maxV)*ph;
+  yGrid(svg,PL,PT,pw,ph,maxV,4);axes(svg,PL,PT,pw,ph);
+  const yU=scY(ucl),yM=scY(mu),yL=scY(lcl>0?lcl:0);
+  ctrlZones(svg,PL,pw,yU,yM,yL);
+  hLine(svg,PL,pw,yU,'rgba(240,80,79,.8)','6,3',`${uclLbl} ${ucl.toFixed(1)}`);
+  if(lcl>0)hLine(svg,PL,pw,yL,'rgba(62,207,130,.8)','6,3',`${lclLbl} ${lcl.toFixed(1)}`);
+  hLine(svg,PL,pw,yM,'#f5c842','none',`${meanLbl} ${mu.toFixed(1)}`);
+  se('polyline',{points:pts.map((p,i)=>`${scX(i)},${scY(p.y)}`).join(' '),fill:'none',stroke:lineCol,'stroke-width':'1.5',opacity:'0.45'},svg);
+  let prevM='';
+  pts.forEach((p,i)=>{
+    const cx=scX(i),cy=scY(p.y),sig=p.y>ucl||(lcl>0&&p.y<lcl);
+    if(sig)se('circle',{cx,cy,r:12,fill:'rgba(255,110,180,.1)'},svg);
+    const dot=se('circle',{cx,cy,r:sig?7:5,fill:sig?'#ff6eb4':dotCol,stroke:'#08090c','stroke-width':'1.5',opacity:'0.92',style:'cursor:pointer'},svg);
+    dot.addEventListener('mouseenter',ev=>showTip(ev,p.tip));dot.addEventListener('mousemove',mv);dot.addEventListener('mouseleave',hideTip);
+    if(p.wStr){const m=monthLbl(p.wStr);if(m!==prevM){se('text',{x:cx,y:PT+ph+14,'text-anchor':'middle',fill:'#5a627a','font-size':'8.5','font-weight':'600'},svg).textContent=m;prevM=m;}}
+  });
+}
+function drawX(){
+  drawXmR('x-svg',weeks.map(wk=>({y:wk.total,wStr:wk.w,tip:`<strong>Tydzień ${wk.w}</strong><br>Closed: <strong>${wk.total}</strong><br>x̃ = ${medW}<br>${wk.total>UCLW?'<span style="color:#ff6eb4">⚠ Sygnał — powyżej UCL</span>':wk.total<LCLW?'<span style="color:#ff6eb4">⚠ Sygnał — poniżej LCL</span>':'<span style="color:#3ecf82">✓ W granicach</span>'}`})),
+    {mu:medW,ucl:UCLW,lcl:LCLW,lineCol:'#5b8cff',dotCol:'#5b8cff',uclLbl:'UCL',lclLbl:'LCL',meanLbl:'x̃'});
+}
+function drawMR(){
+  drawXmR('mr-svg',mRsW.map((mr,i)=>({y:mr,wStr:weeks[i+1].w,tip:`<strong>mR: ${weeks[i].w} → ${weeks[i+1].w}</strong><br>|${weeks[i].total} − ${weeks[i+1].total}| = <strong>${mr}</strong><br>mR̃ = ${medMRW}<br>${mr>URLW?'<span style="color:#ff6eb4">⚠ Sygnał — powyżej URL</span>':'<span style="color:#3ecf82">✓ W granicach</span>'}`})),
+    {mu:medMRW,ucl:URLW,lcl:0,lineCol:'#b47fff',dotCol:'#b47fff',uclLbl:'URL',lclLbl:'',meanLbl:'mR̃'});
+}
+
+// ── ROLLING 5-DAY AVERAGE ────────────────────────────────────────────────────
+function drawRolling(){
+  const svg=document.getElementById('roll-svg');
+  const W=svg.parentElement.clientWidth-36;
+  const PL=44,PR=16,PT=18,PB=36,N=days.length,WIN=5;
+  const maxC=Math.max(...dailyTotals)*1.12||1,H=Math.max(200,Math.min(280,W*0.27)),ph=H-PT-PB,pw=W-PL-PR;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('height',H);svg.innerHTML='';
+  const GAP=pw/N,scX=i=>PL+i*GAP+GAP/2,scY=v=>PT+ph-(v/maxC)*ph;
+  yGrid(svg,PL,PT,pw,ph,maxC,5);axes(svg,PL,PT,pw,ph);
+  hLine(svg,PL,pw,scY(medD),'#f5c842','5,3',`x̃ ${medD.toFixed(0)}`,'right');
+  // raw bars (faint)
+  days.forEach((d,i)=>{if(!d.total)return;const cx=scX(i),bw=Math.max(2,GAP*0.7);se('rect',{x:cx-bw/2,y:scY(d.total),width:bw,height:(d.total/maxC)*ph,rx:1,fill:'rgba(91,140,255,.3)'},svg);});
+  // rolling avg line
+  const rollPts=[];
+  for(let i=WIN-1;i<N;i++){const slice=dailyTotals.slice(i-WIN+1,i+1);const avg=slice.reduce((a,b)=>a+b,0)/WIN;rollPts.push({i,avg,day:days[i].day});}
+  if(rollPts.length>1){
+    const pts=rollPts.map(p=>`${scX(p.i)},${scY(p.avg)}`).join(' ');
+    se('polyline',{points:pts,fill:'none',stroke:'#f5a623','stroke-width':'2.5',opacity:'0.9','stroke-linejoin':'round'},svg);
+    rollPts.forEach(p=>{
+      const dot=se('circle',{cx:scX(p.i),cy:scY(p.avg),r:3.5,fill:'#f5a623',stroke:'#08090c','stroke-width':'1',opacity:'0.9',style:'cursor:pointer'},svg);
+      dot.addEventListener('mouseenter',ev=>showTip(ev,`<strong>${p.day}</strong><br>Rolling avg (5d): <strong>${p.avg.toFixed(1)}</strong>`));
+      dot.addEventListener('mousemove',mv);dot.addEventListener('mouseleave',hideTip);
+    });
+  }
+  // month labels
+  let prevM='';
+  days.forEach((d,i)=>{const m=monthLbl(d.day);if(m!==prevM){if(prevM)se('line',{x1:scX(i)-GAP/2,y1:PT,x2:scX(i)-GAP/2,y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'3,2'},svg);se('text',{x:scX(i),y:PT+ph+15,'text-anchor':'middle',fill:'#5a627a','font-size':'8.5','font-weight':'600'},svg).textContent=m;prevM=m;}});
+}
+
+// ── DZIEŃ TYGODNIA ───────────────────────────────────────────────────────────
+function drawDow(){
+  const svg=document.getElementById('dow-svg');
+  const W=svg.parentElement.clientWidth-36;
+  const PL=10,PR=10,PT=14,PB=30,H=180,ph=H-PT-PB,pw=W-PL-PR;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('height',H);svg.innerHTML='';
+  const dowOrder=['Mon','Tue','Wed','Thu','Fri'];
+  const dowNames={Mon:'Pn',Tue:'Wt',Wed:'Śr',Thu:'Cz',Fri:'Pt'};
+  const dowTotals={};const dowCounts={};
+  dowOrder.forEach(d=>{dowTotals[d]=0;dowCounts[d]=0;});
+  days.forEach(d=>{if(dowTotals[d.dow]!==undefined){dowTotals[d.dow]+=d.total;dowCounts[d.dow]++;}});
+  const avgs=dowOrder.map(d=>dowCounts[d]?dowTotals[d]/dowCounts[d]:0);
+  const maxA=Math.max(...avgs)*1.2||1;
+  const n=5,GAP=pw/n;
+  const scY=v=>PT+ph-(v/maxA)*ph,scX=i=>PL+i*GAP+GAP/2;
+  yGrid(svg,PL,PT,pw,ph,maxA,4);axes(svg,PL,PT,pw,ph);
+  avgs.forEach((avg,i)=>{
+    const bw=GAP*0.55,x=scX(i)-bw/2,h=(avg/maxA)*ph;
+    const col=avg===Math.max(...avgs)?'#f5a623':'#5b8cff';
+    const r=se('rect',{x,y:PT+ph-h,width:bw,height:h,rx:3,fill:col,opacity:'0.82',style:'cursor:pointer'},svg);
+    se('text',{x:scX(i),y:PT+ph+14,'text-anchor':'middle',fill:'#5a627a','font-size':'9.5','font-weight':'600'},svg).textContent=dowNames[dowOrder[i]];
+    se('text',{x:scX(i),y:PT+ph-h-5,'text-anchor':'middle',fill:col,'font-size':'8.5','font-weight':'600'},svg).textContent=avg.toFixed(1);
+    r.addEventListener('mouseenter',ev=>showTip(ev,`<strong>${dowNames[dowOrder[i]]} (${dowOrder[i]})</strong><br>Avg per day: <strong>${avg.toFixed(1)}</strong><br>Total: ${dowTotals[dowOrder[i]]} w ${dowCounts[dowOrder[i]]} dniach`));
+    r.addEventListener('mousemove',mv);r.addEventListener('mouseleave',hideTip);
+  });
+}
+
+// ── DNI ZERO ────────────────────────────────────────────────────────────────
+function drawZero(){
+  const svg=document.getElementById('zero-svg');
+  const W=svg.parentElement.clientWidth-36;
+  const PL=4,PR=4,PT=14,PB=28,H=180,ph=H-PT-PB,pw=W-PL-PR;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('height',H);svg.innerHTML='';
+  const N=days.length,GAP=pw/N,scX=i=>PL+i*GAP;
+  // rolling zero % (4-week = 20 workdays)
+  const WIN=20;
+  let prevM='';
+  days.forEach((d,i)=>{
+    const col=d.total===0?'rgba(240,80,79,.65)':'rgba(62,207,130,.45)';
+    const r=se('rect',{x:scX(i)+0.5,y:PT,width:Math.max(GAP-1,1),height:ph,rx:0,fill:col,style:'cursor:pointer'},svg);
+    r.addEventListener('mouseenter',ev=>showTip(ev,`<strong>${d.day} (${d.dow})</strong><br>${d.total===0?'⚠ Brak dostarczen':'✓ '+d.total+' elementów'}`));
+    r.addEventListener('mousemove',mv);r.addEventListener('mouseleave',hideTip);
+  });
+  // rolling % zero line
+  const zPts=[];
+  for(let i=WIN-1;i<N;i++){const slice=days.slice(i-WIN+1,i+1);const pct=slice.filter(d=>d.total===0).length/WIN*100;zPts.push({i,pct,day:days[i].day});}
+  if(zPts.length>1){
+    const scYz=v=>PT+ph-(v/100)*ph;
+    // right axis labels
+    [0,25,50,75,100].forEach(v=>{se('text',{x:PL+pw+3,y:scYz(v)+4,fill:'#363d52','font-size':'8'},svg).textContent=v+'%';});
+    se('polyline',{points:zPts.map(p=>`${scX(p.i)+GAP/2},${scYz(p.pct)}`).join(' '),fill:'none',stroke:'#f5a623','stroke-width':'2',opacity:'0.85'},svg);
+    se('text',{x:PL+pw/2,y:PT-4,'text-anchor':'middle',fill:'#5a627a','font-size':'8'},svg).textContent='% dni zero (rolling 20 dni rob.)';
+  }
+  // month dividers
+  days.forEach((d,i)=>{const m=monthLbl(d.day);if(m!==prevM){if(prevM)se('line',{x1:scX(i),y1:PT,x2:scX(i),y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'2,2'},svg);se('text',{x:scX(i)+GAP/2,y:PT+ph+14,'text-anchor':'middle',fill:'#5a627a','font-size':'8.5','font-weight':'600'},svg).textContent=m;prevM=m;}});
+}
+
+// ── SKŁAD TYPÓW W CZASIE ─────────────────────────────────────────────────────
+function drawComp(){
+  const svg=document.getElementById('comp-svg');
+  const W=svg.parentElement.clientWidth-36;
+  const PL=44,PR=16,PT=14,PB=32,N=weeks.length;
+  const H=Math.max(180,Math.min(240,W*0.22)),ph=H-PT-PB,pw=W-PL-PR;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('height',H);svg.innerHTML='';
+  const BAR=Math.max(6,(pw/N)*0.78),GAP=pw/N;
+  const scX=i=>PL+i*GAP+GAP/2,scY=v=>PT+ph-(v/100)*ph;
+  // y grid %
+  [0,25,50,75,100].forEach(v=>{const y=scY(v);se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);se('text',{x:PL-5,y:y+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v+'%';});
+  axes(svg,PL,PT,pw,ph);
+  let prevM='';
+  weeks.forEach((wk,i)=>{
+    const cx=scX(i),x=cx-BAR/2,tot=wk.total||1;
+    let cumY=PT+ph;
+    TYPE_ORDER.forEach(type=>{
+      const v=wk[type]||0;if(!v)return;
+      const pct=v/tot*100,bh=(pct/100)*ph;
+      const r=se('rect',{x,y:cumY-bh,width:BAR,height:bh,rx:1,fill:TYPE_COL[type],opacity:'0.84',style:'cursor:pointer'},svg);
+      cumY-=bh;
+      r.addEventListener('mouseenter',ev=>showTip(ev,`<strong>Tydzień ${wk.w}</strong><br>Total: ${wk.total}<br><br>`+TYPE_ORDER.filter(t=>wk[t]>0).map(t=>`<span style="color:${TYPE_COL[t]}">${t}: ${wk[t]} (${(wk[t]/wk.total*100).toFixed(0)}%)</span>`).join('<br>')));
+      r.addEventListener('mousemove',mv);r.addEventListener('mouseleave',hideTip);
+    });
+    const m=monthLbl(wk.w);
+    if(m!==prevM){if(prevM)se('line',{x1:cx-GAP/2,y1:PT,x2:cx-GAP/2,y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'3,2'},svg);se('text',{x:cx,y:PT+ph+15,'text-anchor':'middle',fill:'#5a627a','font-size':'8.5','font-weight':'600'},svg).textContent=m;prevM=m;}
+  });
+}
+
+function setNav(el){document.querySelectorAll('.nav-a').forEach(a=>a.classList.remove('active'));el.classList.add('active');}
+function drawAll(){drawDaily();drawWeekly();drawX();drawMR();drawRolling();drawDow();drawZero();drawComp();}
 window.addEventListener('load',drawAll);
 window.addEventListener('resize',drawAll);
 </script>
