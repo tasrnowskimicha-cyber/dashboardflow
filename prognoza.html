@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prognoza dostarczenia Epików</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {font-family: Arial, sans-serif; margin: 20px; background:#fafafa}
+.container {max-width: 1100px; margin:auto}
+.card {background:white; padding:20px; margin-bottom:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+h1 {margin-bottom:0}
+canvas {max-height:400px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Prognoza dostarczenia Epików</h1>
+<p>Monte Carlo symulacja bazująca na historycznym tempie zespołu</p>
+
+<div class="card">
+<h2>Założenia</h2>
+<ul>
+<li>Zakres pracy zespołu: 75% czasu</li>
+<li>Velocity historyczne: 3,4,5,4,2,7,4,5 historyjek na 2 tygodnie</li>
+<li>Zwiększona przepustowość: czerwiec x1.4, wrzesień x1.6</li>
+<li>Scope creep: 1 do 1.3</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Rozkład dat ukończenia</h2>
+<canvas id="chart"></canvas>
+</div>
+
+<div class="card">
+<h2>Podsumowanie</h2>
+<p id="summary"></p>
+</div>
+
+</div>
+
+<script>
+const velocities=[3,4,5,4,2,7,4,5]
+const epics=[
+{min:4,max:6},
+{min:3,max:5},
+{min:3,max:4},
+{min:3,max:5},
+{min:4,max:7},
+{min:4,max:8}
+]
+
+function rand(min,max){return Math.random()*(max-min)+min}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function simulate(){
+let remaining=0
+for(const e of epics){
+const size=rand(e.min,e.max)
+const creep=rand(1,1.3)
+remaining+=size*creep
+}
+
+let date=new Date("2026-05-01")
+let done=0
+
+while(done<remaining){
+let velocity=pick(velocities)*0.75
+
+const month=date.getMonth()+1
+if(month===6) velocity*=1.4
+if(month===9) velocity*=1.6
+
+done+=velocity
+
+date.setDate(date.getDate()+14)
+}
+
+return date
+}
+
+const runs=2000
+const results=[]
+
+for(let i=0;i<runs;i++){
+results.push(simulate())
+}
+
+results.sort((a,b)=>a-b)
+
+const p50=results[Math.floor(runs*0.5)]
+const p85=results[Math.floor(runs*0.85)]
+const p95=results[Math.floor(runs*0.95)]
+
+const labels=results.map(d=>d.toISOString().slice(0,10))
+const counts={}
+
+labels.forEach(l=>counts[l]=(counts[l]||0)+1)
+
+const chartLabels=Object.keys(counts)
+const chartData=Object.values(counts)
+
+new Chart(document.getElementById("chart"),{
+type:"bar",
+data:{labels:chartLabels,datasets:[{data:chartData}]}
+})
+
+const endTarget=new Date("2026-09-30")
+const onTime=results.filter(d=>d<=endTarget).length
+
+summary.innerHTML=`
+P50: ${p50.toISOString().slice(0,10)}<br>
+P85: ${p85.toISOString().slice(0,10)}<br>
+P95: ${p95.toISOString().slice(0,10)}<br><br>
+Szansa ukończenia do końca września 2026: ${(onTime/runs*100).toFixed(1)}%
+`
+</script>
+
+</body>
+</html>
