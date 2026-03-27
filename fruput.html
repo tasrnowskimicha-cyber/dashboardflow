@@ -16,11 +16,10 @@
   --muted:  #52596e;
   --accent: #5b8cff;
   --green:  #3ecf82;
-  --amber:  #f5a623;
   --red:    #f0504f;
   --purple: #b47fff;
   --cyan:   #38c9d4;
-  --mean:   #f5c842;
+  --median: #f5c842;
   --signal: #ff6eb4;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -77,9 +76,18 @@ svg text{font-family:'JetBrains Mono',monospace}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .leg-dash{width:18px;height:0;border-top:2px dashed;flex-shrink:0}
 
+/* method note */
+.method-note{
+  display:flex;align-items:flex-start;gap:10px;
+  background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.15);
+  border-radius:6px;padding:10px 14px;margin-bottom:14px;
+  font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted);line-height:1.6;
+}
+.method-note strong{color:var(--median)}
+
 #tip{position:fixed;background:#13161e;border:1px solid var(--bord2);color:var(--text);
   padding:10px 14px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:0.62rem;
-  pointer-events:none;opacity:0;transition:opacity .12s;max-width:280px;line-height:1.75;
+  pointer-events:none;opacity:0;transition:opacity .12s;max-width:290px;line-height:1.75;
   z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.65)}
 #tip.on{opacity:1}
 
@@ -92,64 +100,72 @@ svg text{font-family:'JetBrains Mono',monospace}
 <div class="topbar">
   <div class="brand">
     <h1>DnD <em>System Team</em></h1>
-    <span class="badge">DevOps · Quality · Platform</span>
+    <span class="badge">User Story · Bug · Task · Issue</span>
   </div>
   <nav class="nav">
     <a class="nav-a active" href="#throughput" onclick="setNav(this)">Throughput</a>
     <a class="nav-a" href="#pbc" onclick="setNav(this)">Process Behaviour</a>
   </nav>
-  <div class="topbar-meta">533 items · Oct 2025 – Mar 2026<br>26 active weeks</div>
+  <div class="topbar-meta">494 items · Oct 2025 – Mar 2026<br>Feature &amp; Objective excluded</div>
 </div>
 
 <div class="page">
 
   <div class="kpi-row" id="kpiRow"></div>
 
+  <!-- ── THROUGHPUT ── -->
   <div class="section" id="throughput">
     <div class="sec-head">
       <div class="sec-title">Throughput <em>Chart</em></div>
-      <div class="sec-sub">number of items completed (closed) per calendar week (Mon–Sun) · stacked by work item type</div>
+      <div class="sec-sub">daily completions aggregated to weekly (Mon–Sun) · Feature &amp; Objective excluded · stacked by type</div>
     </div>
     <div class="card">
       <div class="card-lbl">Items closed per week — 26 weeks · Oct 2025 → Mar 2026</div>
       <svg id="tp-svg" width="100%" style="display:block"></svg>
       <div class="legend">
         <div class="leg"><div class="leg-sw" style="background:var(--accent)"></div>User Story</div>
-        <div class="leg"><div class="leg-sw" style="background:var(--green)"></div>Feature</div>
-        <div class="leg"><div class="leg-sw" style="background:var(--amber)"></div>Objective</div>
         <div class="leg"><div class="leg-sw" style="background:var(--red)"></div>Bug</div>
         <div class="leg"><div class="leg-sw" style="background:var(--purple)"></div>Task</div>
         <div class="leg"><div class="leg-sw" style="background:var(--cyan)"></div>Issue</div>
-        <div class="leg"><div class="leg-dash" style="border-color:var(--mean)"></div>Mean x̄</div>
+        <div class="leg"><div class="leg-dash" style="border-color:var(--median)"></div>Median x̃</div>
       </div>
     </div>
   </div>
 
+  <!-- ── PBC ── -->
   <div class="section" id="pbc">
     <div class="sec-head">
       <div class="sec-title">Process <em>Behaviour</em> Chart</div>
-      <div class="sec-sub">XmR · weekly throughput · arithmetic mean x̄ · limits: x̄ ± 3σ where σ = mR̄/d₂, d₂ = 1.128</div>
+      <div class="sec-sub">XmR · median-based centre line · natural process limits x̃ ± 3σ where σ = median(mR) / d₂</div>
+    </div>
+
+    <div class="method-note">
+      <span>📐</span>
+      <span>
+        <strong>Median-based XmR:</strong> Centre lines use <strong>x̃</strong> (median of weekly totals) and <strong>mR̃</strong> (median of moving ranges) instead of arithmetic means — more robust to extreme values.
+        σ = mR̃ / d₂ (d₂ = 1.128) · UCL = x̃ + 3σ · LCL = max(0, x̃ − 3σ) · URL = D₄ × mR̃ (D₄ = 3.267)
+      </span>
     </div>
 
     <div class="card">
-      <div class="card-lbl">X chart — individual weekly throughput (items closed / week)</div>
+      <div class="card-lbl">X chart — weekly throughput vs natural process limits</div>
       <svg id="x-svg" width="100%" style="display:block"></svg>
       <div class="legend">
         <div class="leg"><div class="leg-sw" style="background:var(--accent)"></div>Weekly throughput</div>
-        <div class="leg"><div class="leg-sw" style="background:var(--mean)"></div>Mean x̄ (arithmetic mean)</div>
-        <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.75)"></div>UCL = x̄ + 3σ</div>
-        <div class="leg"><div class="leg-sw" style="background:rgba(62,207,130,.75)"></div>LCL = x̄ − 3σ (floor 0)</div>
-        <div class="leg"><div class="leg-dot" style="background:var(--signal)"></div>Signal — beyond natural limits</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--median)"></div>Median x̃ = 20</div>
+        <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.75)"></div>UCL = x̃ + 3σ = 38.6</div>
+        <div class="leg"><div class="leg-sw" style="background:rgba(62,207,130,.75)"></div>LCL = x̃ − 3σ = 1.4</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--signal)"></div>Signal — beyond limits</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-lbl">mR chart — moving range |xᵢ − xᵢ₋₁| between consecutive weeks</div>
+      <div class="card-lbl">mR chart — moving range |xᵢ − xᵢ₋₁| vs upper range limit</div>
       <svg id="mr-svg" width="100%" style="display:block"></svg>
       <div class="legend">
         <div class="leg"><div class="leg-sw" style="background:var(--purple)"></div>Moving range</div>
-        <div class="leg"><div class="leg-sw" style="background:var(--mean)"></div>Mean mR̄</div>
-        <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.75)"></div>URL = D₄ × mR̄, D₄ = 3.267</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--median)"></div>Median mR̃ = 7</div>
+        <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.75)"></div>URL = D₄ × mR̃ = 22.9</div>
         <div class="leg"><div class="leg-dot" style="background:var(--signal)"></div>Signal — above URL</div>
       </div>
     </div>
@@ -160,68 +176,69 @@ svg text{font-family:'JetBrains Mono',monospace}
 <div id="tip"></div>
 
 <script>
-// ── WEEKLY THROUGHPUT DATA (derived from Closed Date field) ───────────────────
-// Each row = one Mon-based calendar week. Total = items with Closed Date in that week.
+// ── DATA: daily closed dates aggregated to weekly (Mon-based), Feature & Objective excluded
 const weeks = [
-  {w:'2025-09-29',total:7,  'User Story':6,  Feature:0,  Objective:0, Bug:0, Task:1, Issue:0},
-  {w:'2025-10-06',total:11, 'User Story':11, Feature:0,  Objective:0, Bug:0, Task:0, Issue:0},
-  {w:'2025-10-13',total:16, 'User Story':15, Feature:0,  Objective:0, Bug:0, Task:1, Issue:0},
-  {w:'2025-10-20',total:18, 'User Story':18, Feature:0,  Objective:0, Bug:0, Task:0, Issue:0},
-  {w:'2025-10-27',total:22, 'User Story':21, Feature:0,  Objective:0, Bug:1, Task:0, Issue:0},
-  {w:'2025-11-03',total:23, 'User Story':21, Feature:0,  Objective:0, Bug:1, Task:1, Issue:0},
-  {w:'2025-11-10',total:11, 'User Story':7,  Feature:0,  Objective:1, Bug:0, Task:3, Issue:0},
-  {w:'2025-11-17',total:15, 'User Story':13, Feature:0,  Objective:0, Bug:1, Task:1, Issue:0},
-  {w:'2025-11-24',total:15, 'User Story':14, Feature:0,  Objective:0, Bug:0, Task:1, Issue:0},
-  {w:'2025-12-01',total:41, 'User Story':19, Feature:15, Objective:4, Bug:0, Task:3, Issue:0},
-  {w:'2025-12-08',total:21, 'User Story':16, Feature:0,  Objective:0, Bug:2, Task:3, Issue:0},
-  {w:'2025-12-15',total:31, 'User Story':26, Feature:0,  Objective:0, Bug:4, Task:1, Issue:0},
-  {w:'2025-12-22',total:5,  'User Story':5,  Feature:0,  Objective:0, Bug:0, Task:0, Issue:0},
-  {w:'2025-12-29',total:6,  'User Story':6,  Feature:0,  Objective:0, Bug:0, Task:0, Issue:0},
-  {w:'2026-01-05',total:8,  'User Story':6,  Feature:0,  Objective:0, Bug:2, Task:0, Issue:0},
-  {w:'2026-01-12',total:25, 'User Story':22, Feature:1,  Objective:0, Bug:0, Task:2, Issue:0},
-  {w:'2026-01-19',total:19, 'User Story':18, Feature:0,  Objective:0, Bug:0, Task:1, Issue:0},
-  {w:'2026-01-26',total:31, 'User Story':26, Feature:0,  Objective:0, Bug:1, Task:4, Issue:0},
-  {w:'2026-02-02',total:29, 'User Story':27, Feature:0,  Objective:0, Bug:1, Task:1, Issue:0},
-  {w:'2026-02-09',total:21, 'User Story':18, Feature:0,  Objective:0, Bug:1, Task:2, Issue:0},
-  {w:'2026-02-16',total:13, 'User Story':13, Feature:0,  Objective:0, Bug:0, Task:0, Issue:0},
-  {w:'2026-02-23',total:37, 'User Story':31, Feature:2,  Objective:1, Bug:0, Task:0, Issue:3},
-  {w:'2026-03-02',total:25, 'User Story':13, Feature:0,  Objective:0, Bug:0, Task:1, Issue:11},
-  {w:'2026-03-09',total:35, 'User Story':17, Feature:0,  Objective:0, Bug:0, Task:1, Issue:17},
-  {w:'2026-03-16',total:41, 'User Story':17, Feature:10, Objective:5, Bug:0, Task:0, Issue:9},
-  {w:'2026-03-23',total:7,  'User Story':2,  Feature:0,  Objective:0, Bug:0, Task:0, Issue:5},
+  {w:'2025-09-29',total:7,  'User Story':6,  Bug:0, Task:1, Issue:0},
+  {w:'2025-10-06',total:11, 'User Story':11, Bug:0, Task:0, Issue:0},
+  {w:'2025-10-13',total:16, 'User Story':15, Bug:0, Task:1, Issue:0},
+  {w:'2025-10-20',total:18, 'User Story':18, Bug:0, Task:0, Issue:0},
+  {w:'2025-10-27',total:22, 'User Story':21, Bug:1, Task:0, Issue:0},
+  {w:'2025-11-03',total:23, 'User Story':21, Bug:1, Task:1, Issue:0},
+  {w:'2025-11-10',total:10, 'User Story':7,  Bug:0, Task:3, Issue:0},
+  {w:'2025-11-17',total:15, 'User Story':13, Bug:1, Task:1, Issue:0},
+  {w:'2025-11-24',total:15, 'User Story':14, Bug:0, Task:1, Issue:0},
+  {w:'2025-12-01',total:22, 'User Story':19, Bug:0, Task:3, Issue:0},
+  {w:'2025-12-08',total:21, 'User Story':16, Bug:2, Task:3, Issue:0},
+  {w:'2025-12-15',total:31, 'User Story':26, Bug:4, Task:1, Issue:0},
+  {w:'2025-12-22',total:5,  'User Story':5,  Bug:0, Task:0, Issue:0},
+  {w:'2025-12-29',total:6,  'User Story':6,  Bug:0, Task:0, Issue:0},
+  {w:'2026-01-05',total:8,  'User Story':6,  Bug:2, Task:0, Issue:0},
+  {w:'2026-01-12',total:24, 'User Story':22, Bug:0, Task:2, Issue:0},
+  {w:'2026-01-19',total:19, 'User Story':18, Bug:0, Task:1, Issue:0},
+  {w:'2026-01-26',total:31, 'User Story':26, Bug:1, Task:4, Issue:0},
+  {w:'2026-02-02',total:29, 'User Story':27, Bug:1, Task:1, Issue:0},
+  {w:'2026-02-09',total:21, 'User Story':18, Bug:1, Task:2, Issue:0},
+  {w:'2026-02-16',total:13, 'User Story':13, Bug:0, Task:0, Issue:0},
+  {w:'2026-02-23',total:34, 'User Story':31, Bug:0, Task:0, Issue:3},
+  {w:'2026-03-02',total:25, 'User Story':13, Bug:0, Task:1, Issue:11},
+  {w:'2026-03-09',total:35, 'User Story':17, Bug:0, Task:1, Issue:17},
+  {w:'2026-03-16',total:26, 'User Story':17, Bug:0, Task:0, Issue:9},
+  {w:'2026-03-23',total:7,  'User Story':2,  Bug:0, Task:0, Issue:5},
 ];
 
-const TYPE_ORDER = ['User Story','Feature','Objective','Bug','Task','Issue'];
-const TYPE_COL   = {
-  'User Story':'#5b8cff', Feature:'#3ecf82', Objective:'#f5a623',
-   Bug:'#f0504f', Task:'#b47fff', Issue:'#38c9d4'
-};
+const TYPE_ORDER = ['User Story','Bug','Task','Issue'];
+const TYPE_COL   = {'User Story':'#5b8cff', Bug:'#f0504f', Task:'#b47fff', Issue:'#38c9d4'};
 
-// ── Statistics ────────────────────────────────────────────────────────────────
-const counts = weeks.map(w => w.total);
-const N      = counts.length;
-const mean   = counts.reduce((a,b)=>a+b,0) / N;
+// ── Median helper ─────────────────────────────────────────────────────────────
+function median(arr){
+  const s=[...arr].sort((a,b)=>a-b), n=s.length;
+  return n%2===1 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2;
+}
 
-const mRs   = [];
-for(let i=1;i<N;i++) mRs.push(Math.abs(counts[i]-counts[i-1]));
-const mRbar = mRs.reduce((a,b)=>a+b,0) / mRs.length;
-const sigma = mRbar / 1.128;
-const UCL   = mean + 3*sigma;
-const LCL   = Math.max(0, mean - 3*sigma);
-const URL   = 3.267 * mRbar;
+// ── Statistics (MEDIAN-based) ─────────────────────────────────────────────────
+const counts  = weeks.map(w=>w.total);
+const N       = counts.length;
+const medX    = median(counts);                    // x̃
+const mRs     = counts.slice(1).map((v,i)=>Math.abs(v-counts[i]));
+const medMR   = median(mRs);                       // mR̃
+const d2      = 1.128, D4 = 3.267;
+const sigma   = medMR / d2;
+const UCL     = medX + 3*sigma;
+const LCL     = Math.max(0, medX - 3*sigma);
+const URL     = D4 * medMR;
 
-const xSignals  = weeks.filter(w => w.total>UCL || w.total<LCL).length;
-const mrSignals = mRs.filter(mr => mr>URL).length;
-const total     = counts.reduce((a,b)=>a+b,0);
+const xSigs   = weeks.filter(w=>w.total>UCL||w.total<LCL).length;
+const mrSigs  = mRs.filter(mr=>mr>URL).length;
+const total   = counts.reduce((a,b)=>a+b,0);
 
 // ── KPIs ──────────────────────────────────────────────────────────────────────
 document.getElementById('kpiRow').innerHTML = [
-  {lbl:'Total Items',    val:total,           sub:'all types · 26 weeks',  c:'#5b8cff'},
-  {lbl:'Weeks',          val:N,               sub:'Oct 2025 – Mar 2026',   c:'#38c9d4'},
-  {lbl:'Mean x̄',        val:mean.toFixed(1), sub:'items closed / week',   c:'#f5c842'},
-  {lbl:'UCL',            val:UCL.toFixed(1),  sub:'x̄ + 3σ',              c:'#f0504f'},
-  {lbl:'LCL',            val:LCL.toFixed(1),  sub:'x̄ − 3σ (floor 0)',    c:'#3ecf82'},
-  {lbl:'X Signals',      val:xSignals,        sub:'weeks beyond limits',   c:xSignals>0?'#ff6eb4':'#3ecf82'},
+  {lbl:'Total Items',   val:total,           sub:'excl. Feature & Objective', c:'#5b8cff'},
+  {lbl:'Weeks',         val:N,               sub:'Oct 2025 – Mar 2026',       c:'#38c9d4'},
+  {lbl:'Median x̃',     val:medX.toFixed(1), sub:'items / week (median)',      c:'#f5c842'},
+  {lbl:'UCL',           val:UCL.toFixed(1),  sub:'x̃ + 3σ',                  c:'#f0504f'},
+  {lbl:'LCL',           val:LCL.toFixed(1),  sub:'x̃ − 3σ (floor 0)',         c:'#3ecf82'},
+  {lbl:'Signals X',     val:xSigs,           sub:'weeks beyond limits',        c:xSigs>0?'#ff6eb4':'#3ecf82'},
 ].map(k=>`<div class="kpi" style="--kc:${k.c}">
   <div class="kpi-lbl">${k.lbl}</div>
   <div class="kpi-val">${k.val}</div>
@@ -229,29 +246,21 @@ document.getElementById('kpiRow').innerHTML = [
 </div>`).join('');
 
 // ── SVG helpers ───────────────────────────────────────────────────────────────
-const NS = 'http://www.w3.org/2000/svg';
+const NS='http://www.w3.org/2000/svg';
 function se(tag,a,p){const e=document.createElementNS(NS,tag);Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v));if(p)p.appendChild(e);return e;}
 const tip=document.getElementById('tip');
 function showTip(ev,h){tip.innerHTML=h;tip.classList.add('on');mv(ev);}
-function mv(ev){let x=ev.clientX+14,y=ev.clientY-12;if(x+290>innerWidth)x=ev.clientX-290;tip.style.cssText=`left:${x}px;top:${y}px`;}
+function mv(ev){let x=ev.clientX+14,y=ev.clientY-12;if(x+300>innerWidth)x=ev.clientX-300;tip.style.cssText=`left:${x}px;top:${y}px`;}
 function hideTip(){tip.classList.remove('on');}
 
-function fmtShort(wStr){
-  const d=new Date(wStr+'T00:00:00');
-  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+function fmtShort(s){const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});}
+function fmtFull(s){
+  const d=new Date(s+'T00:00:00'), e=new Date(d); e.setDate(e.getDate()+6);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' – '+e.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
 }
-function fmtFull(wStr){
-  const d=new Date(wStr+'T00:00:00');
-  const e=new Date(d); e.setDate(e.getDate()+6);
-  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+
-    ' – '+e.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-}
-function monthLabel(wStr){
-  return new Date(wStr+'T00:00:00').toLocaleDateString('en-GB',{month:'short',year:'2-digit'});
-}
+function monthLbl(s){return new Date(s+'T00:00:00').toLocaleDateString('en-GB',{month:'short',year:'2-digit'});}
 function niceStep(maxV,ticks){
-  const raw=maxV/ticks;
-  const mag=Math.pow(10,Math.floor(Math.log10(raw||1)));
+  const raw=maxV/ticks, mag=Math.pow(10,Math.floor(Math.log10(raw||1)));
   return Math.ceil(raw/mag)*mag||5;
 }
 
@@ -259,7 +268,7 @@ function niceStep(maxV,ticks){
 function drawTP(){
   const svg=document.getElementById('tp-svg');
   const W=svg.parentElement.clientWidth-44;
-  const PL=46,PR=16,PT=18,PB=38;
+  const PL=46,PR=16,PT=20,PB=40;
   const pw=W-PL-PR;
   const maxC=Math.max(...counts)*1.1;
   const H=Math.max(230,Math.min(340,W*0.34));
@@ -274,22 +283,23 @@ function drawTP(){
   const scX=i=>PL+i*GAP+GAP/2;
 
   // y grid
-  const yStep=niceStep(maxC,6);
-  for(let v=0;v<=maxC+yStep;v+=yStep){
-    if(scY(v)<PT-2) break;
-    se('line',{x1:PL,y1:scY(v),x2:PL+pw,y2:scY(v),stroke:'#131620','stroke-width':'1'},svg);
-    se('text',{x:PL-6,y:scY(v)+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v;
+  const step=niceStep(maxC,6);
+  for(let v=0;v<=maxC+step;v+=step){
+    const y=scY(v); if(y<PT-2) break;
+    se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);
+    se('text',{x:PL-6,y:y+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v;
   }
   // axes
   se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
   se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
 
-  // mean line
-  se('line',{x1:PL,y1:scY(mean),x2:PL+pw,y2:scY(mean),stroke:'#f5c842','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
-  se('text',{x:PL+pw-4,y:scY(mean)-5,'text-anchor':'end',fill:'#f5c842','font-size':'8.5','font-weight':'600'},svg)
-    .textContent=`x̄ ${mean.toFixed(1)}`;
+  // median line
+  const ym=scY(medX);
+  se('line',{x1:PL,y1:ym,x2:PL+pw,y2:ym,stroke:'#f5c842','stroke-width':'2','stroke-dasharray':'6,3'},svg);
+  se('text',{x:PL+pw-4,y:ym-5,'text-anchor':'end',fill:'#f5c842','font-size':'8.5','font-weight':'600'},svg)
+    .textContent=`x̃ ${medX.toFixed(0)}`;
 
-  // bars (stacked) + x-labels
+  // stacked bars + x-labels
   let prevM='';
   weeks.forEach((wk,i)=>{
     const cx=scX(i), x=cx-BAR/2;
@@ -297,30 +307,31 @@ function drawTP(){
     TYPE_ORDER.forEach(type=>{
       const v=wk[type]||0; if(!v) return;
       const bh=(v/maxC)*ph;
-      const r=se('rect',{x,y:cumY-bh,width:BAR,height:bh,rx:1,fill:TYPE_COL[type],opacity:'0.86',style:'cursor:pointer'},svg);
+      const r=se('rect',{x,y:cumY-bh,width:BAR,height:bh,rx:1,
+        fill:TYPE_COL[type],opacity:'0.86',style:'cursor:pointer'},svg);
       cumY-=bh;
       r.addEventListener('mouseenter',ev=>showTip(ev,
-        `<strong>Week of ${fmtFull(wk.w)}</strong><br>`+
+        `<strong>Week ${fmtFull(wk.w)}</strong><br>`+
         `Total closed: <strong>${wk.total}</strong><br><br>`+
         TYPE_ORDER.filter(t=>wk[t]>0).map(t=>`<span style="color:${TYPE_COL[t]}">${t}: ${wk[t]}</span>`).join('<br>')));
       r.addEventListener('mousemove',mv);
       r.addEventListener('mouseleave',hideTip);
     });
-    // month dividers + labels
-    const m=monthLabel(wk.w);
+    // month divider + label
+    const m=monthLbl(wk.w);
     if(m!==prevM){
       if(prevM) se('line',{x1:cx-GAP/2,y1:PT,x2:cx-GAP/2,y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'3,3'},svg);
-      se('text',{x:cx,y:PT+ph+15,'text-anchor':'middle',fill:'#5a627a','font-size':'9','font-weight':'600'},svg).textContent=m;
+      se('text',{x:cx,y:PT+ph+16,'text-anchor':'middle',fill:'#5a627a','font-size':'9','font-weight':'600'},svg).textContent=m;
       prevM=m;
     }
   });
 }
 
-// ── XmR HELPER ────────────────────────────────────────────────────────────────
+// ── XmR CHART HELPER ─────────────────────────────────────────────────────────
 function drawXmR(svgId, pts, cfg){
   const svg=document.getElementById(svgId);
   const W=svg.parentElement.clientWidth-44;
-  const PL=46,PR=16,PT=28,PB=36;
+  const PL=46,PR=16,PT=28,PB=38;
   const pw=W-PL-PR;
   const H=Math.max(190,Math.min(270,W*0.27));
   const ph=H-PT-PB;
@@ -336,12 +347,12 @@ function drawXmR(svgId, pts, cfg){
   const scX=i=>PL+i*GAP;
   const scY=v=>PT+ph-(v/maxV)*ph;
 
-  // grid
-  const yStep=niceStep(maxV,5);
-  for(let v=0;v<=maxV+yStep;v+=yStep){
-    if(scY(v)<PT-2) break;
-    se('line',{x1:PL,y1:scY(v),x2:PL+pw,y2:scY(v),stroke:'#131620','stroke-width':'1'},svg);
-    se('text',{x:PL-6,y:scY(v)+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v;
+  // y grid
+  const step=niceStep(maxV,5);
+  for(let v=0;v<=maxV+step;v+=step){
+    const y=scY(v); if(y<PT-2) break;
+    se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);
+    se('text',{x:PL-6,y:y+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v;
   }
   se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
   se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
@@ -351,15 +362,20 @@ function drawXmR(svgId, pts, cfg){
   se('rect',{x:PL,y:yU,width:pw,height:yM-yU,fill:'rgba(240,80,79,.04)'},svg);
   if(lcl>0) se('rect',{x:PL,y:yM,width:pw,height:yL-yM,fill:'rgba(62,207,130,.04)'},svg);
 
-  // control lines
+  // UCL
   se('line',{x1:PL,y1:yU,x2:PL+pw,y2:yU,stroke:'rgba(240,80,79,.8)','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
-  se('text',{x:PL+5,y:yU-5,fill:'rgba(240,80,79,.9)','font-size':'8.5','font-weight':'600'},svg).textContent=`${uclLbl} ${ucl.toFixed(1)}`;
+  se('text',{x:PL+5,y:yU-5,fill:'rgba(240,80,79,.9)','font-size':'8.5','font-weight':'600'},svg)
+    .textContent=`${uclLbl} ${ucl.toFixed(1)}`;
+  // LCL
   if(lcl>0){
     se('line',{x1:PL,y1:yL,x2:PL+pw,y2:yL,stroke:'rgba(62,207,130,.8)','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
-    se('text',{x:PL+5,y:yL+12,fill:'rgba(62,207,130,.9)','font-size':'8.5','font-weight':'600'},svg).textContent=`${lclLbl} ${lcl.toFixed(1)}`;
+    se('text',{x:PL+5,y:yL+12,fill:'rgba(62,207,130,.9)','font-size':'8.5','font-weight':'600'},svg)
+      .textContent=`${lclLbl} ${lcl.toFixed(1)}`;
   }
+  // Median centre line
   se('line',{x1:PL,y1:yM,x2:PL+pw,y2:yM,stroke:'#f5c842','stroke-width':'2'},svg);
-  se('text',{x:PL+5,y:yM-5,fill:'#f5c842','font-size':'8.5','font-weight':'700'},svg).textContent=`${meanLbl} ${mu.toFixed(1)}`;
+  se('text',{x:PL+5,y:yM-5,fill:'#f5c842','font-size':'8.5','font-weight':'700'},svg)
+    .textContent=`${meanLbl} ${mu.toFixed(1)}`;
 
   // connecting line
   se('polyline',{points:pts.map((p,i)=>`${scX(i)},${scY(p.y)}`).join(' '),
@@ -376,11 +392,10 @@ function drawXmR(svgId, pts, cfg){
     dot.addEventListener('mouseenter',ev=>showTip(ev,p.tip));
     dot.addEventListener('mousemove',mv);
     dot.addEventListener('mouseleave',hideTip);
-    // month labels
     if(p.wStr){
-      const m=monthLabel(p.wStr);
+      const m=monthLbl(p.wStr);
       if(m!==prevM){
-        se('text',{x:cx,y:PT+ph+14,'text-anchor':'middle',fill:'#5a627a','font-size':'9','font-weight':'600'},svg).textContent=m;
+        se('text',{x:cx,y:PT+ph+15,'text-anchor':'middle',fill:'#5a627a','font-size':'9','font-weight':'600'},svg).textContent=m;
         prevM=m;
       }
     }
@@ -388,28 +403,28 @@ function drawXmR(svgId, pts, cfg){
 }
 
 // ── X CHART ───────────────────────────────────────────────────────────────────
-function drawXChart(){
+function drawX(){
   drawXmR('x-svg', weeks.map(wk=>({
     y:wk.total, wStr:wk.w,
     tip:`<strong>Week ${fmtFull(wk.w)}</strong><br>`+
-        `Items closed: <strong>${wk.total}</strong><br>`+
-        `Mean x̄ = ${mean.toFixed(1)}<br>`+
+        `Closed: <strong>${wk.total}</strong> items<br>`+
+        `Median x̃ = ${medX.toFixed(0)}<br>`+
         (wk.total>UCL?`<span style="color:#ff6eb4">⚠ Signal — above UCL (${UCL.toFixed(1)})</span>`:
          wk.total<LCL?`<span style="color:#ff6eb4">⚠ Signal — below LCL (${LCL.toFixed(1)})</span>`:
          `<span style="color:#3ecf82">✓ Within natural limits</span>`)
-  })), {mu:mean,ucl:UCL,lcl:LCL,lineCol:'#5b8cff',dotCol:'#5b8cff',uclLbl:'UCL',lclLbl:'LCL',meanLbl:'x̄'});
+  })), {mu:medX,ucl:UCL,lcl:LCL,lineCol:'#5b8cff',dotCol:'#5b8cff',uclLbl:'UCL',lclLbl:'LCL',meanLbl:'x̃'});
 }
 
 // ── mR CHART ──────────────────────────────────────────────────────────────────
-function drawMRChart(){
+function drawMR(){
   drawXmR('mr-svg', mRs.map((mr,i)=>({
     y:mr, wStr:weeks[i+1].w,
     tip:`<strong>mR: ${fmtShort(weeks[i].w)} → ${fmtShort(weeks[i+1].w)}</strong><br>`+
         `|${weeks[i].total} − ${weeks[i+1].total}| = <strong>${mr}</strong><br>`+
-        `Mean mR̄ = ${mRbar.toFixed(1)}<br>`+
+        `Median mR̃ = ${medMR}<br>`+
         (mr>URL?`<span style="color:#ff6eb4">⚠ Signal — above URL (${URL.toFixed(1)})</span>`:
          `<span style="color:#3ecf82">✓ Within URL</span>`)
-  })), {mu:mRbar,ucl:URL,lcl:0,lineCol:'#b47fff',dotCol:'#b47fff',uclLbl:'URL',lclLbl:'',meanLbl:'mR̄'});
+  })), {mu:medMR,ucl:URL,lcl:0,lineCol:'#b47fff',dotCol:'#b47fff',uclLbl:'URL',lclLbl:'',meanLbl:'mR̃'});
 }
 
 function setNav(el){
@@ -417,9 +432,9 @@ function setNav(el){
   el.classList.add('active');
 }
 
-function drawAll(){ drawTP(); drawXChart(); drawMRChart(); }
-window.addEventListener('load', drawAll);
-window.addEventListener('resize', drawAll);
+function drawAll(){drawTP();drawX();drawMR();}
+window.addEventListener('load',drawAll);
+window.addEventListener('resize',drawAll);
 </script>
 </body>
 </html>
