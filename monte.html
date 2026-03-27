@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DnD System Team — Prognoza Backlogu</title>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090c;--surf:#0f1116;--surf2:#161820;
+  --border:#1e2130;--bord2:#262c3e;
+  --text:#e2e6f4;--muted:#52596e;
+  --accent:#5b8cff;--green:#3ecf82;--red:#f0504f;
+  --amber:#f5a623;--purple:#b47fff;--cyan:#38c9d4;
+  --median:#f5c842;--signal:#ff6eb4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Familjen Grotesk',sans-serif;min-height:100vh}
+svg text{font-family:'JetBrains Mono',monospace}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 32px 12px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;background:rgba(8,9,12,.95);backdrop-filter:blur(14px)}
+.brand h1{font-size:1.05rem;font-weight:700;letter-spacing:-.4px}
+.brand h1 em{font-style:normal;color:var(--accent)}
+.badge{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted);
+  background:var(--surf2);border:1px solid var(--bord2);padding:2px 9px;border-radius:4px}
+.topbar-meta{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted);text-align:right;line-height:1.8}
+
+.page{padding:24px 32px 80px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--surf);border:1px solid var(--border);border-radius:8px;
+  padding:16px 18px 14px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--accent))}
+.kpi-lbl{font-family:'JetBrains Mono',monospace;font-size:0.53rem;text-transform:uppercase;
+  letter-spacing:1.4px;color:var(--muted);margin-bottom:6px}
+.kpi-val{font-size:1.55rem;font-weight:700;line-height:1;color:var(--kc,var(--text))}
+.kpi-sub{font-size:0.62rem;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace;line-height:1.5}
+
+.section{margin-bottom:28px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;
+  padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sec-title{font-size:.92rem;font-weight:700;letter-spacing:-.3px}
+.sec-title em{font-style:normal;color:var(--accent)}
+.sec-sub{font-family:'JetBrains Mono',monospace;font-size:0.56rem;color:var(--muted)}
+
+.card{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:12px}
+.card:last-child{margin-bottom:0}
+.card-lbl{font-family:'JetBrains Mono',monospace;font-size:0.54rem;text-transform:uppercase;
+  letter-spacing:2px;color:var(--muted);margin-bottom:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+
+.fc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.fc-card{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:18px;
+  position:relative;overflow:hidden}
+.fc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--fc-col,var(--accent))}
+.fc-badge{font-family:'JetBrains Mono',monospace;font-size:0.55rem;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--fc-col,var(--muted));margin-bottom:10px}
+.fc-question{font-size:0.78rem;color:var(--text);margin-bottom:14px;font-weight:600}
+.fc-rows{display:flex;flex-direction:column;gap:7px}
+.fc-row{padding:9px 12px;border-radius:6px;background:var(--surf2);border:1px solid var(--border)}
+.fc-conf{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:2px}
+.fc-date{font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:700}
+.fc-weeks{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted);margin-top:1px}
+
+.timeline{position:relative;padding:10px 0 4px}
+.tl-line{position:absolute;left:148px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{display:flex;align-items:flex-start;gap:16px;margin-bottom:22px;position:relative}
+.tl-date{font-family:'JetBrains Mono',monospace;font-size:0.63rem;color:var(--muted);
+  width:138px;flex-shrink:0;text-align:right;padding-top:2px;line-height:1.6}
+.tl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px;z-index:1;position:relative}
+.tl-body{flex:1;padding-top:0}
+.tl-title{font-size:.82rem;font-weight:600;margin-bottom:3px}
+.tl-desc{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);line-height:1.55}
+
+.note{font-family:'JetBrains Mono',monospace;font-size:0.59rem;color:var(--muted);
+  background:rgba(91,140,255,.05);border:1px solid rgba(91,140,255,.15);
+  border-radius:5px;padding:10px 14px;margin-bottom:16px;line-height:1.7}
+.note strong{color:var(--accent)}
+
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.leg{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted)}
+.leg-sw{width:16px;height:3px;border-radius:2px;flex-shrink:0}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+#tip{position:fixed;background:#13161e;border:1px solid var(--bord2);color:var(--text);
+  padding:9px 13px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:0.62rem;
+  pointer-events:none;opacity:0;transition:opacity .12s;max-width:280px;line-height:1.7;
+  z-index:200;box-shadow:0 8px 28px rgba(0,0,0,.65)}
+#tip.on{opacity:1}
+
+@media(max-width:900px){.kpi-grid,.fc-grid{grid-template-columns:1fr 1fr};.row2{grid-template-columns:1fr};.page{padding:14px 14px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <h1>DnD System Team — <em>Prognoza Backlogu</em></h1>
+    <span class="badge">Monte Carlo · 10 000 symulacji</span>
+  </div>
+  <div class="topbar-meta">Backlog: 113 elementów · Tempo: Paź 2025 – Mar 2026<br>Prognoza od: 27 Mar 2026</div>
+</div>
+
+<div class="page">
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi" style="--kc:#5b8cff">
+      <div class="kpi-lbl">Backlog (aktywne)</div>
+      <div class="kpi-val">113</div>
+      <div class="kpi-sub">US: 83 · Issue: 19 · Task: 11</div>
+    </div>
+    <div class="kpi" style="--kc:#f5c842">
+      <div class="kpi-lbl">Mediana throughputu</div>
+      <div class="kpi-val">20</div>
+      <div class="kpi-sub">items/tydzień · 26 tyg. historii</div>
+    </div>
+    <div class="kpi" style="--kc:#ff6eb4">
+      <div class="kpi-lbl">85% backlogu (P85)</div>
+      <div class="kpi-val">15 Maj '26</div>
+      <div class="kpi-sub">96/113 items · 85% pewność · 7 tyg.</div>
+    </div>
+    <div class="kpi" style="--kc:#3ecf82">
+      <div class="kpi-lbl">Do końca sierpnia</div>
+      <div class="kpi-val">100%</div>
+      <div class="kpi-sub">wszystkie scenariusze · nawet pesymistyczny</div>
+    </div>
+  </div>
+
+  <!-- METHOD NOTE -->
+  <div class="note">
+    <strong>Metodologia:</strong> Monte Carlo (10 000 przebiegów). Każda iteracja losuje tygodniowy throughput z rozkładu historycznego (26 tygodni: min=5, mediana=20, P85=31, max=35 items/tydzień). Backlog: 113 aktywnych elementów (User Story + Issue + Task, stany: New/Analysing/Ready/Committed/To Do/In Progress). Feature i Objective wykluczone — jak w danych throughputu. <strong>P50 = 50% szans dotrzymania</strong> · <strong>P85 = 85% szans dotrzymania</strong> (zalecane do komunikacji zewnętrznej).
+  </div>
+
+  <!-- FORECAST CARDS -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">Odpowiedzi na <em>pytania</em></div>
+      <div class="sec-sub">trzy scenariusze pewności · Monte Carlo</div>
+    </div>
+
+    <div class="fc-grid">
+
+      <div class="fc-card" style="--fc-col:#ff6eb4">
+        <div class="fc-badge">📦 Pytanie 1 — 85% backlogu</div>
+        <div class="fc-question">Kiedy zamkniemy 85% elementów (96 z 113)?</div>
+        <div class="fc-rows">
+          <div class="fc-row">
+            <div class="fc-conf">P50 · 50% pewność</div>
+            <div class="fc-date">08 Maj 2026</div>
+            <div class="fc-weeks">za 6 tygodni od dziś</div>
+          </div>
+          <div class="fc-row">
+            <div class="fc-conf">P70 · 70% pewność</div>
+            <div class="fc-date">08 Maj 2026</div>
+            <div class="fc-weeks">za 6 tygodni od dziś</div>
+          </div>
+          <div class="fc-row" style="border-color:rgba(255,110,180,.35);background:rgba(255,110,180,.06)">
+            <div class="fc-conf" style="color:var(--signal)">★ P85 · 85% pewność (zalecane)</div>
+            <div class="fc-date" style="color:var(--signal)">15 Maj 2026</div>
+            <div class="fc-weeks">za 7 tygodni od dziś</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-card" style="--fc-col:#5b8cff">
+        <div class="fc-badge">✅ Pytanie 2 — 100% backlogu</div>
+        <div class="fc-question">Kiedy zamkniemy wszystkie 113 elementów?</div>
+        <div class="fc-rows">
+          <div class="fc-row">
+            <div class="fc-conf">P50 · 50% pewność</div>
+            <div class="fc-date">08 Maj 2026</div>
+            <div class="fc-weeks">za 6 tygodni od dziś</div>
+          </div>
+          <div class="fc-row">
+            <div class="fc-conf">P70 · 70% pewność</div>
+            <div class="fc-date">15 Maj 2026</div>
+            <div class="fc-weeks">za 7 tygodni od dziś</div>
+          </div>
+          <div class="fc-row" style="border-color:rgba(91,140,255,.35);background:rgba(91,140,255,.06)">
+            <div class="fc-conf" style="color:var(--accent)">★ P85 · 85% pewność (zalecane)</div>
+            <div class="fc-date" style="color:var(--accent)">22 Maj 2026</div>
+            <div class="fc-weeks">za 8 tygodni od dziś</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-card" style="--fc-col:#3ecf82">
+        <div class="fc-badge">📅 Pytanie 3 — do 31 Sie 2026</div>
+        <div class="fc-question">Ile elementów uda się zrealizować do końca sierpnia?</div>
+        <div class="fc-rows">
+          <div class="fc-row">
+            <div class="fc-conf">P15 · scenariusz pesymistyczny (7/tyg)</div>
+            <div class="fc-date" style="color:var(--green)">113 / 113</div>
+            <div class="fc-weeks">100% backlogu · ~22 dostępne tygodnie</div>
+          </div>
+          <div class="fc-row">
+            <div class="fc-conf">P50 · scenariusz bazowy (20/tyg)</div>
+            <div class="fc-date" style="color:var(--green)">113 / 113</div>
+            <div class="fc-weeks">100% backlogu · duży bufor</div>
+          </div>
+          <div class="fc-row" style="border-color:rgba(62,207,130,.35);background:rgba(62,207,130,.06)">
+            <div class="fc-conf" style="color:var(--green)">★ P85 · scenariusz optymistyczny (31/tyg)</div>
+            <div class="fc-date" style="color:var(--green)">113 / 113</div>
+            <div class="fc-weeks">100% backlogu · możliwe nowe zadania</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">Oś <em>czasowa</em></div>
+      <div class="sec-sub">kluczowe daty prognozowane · od 27 Mar 2026</div>
+    </div>
+    <div class="card">
+      <div class="timeline">
+        <div class="tl-line"></div>
+
+        <div class="tl-item">
+          <div class="tl-date">27 Mar 2026<br><span style="color:var(--accent);font-size:.6rem;font-family:'JetBrains Mono',monospace">▶ DZIŚ</span></div>
+          <div class="tl-dot" style="background:var(--accent);box-shadow:0 0 0 3px rgba(91,140,255,.3)"></div>
+          <div class="tl-body">
+            <div class="tl-title">Start prognozy</div>
+            <div class="tl-desc">Backlog: 113 aktywnych elementów · Mediana throughputu: 20 items/tydzień · Zakres throughputu: 5–35/tydzień</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">08 Maj 2026<br><span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted)">+6 tygodni</span></div>
+          <div class="tl-dot" style="background:var(--median)"></div>
+          <div class="tl-body">
+            <div class="tl-title" style="color:var(--median)">85% backlogu — P50 (50% pewność)</div>
+            <div class="tl-desc">96 z 113 elementów zamkniętych · wystarczające przy optymistycznych założeniach</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">15 Maj 2026<br><span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted)">+7 tygodni</span></div>
+          <div class="tl-dot" style="background:var(--signal);box-shadow:0 0 0 3px rgba(255,110,180,.25)"></div>
+          <div class="tl-body">
+            <div class="tl-title" style="color:var(--signal)">★ 85% backlogu — P85 · REKOMENDOWANA DATA</div>
+            <div class="tl-desc">96/113 items · 85% szans dotrzymania · <strong style="color:var(--text)">tej daty używaj w komunikacji zewnętrznej</strong></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">15 Maj 2026<br><span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted)">+7 tygodni</span></div>
+          <div class="tl-dot" style="background:var(--accent)"></div>
+          <div class="tl-body">
+            <div class="tl-title" style="color:var(--accent)">100% backlogu — P70 (70% pewność)</div>
+            <div class="tl-desc">113/113 items · akceptowalny poziom pewności dla wewnętrznych zobowiązań</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">22 Maj 2026<br><span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted)">+8 tygodni</span></div>
+          <div class="tl-dot" style="background:var(--accent);box-shadow:0 0 0 3px rgba(91,140,255,.25)"></div>
+          <div class="tl-body">
+            <div class="tl-title" style="color:var(--accent)">★ 100% backlogu — P85 · REKOMENDOWANA DATA</div>
+            <div class="tl-desc">113/113 items · 85% szans dotrzymania · <strong style="color:var(--text)">tej daty używaj do zewnętrznych zobowiązań całościowego ukończenia</strong></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">31 Sie 2026<br><span style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted)">+22 tygodnie</span></div>
+          <div class="tl-dot" style="background:var(--green)"></div>
+          <div class="tl-body">
+            <div class="tl-title" style="color:var(--green)">Koniec sierpnia — 100% we wszystkich scenariuszach</div>
+            <div class="tl-desc">Nawet przy pesymistycznym throughputie (7 items/tydzień) cały backlog zostaje zrealizowany. Pozostały czas (~14 tygodni po ukończeniu) można przeznaczyć na nowe zadania.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">Wykresy <em>pomocnicze</em></div>
+      <div class="sec-sub">rozkład throughputu · burndown · skład backlogu</div>
+    </div>
+
+    <div class="row2">
+      <div class="card">
+        <div class="card-lbl">Rozkład tygodniowego throughputu (26 tyg. historii)</div>
+        <svg id="tp-dist" width="100%" style="display:block"></svg>
+        <div class="legend">
+          <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.7)"></div>&lt;10/tyg (niski)</div>
+          <div class="leg"><div class="leg-sw" style="background:rgba(245,200,66,.8)"></div>10–19/tyg</div>
+          <div class="leg"><div class="leg-sw" style="background:rgba(62,207,130,.8)"></div>≥20/tyg (wysoki)</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--median)"></div>Mediana=20</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-lbl">Burndown backlogu — trzy scenariusze</div>
+        <svg id="burndown" width="100%" style="display:block"></svg>
+        <div class="legend">
+          <div class="leg"><div class="leg-sw" style="background:rgba(240,80,79,.75)"></div>Pesymistyczny (7/tyg)</div>
+          <div class="leg"><div class="leg-sw" style="background:var(--median)"></div>Bazowy (20/tyg)</div>
+          <div class="leg"><div class="leg-sw" style="background:rgba(62,207,130,.85)"></div>Optymistyczny (31/tyg)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-lbl">Skład backlogu</div>
+      <div style="display:grid;grid-template-columns:3fr 2fr;gap:24px">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px">Wg stanu (113 elementów)</div>
+          <svg id="state-chart" width="100%" style="display:block"></svg>
+        </div>
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px">Wg typu</div>
+          <svg id="type-chart" width="100%" style="display:block"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="tip"></div>
+
+<script>
+const weeklyTP=[7,11,16,18,22,23,10,15,15,22,21,31,5,6,8,24,19,31,29,21,13,34,25,35,26,7];
+const N=113;
+
+const stateData=[
+  {label:'Analysing',  count:28,col:'#5b8cff'},
+  {label:'Ready',      count:28,col:'#3ecf82'},
+  {label:'New',        count:19,col:'#f5a623'},
+  {label:'Committed',  count:16,col:'#b47fff'},
+  {label:'To Do',      count:11,col:'#38c9d4'},
+  {label:'In Progress',count:11,col:'#f5c842'},
+];
+const typeData=[
+  {label:'User Story',count:83,col:'#5b8cff'},
+  {label:'Issue',     count:19,col:'#38c9d4'},
+  {label:'Task',      count:11,col:'#b47fff'},
+];
+
+const NS='http://www.w3.org/2000/svg';
+function se(tag,a,p){const e=document.createElementNS(NS,tag);Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v));if(p)p.appendChild(e);return e;}
+const tip=document.getElementById('tip');
+function showTip(ev,h){tip.innerHTML=h;tip.classList.add('on');mv(ev);}
+function mv(ev){let x=ev.clientX+14,y=ev.clientY-12;if(x+290>innerWidth)x=ev.clientX-290;tip.style.cssText=`left:${x}px;top:${y}px`;}
+function hideTip(){tip.classList.remove('on');}
+
+function drawTpDist(){
+  const svg=document.getElementById('tp-dist');
+  const W=svg.parentElement.clientWidth-8;
+  const PL=36,PR=12,PT=16,PB=36,ph=190-PT-PB,pw=W-PL-PR;
+  svg.setAttribute('viewBox',`0 0 ${W} 190`);svg.setAttribute('height',190);svg.innerHTML='';
+  const buckets={};
+  weeklyTP.forEach(v=>{const b=Math.floor(v/5)*5;buckets[b]=(buckets[b]||0)+1;});
+  const bKeys=Object.keys(buckets).map(Number).sort((a,b)=>a-b);
+  const maxCount=Math.max(...Object.values(buckets));
+  const maxV=35;
+  const scX=v=>PL+(v/(maxV+5))*pw;
+  const scY=v=>PT+ph-(v/maxCount)*ph;
+  const bw=(pw/((maxV+5)/5))*0.78;
+  se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
+  se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
+  [0,5,10,15,20,25,30,35].forEach(v=>{
+    const x=scX(v);
+    se('line',{x1:x,y1:PT,x2:x,y2:PT+ph,stroke:'#131620','stroke-width':'1'},svg);
+    se('text',{x,y:PT+ph+14,'text-anchor':'middle',fill:'#363d52','font-size':'8.5'},svg).textContent=v;
+  });
+  bKeys.forEach(b=>{
+    const x=scX(b),cnt=buckets[b];
+    const h=(cnt/maxCount)*ph;
+    const col=b<10?'rgba(240,80,79,.72)':b<20?'rgba(245,200,66,.82)':'rgba(62,207,130,.82)';
+    const r=se('rect',{x,y:scY(cnt),width:bw,height:h,rx:2,fill:col,style:'cursor:pointer'},svg);
+    se('text',{x:x+bw/2,y:scY(cnt)-4,'text-anchor':'middle',fill:'#666','font-size':'8.5'},svg).textContent=cnt+'×';
+    r.addEventListener('mouseenter',ev=>showTip(ev,`Throughput ${b}–${b+4}/tydzień<br>Wystąpił <strong>${cnt}×</strong> w historii<br>${((cnt/weeklyTP.length)*100).toFixed(0)}% tygodni`));
+    r.addEventListener('mousemove',mv);r.addEventListener('mouseleave',hideTip);
+  });
+  // median + P85
+  const xM=scX(20);
+  se('line',{x1:xM,y1:PT,x2:xM,y2:PT+ph,stroke:'#f5c842','stroke-width':'2','stroke-dasharray':'4,3'},svg);
+  se('text',{x:xM+3,y:PT+12,fill:'#f5c842','font-size':'8','font-weight':'600'},svg).textContent='x̃=20';
+  const xP=scX(31);
+  se('line',{x1:xP,y1:PT,x2:xP,y2:PT+ph,stroke:'#3ecf82','stroke-width':'1.5','stroke-dasharray':'4,3'},svg);
+  se('text',{x:xP+3,y:PT+12,fill:'#3ecf82','font-size':'8'},svg).textContent='P85=31';
+  se('text',{x:PL+pw/2,y:PT+ph+28,'text-anchor':'middle',fill:'#3a4258','font-size':'8.5'},svg).textContent='items/tydzień';
+}
+
+function drawBurndown(){
+  const svg=document.getElementById('burndown');
+  const W=svg.parentElement.clientWidth-8;
+  const PL=40,PR=12,PT=16,PB=36,ph=190-PT-PB,pw=W-PL-PR;
+  svg.setAttribute('viewBox',`0 0 ${W} 190`);svg.setAttribute('height',190);svg.innerHTML='';
+  const maxW=18;
+  const scX=w=>PL+(w/maxW)*pw;
+  const scY=v=>PT+ph-(v/N)*ph;
+  // grid
+  [0,25,50,75,100].forEach(pct=>{
+    const y=scY(N*pct/100);
+    se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);
+    se('text',{x:PL-5,y:y+4,'text-anchor':'end',fill:'#363d52','font-size':'8.5'},svg).textContent=pct+'%';
+  });
+  se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
+  se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
+  [0,2,4,6,8,10,12,14,16,18].forEach(w=>{
+    se('text',{x:scX(w),y:PT+ph+14,'text-anchor':'middle',fill:'#363d52','font-size':'8.5'},svg).textContent=`${w}w`;
+  });
+  // 85% line
+  const y85=scY(N*0.85);
+  se('line',{x1:PL,y1:y85,x2:PL+pw,y2:y85,stroke:'rgba(255,110,180,.45)','stroke-width':'1.5','stroke-dasharray':'4,3'},svg);
+  se('text',{x:PL+5,y:y85-4,fill:'rgba(255,110,180,.8)','font-size':'7.5'},svg).textContent='85% (96 items)';
+  // P85 date marker (week 7)
+  const x7=scX(7);
+  se('line',{x1:x7,y1:PT,x2:x7,y2:PT+ph,stroke:'rgba(255,110,180,.3)','stroke-width':'1','stroke-dasharray':'3,3'},svg);
+  se('text',{x:x7,y:PT+8,'text-anchor':'middle',fill:'rgba(255,110,180,.7)','font-size':'7.5'},svg).textContent='P85: 15 Maj';
+
+  const scenarios=[
+    {rate:7,  col:'rgba(240,80,79,.78)', label:'Pesymistyczny (7/tyg)'},
+    {rate:20, col:'#f5c842',             label:'Bazowy (20/tyg)'},
+    {rate:31, col:'rgba(62,207,130,.88)',label:'Optymistyczny (31/tyg)'},
+  ];
+  scenarios.forEach(sc=>{
+    const pts=[[0,N]];
+    let rem=N,w=0;
+    while(rem>0&&w<maxW){w++;rem=Math.max(0,rem-sc.rate);pts.push([w,rem]);}
+    const poly=se('polyline',{points:pts.map(([x,y])=>`${scX(x)},${scY(y)}`).join(' '),
+      fill:'none',stroke:sc.col,'stroke-width':'2.5',opacity:'0.9','stroke-linejoin':'round'},svg);
+    poly.addEventListener('mouseenter',ev=>showTip(ev,`<strong>${sc.label}</strong><br>Ukończenie backlogu: tydzień ${Math.ceil(N/sc.rate)}`));
+    poly.addEventListener('mousemove',mv);poly.addEventListener('mouseleave',hideTip);
+  });
+}
+
+function drawHBar(svgId,data){
+  const svg=document.getElementById(svgId);
+  const W=svg.parentElement.clientWidth-8;
+  const H=data.length*30+12,PL=86,PR=38,PT=6;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('height',H);svg.innerHTML='';
+  const maxC=Math.max(...data.map(d=>d.count));
+  const pw=W-PL-PR;
+  data.forEach((d,i)=>{
+    const y=PT+i*30;
+    se('text',{x:PL-7,y:y+16,'text-anchor':'end',fill:'#5a627a','font-size':'9.5'},svg).textContent=d.label;
+    se('rect',{x:PL,y:y+4,width:pw,height:20,rx:3,fill:'#161820'},svg);
+    const fw=(d.count/maxC)*pw;
+    const r=se('rect',{x:PL,y:y+4,width:fw,height:20,rx:3,fill:d.col,opacity:'0.84',style:'cursor:pointer'},svg);
+    se('text',{x:PL+fw+5,y:y+16,fill:d.col,'font-size':'9','font-weight':'600'},svg).textContent=`${d.count} (${Math.round(d.count/113*100)}%)`;
+    r.addEventListener('mouseenter',ev=>showTip(ev,`<strong>${d.label}</strong><br>${d.count} elementów · ${Math.round(d.count/113*100)}% backlogu`));
+    r.addEventListener('mousemove',mv);r.addEventListener('mouseleave',hideTip);
+  });
+}
+
+function drawAll(){drawTpDist();drawBurndown();drawHBar('state-chart',stateData);drawHBar('type-chart',typeData);}
+window.addEventListener('load',drawAll);
+window.addEventListener('resize',drawAll);
+</script>
+</body>
+</html>
