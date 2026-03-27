@@ -103,7 +103,8 @@ svg text{font-family:'JetBrains Mono',monospace}
     <span class="badge">User Story · Bug · Task · Issue</span>
   </div>
   <nav class="nav">
-    <a class="nav-a active" href="#throughput" onclick="setNav(this)">Throughput</a>
+    <a class="nav-a active" href="#daily" onclick="setNav(this)">Throughput dzienny</a>
+    <a class="nav-a" href="#throughput" onclick="setNav(this)">Throughput tygodniowy</a>
     <a class="nav-a" href="#pbc" onclick="setNav(this)">Process Behaviour</a>
   </nav>
   <div class="topbar-meta">494 items · Oct 2025 – Mar 2026<br>Feature &amp; Objective excluded</div>
@@ -113,7 +114,26 @@ svg text{font-family:'JetBrains Mono',monospace}
 
   <div class="kpi-row" id="kpiRow"></div>
 
-  <!-- ── THROUGHPUT ── -->
+  <!-- ── DAILY THROUGHPUT ── -->
+  <div class="section" id="daily">
+    <div class="sec-head">
+      <div class="sec-title">Throughput <em>dzienny</em></div>
+      <div class="sec-sub">liczba elementów zamkniętych każdego dnia · Feature &amp; Objective wykluczone · dni bez zamknięć = 0</div>
+    </div>
+    <div class="card">
+      <div class="card-lbl">Items closed per day — 30 Sep 2025 → 27 Mar 2026 (179 dni)</div>
+      <svg id="daily-svg" width="100%" style="display:block"></svg>
+      <div class="legend">
+        <div class="leg"><div class="leg-sw" style="background:var(--accent)"></div>User Story</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--red)"></div>Bug</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--purple)"></div>Task</div>
+        <div class="leg"><div class="leg-sw" style="background:var(--cyan)"></div>Issue</div>
+        <div class="leg" style="margin-left:auto"><span style="color:var(--muted);font-size:0.58rem">Weekend = szary pas</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WEEKLY THROUGHPUT ── -->
   <div class="section" id="throughput">
     <div class="sec-head">
       <div class="sec-title">Throughput <em>Chart</em></div>
@@ -427,12 +447,265 @@ function drawMR(){
   })), {mu:medMR,ucl:URL,lcl:0,lineCol:'#b47fff',dotCol:'#b47fff',uclLbl:'URL',lclLbl:'',meanLbl:'mR̃'});
 }
 
+// ── DAILY DATA (all calendar days, zeros included) ────────────────────────────
+// day: ISO date, dow: weekday (Mon-Fri=workday, Sat-Sun=weekend)
+const days = [
+  {day:'2025-09-30',dow:'Tue',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-01',dow:'Wed',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-02',dow:'Thu',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-03',dow:'Fri',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
+  {day:'2025-10-04',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-05',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-06',dow:'Mon',total:6,'User Story':6,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-07',dow:'Tue',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-08',dow:'Wed',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-09',dow:'Thu',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-10',dow:'Fri',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-11',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-12',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-13',dow:'Mon',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-14',dow:'Tue',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-15',dow:'Wed',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
+  {day:'2025-10-16',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-17',dow:'Fri',total:8,'User Story':8,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-18',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-19',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-20',dow:'Mon',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-21',dow:'Tue',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-22',dow:'Wed',total:8,'User Story':8,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-23',dow:'Thu',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-24',dow:'Fri',total:7,'User Story':7,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-25',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-26',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-27',dow:'Mon',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-28',dow:'Tue',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-29',dow:'Wed',total:3,'User Story':2,Bug:1,Task:0,Issue:0},
+  {day:'2025-10-30',dow:'Thu',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2025-10-31',dow:'Fri',total:8,'User Story':8,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-01',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-02',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-03',dow:'Mon',total:13,'User Story':13,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-04',dow:'Tue',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-05',dow:'Wed',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-06',dow:'Thu',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
+  {day:'2025-11-07',dow:'Fri',total:2,'User Story':1,Bug:1,Task:0,Issue:0},
+  {day:'2025-11-08',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-09',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-10',dow:'Mon',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-11',dow:'Tue',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-12',dow:'Wed',total:5,'User Story':4,Bug:0,Task:1,Issue:0},
+  {day:'2025-11-13',dow:'Thu',total:3,'User Story':2,Bug:0,Task:1,Issue:0},
+  {day:'2025-11-14',dow:'Fri',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
+  {day:'2025-11-15',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-16',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-17',dow:'Mon',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-18',dow:'Tue',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-19',dow:'Wed',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-20',dow:'Thu',total:9,'User Story':7,Bug:1,Task:1,Issue:0},
+  {day:'2025-11-21',dow:'Fri',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-22',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-23',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-24',dow:'Mon',total:7,'User Story':7,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-25',dow:'Tue',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-26',dow:'Wed',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-27',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-28',dow:'Fri',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
+  {day:'2025-11-29',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-11-30',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-01',dow:'Mon',total:4,'User Story':3,Bug:0,Task:1,Issue:0},
+  {day:'2025-12-02',dow:'Tue',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-03',dow:'Wed',total:13,'User Story':12,Bug:0,Task:1,Issue:0},
+  {day:'2025-12-04',dow:'Thu',total:2,'User Story':1,Bug:0,Task:1,Issue:0},
+  {day:'2025-12-05',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-06',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-07',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-08',dow:'Mon',total:6,'User Story':4,Bug:2,Task:0,Issue:0},
+  {day:'2025-12-09',dow:'Tue',total:5,'User Story':4,Bug:0,Task:1,Issue:0},
+  {day:'2025-12-10',dow:'Wed',total:3,'User Story':2,Bug:0,Task:1,Issue:0},
+  {day:'2025-12-11',dow:'Thu',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-12',dow:'Fri',total:6,'User Story':5,Bug:0,Task:1,Issue:0},
+  {day:'2025-12-13',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-14',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-15',dow:'Mon',total:14,'User Story':11,Bug:2,Task:1,Issue:0},
+  {day:'2025-12-16',dow:'Tue',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-17',dow:'Wed',total:6,'User Story':6,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-18',dow:'Thu',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-19',dow:'Fri',total:6,'User Story':4,Bug:2,Task:0,Issue:0},
+  {day:'2025-12-20',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-21',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-22',dow:'Mon',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-23',dow:'Tue',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-24',dow:'Wed',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-25',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-26',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-27',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-28',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-29',dow:'Mon',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-30',dow:'Tue',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
+  {day:'2025-12-31',dow:'Wed',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-01',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-02',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-03',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-04',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-05',dow:'Mon',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-06',dow:'Tue',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-07',dow:'Wed',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-08',dow:'Thu',total:2,'User Story':1,Bug:1,Task:0,Issue:0},
+  {day:'2026-01-09',dow:'Fri',total:2,'User Story':1,Bug:1,Task:0,Issue:0},
+  {day:'2026-01-10',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-11',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-12',dow:'Mon',total:9,'User Story':7,Bug:0,Task:2,Issue:0},
+  {day:'2026-01-13',dow:'Tue',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-14',dow:'Wed',total:6,'User Story':6,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-15',dow:'Thu',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-16',dow:'Fri',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-17',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-18',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-19',dow:'Mon',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-20',dow:'Tue',total:6,'User Story':5,Bug:0,Task:1,Issue:0},
+  {day:'2026-01-21',dow:'Wed',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-22',dow:'Thu',total:7,'User Story':7,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-23',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-24',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-25',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-26',dow:'Mon',total:6,'User Story':5,Bug:0,Task:1,Issue:0},
+  {day:'2026-01-27',dow:'Tue',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2026-01-28',dow:'Wed',total:7,'User Story':6,Bug:1,Task:0,Issue:0},
+  {day:'2026-01-29',dow:'Thu',total:6,'User Story':5,Bug:0,Task:1,Issue:0},
+  {day:'2026-01-30',dow:'Fri',total:11,'User Story':9,Bug:0,Task:2,Issue:0},
+  {day:'2026-01-31',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-01',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-02',dow:'Mon',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-03',dow:'Tue',total:7,'User Story':6,Bug:1,Task:0,Issue:0},
+  {day:'2026-02-04',dow:'Wed',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-05',dow:'Thu',total:8,'User Story':8,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-06',dow:'Fri',total:10,'User Story':9,Bug:0,Task:1,Issue:0},
+  {day:'2026-02-07',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-08',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-09',dow:'Mon',total:6,'User Story':5,Bug:1,Task:0,Issue:0},
+  {day:'2026-02-10',dow:'Tue',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-11',dow:'Wed',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-12',dow:'Thu',total:6,'User Story':4,Bug:0,Task:2,Issue:0},
+  {day:'2026-02-13',dow:'Fri',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-14',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-15',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-16',dow:'Mon',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-17',dow:'Tue',total:5,'User Story':5,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-18',dow:'Wed',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-19',dow:'Thu',total:1,'User Story':1,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-20',dow:'Fri',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-21',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-22',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-23',dow:'Mon',total:12,'User Story':12,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-24',dow:'Tue',total:8,'User Story':7,Bug:0,Task:0,Issue:1},
+  {day:'2026-02-25',dow:'Wed',total:4,'User Story':4,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-26',dow:'Thu',total:7,'User Story':5,Bug:0,Task:0,Issue:2},
+  {day:'2026-02-27',dow:'Fri',total:3,'User Story':3,Bug:0,Task:0,Issue:0},
+  {day:'2026-02-28',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-01',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-02',dow:'Mon',total:6,'User Story':3,Bug:0,Task:1,Issue:2},
+  {day:'2026-03-03',dow:'Tue',total:8,'User Story':4,Bug:0,Task:0,Issue:4},
+  {day:'2026-03-04',dow:'Wed',total:6,'User Story':4,Bug:0,Task:0,Issue:2},
+  {day:'2026-03-05',dow:'Thu',total:2,'User Story':1,Bug:0,Task:0,Issue:1},
+  {day:'2026-03-06',dow:'Fri',total:3,'User Story':1,Bug:0,Task:0,Issue:2},
+  {day:'2026-03-07',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-08',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-09',dow:'Mon',total:9,'User Story':5,Bug:0,Task:1,Issue:3},
+  {day:'2026-03-10',dow:'Tue',total:6,'User Story':6,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-11',dow:'Wed',total:6,'User Story':2,Bug:0,Task:0,Issue:4},
+  {day:'2026-03-12',dow:'Thu',total:8,'User Story':3,Bug:0,Task:0,Issue:5},
+  {day:'2026-03-13',dow:'Fri',total:6,'User Story':1,Bug:0,Task:0,Issue:5},
+  {day:'2026-03-14',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-15',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-16',dow:'Mon',total:5,'User Story':2,Bug:0,Task:0,Issue:3},
+  {day:'2026-03-17',dow:'Tue',total:3,'User Story':1,Bug:0,Task:0,Issue:2},
+  {day:'2026-03-18',dow:'Wed',total:8,'User Story':6,Bug:0,Task:0,Issue:2},
+  {day:'2026-03-19',dow:'Thu',total:10,'User Story':8,Bug:0,Task:0,Issue:2},
+  {day:'2026-03-20',dow:'Fri',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-21',dow:'Sat',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-22',dow:'Sun',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-23',dow:'Mon',total:0,'User Story':0,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-24',dow:'Tue',total:2,'User Story':2,Bug:0,Task:0,Issue:0},
+  {day:'2026-03-25',dow:'Wed',total:1,'User Story':0,Bug:0,Task:0,Issue:1},
+  {day:'2026-03-26',dow:'Thu',total:3,'User Story':0,Bug:0,Task:0,Issue:3},
+  {day:'2026-03-27',dow:'Fri',total:1,'User Story':0,Bug:0,Task:0,Issue:1},
+];
+
+// ── DAILY THROUGHPUT CHART ────────────────────────────────────────────────────
+function drawDaily(){
+  const svg=document.getElementById('daily-svg');
+  const W=svg.parentElement.clientWidth-44;
+  const PL=44,PR=16,PT=20,PB=40;
+  const pw=W-PL-PR;
+  const N=days.length;
+  const maxC=Math.max(...days.map(d=>d.total))*1.12||1;
+  const H=Math.max(220,Math.min(320,W*0.32));
+  const ph=H-PT-PB;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('height',H);
+  svg.innerHTML='';
+
+  const BAR=Math.max(1.5,(pw/N)*0.82);
+  const GAP=pw/N;
+  const scY=v=>PT+ph-(v/maxC)*ph;
+  const scX=i=>PL+i*GAP+GAP/2;
+  const isWeekend=d=>d.dow==='Sat'||d.dow==='Sun';
+
+  // y grid
+  const step=niceStep(maxC,5);
+  for(let v=0;v<=maxC+step;v+=step){
+    const y=scY(v); if(y<PT-2) break;
+    se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);
+    se('text',{x:PL-6,y:y+4,'text-anchor':'end',fill:'#363d52','font-size':'9'},svg).textContent=v;
+  }
+  // axes
+  se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
+  se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#252b3d','stroke-width':'1.5'},svg);
+
+  // weekend shading + bars
+  let prevM='';
+  days.forEach((d,i)=>{
+    const cx=scX(i), x=cx-BAR/2;
+
+    // weekend bg stripe
+    if(isWeekend(d)){
+      se('rect',{x:cx-GAP/2,y:PT,width:GAP,height:ph,fill:'rgba(255,255,255,.025)'},svg);
+    }
+
+    // stacked bar
+    if(d.total>0){
+      let cumY=PT+ph;
+      TYPE_ORDER.forEach(type=>{
+        const v=d[type]||0; if(!v) return;
+        const bh=(v/maxC)*ph;
+        const r=se('rect',{x,y:cumY-bh,width:BAR,height:bh,rx:1,
+          fill:TYPE_COL[type],opacity:'0.87',style:'cursor:pointer'},svg);
+        cumY-=bh;
+        r.addEventListener('mouseenter',ev=>showTip(ev,
+          `<strong>${d.day} (${d.dow})</strong><br>`+
+          `Total closed: <strong>${d.total}</strong><br><br>`+
+          TYPE_ORDER.filter(t=>d[t]>0).map(t=>`<span style="color:${TYPE_COL[t]}">${t}: ${d[t]}</span>`).join('<br>')));
+        r.addEventListener('mousemove',mv);
+        r.addEventListener('mouseleave',hideTip);
+      });
+    }
+
+    // month label on first day of each month
+    const m=new Date(d.day+'T00:00:00').toLocaleDateString('en-GB',{month:'short',year:'2-digit'});
+    if(m!==prevM){
+      se('line',{x1:cx-GAP/2,y1:PT,x2:cx-GAP/2,y2:PT+ph+5,stroke:'#252b3d','stroke-width':'1','stroke-dasharray':'3,2'},svg);
+      se('text',{x:cx,y:PT+ph+16,'text-anchor':'middle',fill:'#5a627a','font-size':'9','font-weight':'600'},svg).textContent=m;
+      prevM=m;
+    }
+  });
+}
+
 function setNav(el){
   document.querySelectorAll('.nav-a').forEach(a=>a.classList.remove('active'));
   el.classList.add('active');
 }
 
-function drawAll(){drawTP();drawX();drawMR();}
+function drawAll(){drawDaily();drawTP();drawX();drawMR();}
 window.addEventListener('load',drawAll);
 window.addEventListener('resize',drawAll);
 </script>
