@@ -1,1 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DnD System Team — Delivery Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #08090c;
+  --surf:    #0f1116;
+  --surf2:   #161820;
+  --border:  #1e2130;
+  --border2: #262c3e;
+  --text:    #e2e6f4;
+  --muted:   #52596e;
+  --dim:     #333a50;
+  --accent:  #5b8cff;
+  --green:   #3ecf82;
+  --amber:   #f5a623;
+  --red:     #f0504f;
+  --purple:  #b47fff;
+  --cyan:    #38c9d4;
+  --mean:    #f5c842;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Familjen Grotesk',sans-serif;
+  min-height:100vh;
+}
+svg text{font-family:'JetBrains Mono',monospace}
 
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 36px 16px;
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;
+  background:rgba(8,9,12,.93);backdrop-filter:blur(14px);
+}
+.topbar-brand{display:flex;align-items:baseline;gap:10px}
+.topbar-brand h1{font-size:1.15rem;font-weight:700;letter-spacing:-.4px}
+.topbar-brand h1 em{font-style:normal;color:var(--accent)}
+.topbar-team{
+  font-family:'JetBrains Mono',monospace;font-size:0.62rem;
+  color:var(--muted);background:var(--surf2);border:1px solid var(--border2);
+  padding:3px 10px;border-radius:4px;letter-spacing:.5px
+}
+.topbar-meta{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted);text-align:right;line-height:1.9}
+
+/* ── NAV ── */
+.nav{display:flex;gap:2px;align-items:center}
+.nav-a{
+  font-family:'JetBrains Mono',monospace;font-size:0.58rem;
+  text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);
+  padding:5px 12px;border-radius:4px;border:1px solid transparent;
+  cursor:pointer;text-decoration:none;
+  transition:color .15s,border-color .15s,background .15s;
+}
+.nav-a:hover{color:var(--text);border-color:var(--border2);background:var(--surf2)}
+.nav-a.active{color:var(--accent);border-color:var(--accent);background:rgba(91,140,255,.07)}
+
+/* ── PAGE ── */
+.page{padding:28px 36px 80px}
+.section{margin-bottom:40px}
+.section-head{
+  display:flex;align-items:baseline;gap:12px;
+  margin-bottom:18px;padding-bottom:14px;
+  border-bottom:1px solid var(--border);
+}
+.section-title{font-size:1rem;font-weight:700;letter-spacing:-.3px}
+.section-title em{font-style:normal;color:var(--accent)}
+.section-sub{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted)}
+
+/* ── CARD ── */
+.card{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:8px;padding:22px;
+}
+.card-label{
+  font-family:'JetBrains Mono',monospace;font-size:0.58rem;
+  text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:14px;
+}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{
+  background:var(--surf);border:1px solid var(--border);border-radius:8px;
+  padding:14px 16px 12px;position:relative;overflow:hidden;
+}
+.kpi::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--kc,var(--accent));
+}
+.kpi-lbl{font-family:'JetBrains Mono',monospace;font-size:0.55rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:7px}
+.kpi-val{font-size:1.55rem;font-weight:700;line-height:1;color:var(--kc,var(--text))}
+.kpi-sub{font-size:0.65rem;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono',monospace}
+
+/* ── LEGEND ── */
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.leg{display:flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted)}
+.leg-swatch{width:20px;height:3px;border-radius:2px;flex-shrink:0}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.leg-dash{width:20px;height:0;border-top:2px dashed;flex-shrink:0}
+
+/* ── TOOLTIP ── */
+#tip{
+  position:fixed;background:#14171f;border:1px solid var(--border2);
+  color:var(--text);padding:10px 14px;border-radius:6px;
+  font-family:'JetBrains Mono',monospace;font-size:0.64rem;
+  pointer-events:none;opacity:0;transition:opacity .12s;
+  max-width:280px;line-height:1.7;z-index:200;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+}
+#tip.on{opacity:1}
+
+@media(max-width:900px){
+  .kpi-row{grid-template-columns:repeat(3,1fr)}
+  .page{padding:16px}
+  .topbar{padding:14px 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <h1>DnD <em>System Team</em></h1>
+    <span class="topbar-team">DevOps · Quality · Platform</span>
+  </div>
+  <nav class="nav">
+    <a class="nav-a active" href="#throughput" onclick="setNav(this)">Throughput</a>
+    <a class="nav-a" href="#pbc" onclick="setNav(this)">Process Behaviour</a>
+  </nav>
+  <div class="topbar-meta">
+    590 work items · All Done<br>
+    PI14 → PI-1 2026
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- KPIs -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- ── THROUGHPUT SECTION ── -->
+  <div class="section" id="throughput">
+    <div class="section-head">
+      <div class="section-title">Throughput <em>Chart</em></div>
+      <div class="section-sub">items completed per batch · grouped in sets of 20 by ID sequence · colored by type</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Items completed per batch (n=30 batches · 20 items each)</div>
+      <svg id="tp-chart" width="100%" style="display:block"></svg>
+      <div class="legend">
+        <div class="leg"><div class="leg-swatch" style="background:var(--accent)"></div>User Story</div>
+        <div class="leg"><div class="leg-swatch" style="background:var(--green)"></div>Feature</div>
+        <div class="leg"><div class="leg-swatch" style="background:var(--amber)"></div>Objective</div>
+        <div class="leg"><div class="leg-swatch" style="background:var(--red)"></div>Bug</div>
+        <div class="leg"><div class="leg-swatch" style="background:var(--purple)"></div>Task</div>
+        <div class="leg"><div class="leg-swatch" style="background:var(--cyan)"></div>Issue</div>
+        <div class="leg"><div class="leg-dash" style="border-color:var(--mean)"></div>Mean throughput</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PBC SECTION ── -->
+  <div class="section" id="pbc">
+    <div class="section-head">
+      <div class="section-title">Process <em>Behaviour</em> Chart</div>
+      <div class="section-sub">XmR chart · batch throughput · arithmetic mean · natural process limits (±3σ via mR̄/d₂)</div>
+    </div>
+
+    <!-- X Chart -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-label">X chart — individual batch throughput values</div>
+      <svg id="x-chart" width="100%" style="display:block"></svg>
+      <div class="legend">
+        <div class="leg"><div class="leg-swatch" style="background:var(--accent)"></div>Batch throughput</div>
+        <div class="leg"><div class="leg-swatch" style="background:var(--mean)"></div>Mean x̄</div>
+        <div class="leg"><div class="leg-swatch" style="background:rgba(240,80,79,.7)"></div>UCL (x̄ + 3σ)</div>
+        <div class="leg"><div class="leg-swatch" style="background:rgba(62,207,130,.7)"></div>LCL (x̄ − 3σ)</div>
+        <div class="leg"><div class="leg-dot" style="background:#ff6eb4"></div>Signal (beyond limits)</div>
+      </div>
+    </div>
+
+    <!-- mR Chart -->
+    <div class="card">
+      <div class="card-label">mR chart — moving range between successive batches</div>
+      <svg id="mr-chart" width="100%" style="display:block"></svg>
+      <div class="legend">
+        <div class="leg"><div class="leg-swatch" style="background:var(--purple)"></div>Moving range</div>
+        <div class="leg"><div class="leg-swatch" style="background:var(--mean)"></div>Mean mR̄</div>
+        <div class="leg"><div class="leg-swatch" style="background:rgba(240,80,79,.7)"></div>URL (3.267 × mR̄)</div>
+        <div class="leg"><div class="leg-dot" style="background:#ff6eb4"></div>Signal (above URL)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="tip"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const batches = [
+  {label:"#1",  count:20, types:{Objective:20}, ids:"930233–1599748"},
+  {label:"#2",  count:20, types:{Objective:15,"User Story":5}, ids:"1599749–1941501"},
+  {label:"#3",  count:20, types:{Objective:5,"User Story":13,Feature:2}, ids:"1950253–2003960"},
+  {label:"#4",  count:20, types:{"User Story":15,Feature:1,Objective:4}, ids:"2006390–2026471"},
+  {label:"#5",  count:20, types:{Feature:8,"User Story":12}, ids:"2027158–2040781"},
+  {label:"#6",  count:20, types:{"User Story":15,Feature:4,Task:1}, ids:"2041025–2046226"},
+  {label:"#7",  count:20, types:{Bug:2,"User Story":18}, ids:"2047252–2054765"},
+  {label:"#8",  count:20, types:{"User Story":19,Task:1}, ids:"2055016–2058104"},
+  {label:"#9",  count:20, types:{"User Story":16,Feature:4}, ids:"2058282–2063891"},
+  {label:"#10", count:20, types:{"User Story":19,Bug:1}, ids:"2064476–2069219"},
+  {label:"#11", count:20, types:{"User Story":17,Bug:2,Feature:1}, ids:"2069244–2075569"},
+  {label:"#12", count:20, types:{"User Story":12,Task:5,Objective:3}, ids:"2075624–2082054"},
+  {label:"#13", count:20, types:{Objective:1,"User Story":18,Bug:1}, ids:"2082264–2110032"},
+  {label:"#14", count:20, types:{"User Story":19,Task:1}, ids:"2115987–2138264"},
+  {label:"#15", count:20, types:{Task:3,"User Story":15,Feature:1,Objective:1}, ids:"2139239–2149165"},
+  {label:"#16", count:20, types:{"User Story":12,Feature:7,Task:1}, ids:"2149166–2150421"},
+  {label:"#17", count:20, types:{"User Story":14,Task:3,Bug:3}, ids:"2150695–2158043"},
+  {label:"#18", count:20, types:{"User Story":18,Bug:2}, ids:"2159405–2163348"},
+  {label:"#19", count:20, types:{"User Story":16,Task:2,Bug:2}, ids:"2163818–2170968"},
+  {label:"#20", count:20, types:{"User Story":19,Task:1}, ids:"2171709–2176755"},
+  {label:"#21", count:20, types:{"User Story":20}, ids:"2176771–2180691"},
+  {label:"#22", count:20, types:{"User Story":17,Task:2,Bug:1}, ids:"2180996–2183414"},
+  {label:"#23", count:20, types:{Task:3,"User Story":15,Bug:2}, ids:"2183520–2186148"},
+  {label:"#24", count:20, types:{"User Story":18,Task:2}, ids:"2186151–2189878"},
+  {label:"#25", count:20, types:{"User Story":20}, ids:"2190136–2195209"},
+  {label:"#26", count:20, types:{"User Story":18,Task:1,Issue:1}, ids:"2195810–2201404"},
+  {label:"#27", count:20, types:{"User Story":11,Issue:9}, ids:"2202084–2204697"},
+  {label:"#28", count:20, types:{Issue:13,"User Story":6,Task:1}, ids:"2204724–2209991"},
+  {label:"#29", count:20, types:{Issue:15,"User Story":5}, ids:"2210340–2221657"},
+  {label:"#30", count:10, types:{"User Story":4,Issue:6}, ids:"2222082–2228908"},
+];
+
+const TYPE_COLORS = {
+  "User Story": "#5b8cff",
+  "Feature":    "#3ecf82",
+  "Objective":  "#f5a623",
+  "Bug":        "#f0504f",
+  "Task":       "#b47fff",
+  "Issue":      "#38c9d4",
+};
+
+const counts = batches.map(b=>b.count);
+const n = counts.length;
+const mean = counts.reduce((a,b)=>a+b,0)/n;
+const mRs = [];
+for(let i=1;i<n;i++) mRs.push(Math.abs(counts[i]-counts[i-1]));
+const mRbar = mRs.reduce((a,b)=>a+b,0)/mRs.length;
+const d2=1.128, D4=3.267;
+const sigma = mRbar/d2;
+const UCL  = mean + 3*sigma;
+const LCL  = Math.max(0, mean - 3*sigma);
+const URL  = D4 * mRbar;
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+const signals = batches.filter(b=>b.count>UCL||b.count<LCL).length;
+const totalItems = counts.reduce((a,b)=>a+b,0);
+const typeTotal = {};
+batches.forEach(b=>Object.entries(b.types).forEach(([k,v])=>typeTotal[k]=(typeTotal[k]||0)+v));
+const topType = Object.entries(typeTotal).sort((a,b)=>b[1]-a[1])[0];
+
+const kpis=[
+  {lbl:'Total Items', val:totalItems, sub:'all work item types', c:'#5b8cff'},
+  {lbl:'Mean x̄',     val:mean.toFixed(1), sub:'items per batch', c:'#f5c842'},
+  {lbl:'UCL',         val:UCL.toFixed(1),  sub:'upper control limit', c:'#f0504f'},
+  {lbl:'LCL',         val:LCL.toFixed(1),  sub:'lower control limit', c:'#3ecf82'},
+  {lbl:'Signals',     val:signals,          sub:'batches outside limits', c:signals>0?'#ff6eb4':'#3ecf82'},
+];
+const kr=document.getElementById('kpiRow');
+kpis.forEach(k=>{
+  kr.innerHTML+=`<div class="kpi" style="--kc:${k.c}">
+    <div class="kpi-lbl">${k.lbl}</div>
+    <div class="kpi-val">${k.val}</div>
+    <div class="kpi-sub">${k.sub}</div>
+  </div>`;
+});
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const NS='http://www.w3.org/2000/svg';
+function se(tag,attrs,parent){
+  const e=document.createElementNS(NS,tag);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(parent)parent.appendChild(e);
+  return e;
+}
+const tip=document.getElementById('tip');
+function showTip(e,h){tip.innerHTML=h;tip.classList.add('on');moveTip(e)}
+function moveTip(e){let x=e.clientX+14,y=e.clientY-10;if(x+290>innerWidth)x=e.clientX-290;tip.style.cssText=`left:${x}px;top:${y}px`}
+function hideTip(){tip.classList.remove('on')}
+
+// ── THROUGHPUT CHART ─────────────────────────────────────────────────────────
+function drawThroughput(){
+  const svg=document.getElementById('tp-chart');
+  const W=svg.parentElement.clientWidth-44;
+  const n=batches.length;
+  const PL=42,PR=16,PT=24,PB=36;
+  const BAR=Math.max(8,(W-PL-PR)/n-4);
+  const GAP=(W-PL-PR)/n;
+  const maxC=Math.max(...counts)*1.12;
+  const H=Math.min(280,Math.max(200,W*0.3));
+  const ph=H-PT-PB;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('height',H);
+  svg.innerHTML='';
+
+  const scY=v=>PT+ph-(v/maxC)*ph;
+
+  // grid
+  const step=5;
+  for(let v=0;v<=maxC;v+=step){
+    const y=scY(v);
+    if(y<PT-2)continue;
+    se('line',{x1:PL,y1:y,x2:PL+W-PL-PR,y2:y,stroke:'#131620','stroke-width':'1'},svg);
+    se('text',{x:PL-5,y:y+4,'text-anchor':'end',fill:'#3a4258','font-size':'9'},svg).textContent=v;
+  }
+
+  // axes
+  se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#2a3045','stroke-width':'1.5'},svg);
+  se('line',{x1:PL,y1:PT+ph,x2:PL+(W-PL-PR),y2:PT+ph,stroke:'#2a3045','stroke-width':'1.5'},svg);
+
+  // mean line
+  const ym=scY(mean);
+  se('line',{x1:PL,y1:ym,x2:PL+(W-PL-PR),y2:ym,stroke:'#f5c842','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
+  se('text',{x:PL+5,y:ym-5,fill:'#f5c842','font-size':'8.5','font-weight':'600'},svg).textContent=`x̄ ${mean.toFixed(1)}`;
+
+  // stacked bars
+  batches.forEach((b,i)=>{
+    const cx=PL+i*GAP+GAP/2;
+    const bw=Math.min(BAR,GAP*0.72);
+    const x=cx-bw/2;
+    const typeOrder=["User Story","Feature","Objective","Issue","Task","Bug"];
+    let cumY=PT+ph;
+    typeOrder.forEach(type=>{
+      const v=b.types[type]||0;
+      if(!v)return;
+      const barH=(v/maxC)*ph;
+      const col=TYPE_COLORS[type]||'#888';
+      const rect=se('rect',{x,y:cumY-barH,width:bw,height:barH,rx:2,fill:col,opacity:'0.82',style:'cursor:pointer'},svg);
+      cumY-=barH;
+      rect.addEventListener('mouseenter',e=>showTip(e,
+        `<strong>${b.label}</strong> · IDs ${b.ids}<br>Total: <strong>${b.count}</strong><br><br>`+
+        Object.entries(b.types).map(([t,v])=>`<span style="color:${TYPE_COLORS[t]||'#888'}">${t}: ${v}</span>`).join('<br>')));
+      rect.addEventListener('mousemove',moveTip);
+      rect.addEventListener('mouseleave',hideTip);
+    });
+    // x label
+    if(i%3===0||i===batches.length-1)
+      se('text',{x:cx,y:PT+ph+14,'text-anchor':'middle',fill:'#3a4258','font-size':'8.5'},svg).textContent=b.label;
+  });
+}
+
+// ── XmR CHARTS ───────────────────────────────────────────────────────────────
+function drawXmR(svgId, dataPoints, cfg){
+  const svg=document.getElementById(svgId);
+  const W=svg.parentElement.clientWidth-44;
+  const n=dataPoints.length;
+  const PL=48,PR=16,PT=30,PB=40;
+  const pw=W-PL-PR, ph_base=Math.min(260,Math.max(180,W*0.28));
+  const H=ph_base+PT+PB;
+  const ph=ph_base;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('height',H);
+  svg.innerHTML='';
+
+  const {mu, ucl, lcl, lineCol, dotCol, ucl_lbl, lcl_lbl, mean_lbl, url_lbl} = cfg;
+  const vals=dataPoints.map(p=>p.y);
+  const yMax=Math.max(ucl*1.12,...vals)*1.05;
+  const yMin=0;
+  const GAP=pw/(n-1||1);
+  const scX=i=>PL+i*GAP;
+  const scY=v=>PT+ph-((v-yMin)/(yMax-yMin))*ph;
+
+  // y grid
+  const rawStep=(yMax-yMin)/5;
+  const mag=Math.pow(10,Math.floor(Math.log10(rawStep||1)));
+  const yStep=Math.ceil(rawStep/mag)*mag||2;
+  for(let v=0;v<=yMax+yStep;v+=yStep){
+    if(v>yMax*1.05)break;
+    const y=scY(v);
+    if(y<PT-2||y>PT+ph+2)continue;
+    se('line',{x1:PL,y1:y,x2:PL+pw,y2:y,stroke:'#131620','stroke-width':'1'},svg);
+    se('text',{x:PL-5,y:y+4,'text-anchor':'end',fill:'#3a4258','font-size':'9'},svg).textContent=v.toFixed(0);
+  }
+
+  // axes
+  se('line',{x1:PL,y1:PT,x2:PL,y2:PT+ph,stroke:'#2a3045','stroke-width':'1.5'},svg);
+  se('line',{x1:PL,y1:PT+ph,x2:PL+pw,y2:PT+ph,stroke:'#2a3045','stroke-width':'1.5'},svg);
+
+  // zone fills
+  const yUCL=scY(ucl), yMu=scY(mu), yLCL=scY(lcl>0?lcl:0);
+  se('rect',{x:PL,y:yUCL,width:pw,height:yMu-yUCL,fill:'rgba(240,80,79,.04)'},svg);
+  if(lcl>0) se('rect',{x:PL,y:yMu,width:pw,height:yLCL-yMu,fill:'rgba(62,207,130,.04)'},svg);
+
+  // UCL
+  se('line',{x1:PL,y1:yUCL,x2:PL+pw,y2:yUCL,stroke:'rgba(240,80,79,.75)','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
+  se('text',{x:PL+5,y:yUCL-5,fill:'rgba(240,80,79,.9)','font-size':'8.5','font-weight':'600'},svg)
+    .textContent=`${ucl_lbl||cfg.url_lbl||'UCL'} ${ucl.toFixed(1)}`;
+
+  // LCL
+  if(lcl>0){
+    se('line',{x1:PL,y1:yLCL,x2:PL+pw,y2:yLCL,stroke:'rgba(62,207,130,.75)','stroke-width':'1.5','stroke-dasharray':'6,3'},svg);
+    se('text',{x:PL+5,y:yLCL+12,fill:'rgba(62,207,130,.9)','font-size':'8.5','font-weight':'600'},svg)
+      .textContent=`LCL ${lcl.toFixed(1)}`;
+  }
+
+  // Mean
+  se('line',{x1:PL,y1:yMu,x2:PL+pw,y2:yMu,stroke:'#f5c842','stroke-width':'2'},svg);
+  se('text',{x:PL+5,y:yMu-6,fill:'#f5c842','font-size':'8.5','font-weight':'700'},svg)
+    .textContent=`${mean_lbl} ${mu.toFixed(1)}`;
+
+  // connecting line
+  const pts=dataPoints.map((p,i)=>`${scX(i)},${scY(p.y)}`).join(' ');
+  se('polyline',{points:pts,fill:'none',stroke:lineCol,'stroke-width':'1.5',opacity:'0.45'},svg);
+
+  // dots + x labels
+  dataPoints.forEach((p,i)=>{
+    const cx=scX(i), cy=scY(p.y);
+    const isSignal=p.y>ucl||(lcl>0&&p.y<lcl);
+    if(isSignal) se('circle',{cx,cy,r:14,fill:'rgba(255,110,180,.1)'},svg);
+    const dot=se('circle',{cx,cy,r:isSignal?7:5,
+      fill:isSignal?'#ff6eb4':dotCol,
+      stroke:'#08090c','stroke-width':'1.5',opacity:'0.92',style:'cursor:pointer'},svg);
+    dot.addEventListener('mouseenter',e=>showTip(e,p.tip));
+    dot.addEventListener('mousemove',moveTip);
+    dot.addEventListener('mouseleave',hideTip);
+
+    // x label every 3
+    if(i%3===0||i===dataPoints.length-1){
+      se('text',{x:cx,y:PT+ph+14,'text-anchor':'middle',fill:'#3a4258','font-size':'8.5'},svg)
+        .textContent=p.label;
+    }
+  });
+}
+
+function drawXChart(){
+  const pts=batches.map((b,i)=>({
+    y:b.count, label:b.label,
+    tip:`<strong>${b.label}</strong> · IDs ${b.ids}<br>Count: <strong>${b.count}</strong>${b.count>UCL?'<br><span style="color:#ff6eb4">⚠ Signal: above UCL</span>':b.count<LCL?'<br><span style="color:#ff6eb4">⚠ Signal: below LCL</span>':'<br><span style="color:#3ecf82">✓ Within limits</span>'}`
+  }));
+  drawXmR('x-chart', pts, {
+    mu:mean, ucl:UCL, lcl:LCL,
+    lineCol:'#5b8cff', dotCol:'#5b8cff',
+    ucl_lbl:'UCL', mean_lbl:'x̄',
+  });
+}
+
+function drawMRChart(){
+  const pts=mRs.map((mr,i)=>({
+    y:mr, label:batches[i+1].label,
+    tip:`mR between <strong>${batches[i].label}</strong> → <strong>${batches[i+1].label}</strong><br>|${batches[i].count} − ${batches[i+1].count}| = <strong>${mr.toFixed(1)}</strong>${mr>URL?'<br><span style="color:#ff6eb4">⚠ Signal: above URL</span>':'<br><span style="color:#3ecf82">✓ Within URL</span>'}`
+  }));
+  drawXmR('mr-chart', pts, {
+    mu:mRbar, ucl:URL, lcl:0,
+    lineCol:'#b47fff', dotCol:'#b47fff',
+    url_lbl:'URL', mean_lbl:'mR̄',
+  });
+}
+
+function setNav(el){
+  document.querySelectorAll('.nav-a').forEach(a=>a.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function drawAll(){
+  drawThroughput();
+  drawXChart();
+  drawMRChart();
+}
+
+window.addEventListener('load', drawAll);
+window.addEventListener('resize', drawAll);
+</script>
+</body>
+</html>
