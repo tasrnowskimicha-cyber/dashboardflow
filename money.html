@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0e0f11;
+    --bg2: #16181c;
+    --bg3: #1e2128;
+    --bg4: #252830;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0ee;
+    --text2: #9a9b9e;
+    --text3: #5a5c62;
+    --green: #3fd68f;
+    --green-dim: rgba(63,214,143,0.12);
+    --red: #f0614a;
+    --red-dim: rgba(240,97,74,0.12);
+    --blue: #5b9cf6;
+    --blue-dim: rgba(91,156,246,0.12);
+    --amber: #f5a623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --teal: #2dd4bf;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* LAYOUT */
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 28px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-logo {
+    padding: 0 22px 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .sidebar-logo span {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--green);
+    text-transform: uppercase;
+  }
+  .sidebar-logo p { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .nav-section { padding: 0 14px; margin-bottom: 8px; }
+  .nav-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); padding: 0 8px; margin-bottom: 6px; font-family: var(--mono); }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: var(--green-dim); color: var(--green); }
+  .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-footer { padding: 14px 22px; border-top: 1px solid var(--border); }
+  .sidebar-footer p { font-size: 11px; color: var(--text3); }
+  .sidebar-footer strong { color: var(--text2); }
+
+  /* MAIN */
+  .main { overflow-x: hidden; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-title { font-size: 16px; font-weight: 500; }
+  .topbar-sub { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-top: 1px; }
+  .btn-add {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--green);
+    color: #0a1a10;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-add:hover { opacity: 0.88; }
+  .btn-add svg { width: 14px; height: 14px; }
+
+  /* CONTENT */
+  .content { padding: 28px 32px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* YEAR FILTER */
+  .year-filter {
+    display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .year-btn {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; padding: 5px 14px;
+    font-size: 12px; font-family: var(--mono); color: var(--text2);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .year-btn:hover { border-color: var(--border2); color: var(--text); }
+  .year-btn.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+  /* METRICS GRID */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .metric-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--mono); margin-bottom: 8px; }
+  .metric-value { font-size: 26px; font-weight: 500; font-family: var(--mono); line-height: 1.1; }
+  .metric-value.green { color: var(--green); }
+  .metric-value.red { color: var(--red); }
+  .metric-value.blue { color: var(--blue); }
+  .metric-value.amber { color: var(--amber); }
+  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+  .metric-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-family: var(--mono);
+    padding: 2px 8px; border-radius: 4px; margin-top: 8px;
+  }
+  .metric-badge.up { background: var(--green-dim); color: var(--green); }
+  .metric-badge.down { background: var(--red-dim); color: var(--red); }
+
+  /* CHARTS */
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .charts-row.full { grid-template-columns: 1fr; }
+  .chart-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+  }
+  .chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  .chart-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .chart-sub { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ACCOUNTS */
+  .accounts-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 14px; }
+  .acc-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    position: relative; overflow: hidden;
+  }
+  .acc-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .acc-card:nth-child(1)::before { background: var(--purple); }
+  .acc-card:nth-child(2)::before { background: var(--green); }
+  .acc-card:nth-child(3)::before { background: var(--blue); }
+  .acc-card:nth-child(4)::before { background: var(--amber); }
+  .acc-card:nth-child(5)::before { background: var(--red); }
+  .acc-name { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.07em; }
+  .acc-val { font-size: 18px; font-weight: 500; font-family: var(--mono); }
+  .acc-currency { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* CATEGORIES TABLE */
+  .cat-table { width: 100%; border-collapse: collapse; }
+  .cat-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); font-family: var(--mono); font-weight: 400; padding: 0 0 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  .cat-table th:last-child { text-align: right; }
+  .cat-table td { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  .cat-table tr:last-child td { border-bottom: none; }
+  .cat-bar-wrap { width: 140px; height: 4px; background: var(--bg3); border-radius: 2px; }
+  .cat-bar { height: 4px; border-radius: 2px; }
+  .cat-amount { text-align: right; font-family: var(--mono); font-size: 13px; }
+
+  /* MONTHLY TABLE */
+  .monthly-table-wrap { overflow-x: auto; max-height: 420px; overflow-y: auto; }
+  .monthly-table { width: 100%; border-collapse: collapse; }
+  .monthly-table th {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text3); font-family: var(--mono); font-weight: 400;
+    padding: 0 12px 10px; text-align: right; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: var(--bg2); z-index: 2;
+  }
+  .monthly-table th:first-child { text-align: left; }
+  .monthly-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); font-size: 13px; text-align: right; font-family: var(--mono); }
+  .monthly-table td:first-child { text-align: left; color: var(--text2); }
+  .monthly-table tr:last-child td { border-bottom: none; }
+  .monthly-table tr:hover td { background: var(--bg3); }
+  .surplus-pos { color: var(--green); }
+  .surplus-neg { color: var(--red); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 100; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 28px 30px;
+    width: 420px;
+    max-width: 95vw;
+    animation: modalIn 0.18s ease;
+  }
+  @keyframes modalIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .modal-title { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: var(--text3); margin-bottom: 24px; font-family: var(--mono); }
+  .form-row { margin-bottom: 16px; }
+  .form-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); font-family: var(--mono); margin-bottom: 6px; display: block; }
+  .form-input, .form-select {
+    width: 100%; background: var(--bg3);
+    border: 1px solid var(--border2); border-radius: var(--radius-sm);
+    color: var(--text); font-family: var(--sans); font-size: 14px;
+    padding: 10px 14px; outline: none; transition: border-color 0.15s;
+    appearance: none;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--green); }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .type-btn {
+    padding: 9px; border-radius: var(--radius-sm); border: 1px solid var(--border2);
+    background: var(--bg3); color: var(--text2); font-size: 13px; font-family: var(--sans);
+    cursor: pointer; transition: all 0.15s; text-align: center;
+  }
+  .type-btn.income.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  .type-btn.expense.active { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+  .btn-cancel {
+    flex: 1; padding: 10px; border-radius: var(--radius-sm);
+    background: var(--bg3); border: 1px solid var(--border2);
+    color: var(--text2); font-size: 14px; font-family: var(--sans); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-cancel:hover { border-color: var(--border2); color: var(--text); }
+  .btn-save {
+    flex: 2; padding: 10px; border-radius: var(--radius-sm);
+    background: var(--green); border: none; color: #0a1a10;
+    font-size: 14px; font-weight: 600; font-family: var(--sans); cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-save:hover { opacity: 0.88; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--bg3); border: 1px solid var(--green);
+    color: var(--green); font-size: 13px; font-family: var(--mono);
+    padding: 12px 20px; border-radius: var(--radius-sm);
+    z-index: 200; transform: translateY(20px); opacity: 0;
+    transition: all 0.25s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* RESPONSIVE */
+  @media(max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .metrics { grid-template-columns: repeat(2,1fr); }
+    .accounts-grid { grid-template-columns: repeat(2,1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+  }
+  @media(max-width: 600px) {
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .content { padding: 20px 16px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span>₿ fintrack</span>
+      <p>Personal Finance — PLN</p>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" onclick="showSection('overview', this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showSection('monthly', this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="14" height="12" rx="2"/><path d="M5 2V0M11 2V0M1 6h14"/></svg>
+        Monthly View
+      </div>
+      <div class="nav-item" onclick="showSection('yearly', this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12 L4 8 L7 10 L10 5 L13 7 L15 3"/></svg>
+        Yearly Trends
+      </div>
+    </div>
+    <div class="nav-section" style="margin-top:8px">
+      <div class="nav-label">Analysis</div>
+      <div class="nav-item" onclick="showSection('categories', this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 8 L8 1M8 8 L13.5 11.5M8 8 L2 11"/></svg>
+        Categories
+      </div>
+      <div class="nav-item" onclick="showSection('accounts', this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="14" height="10" rx="2"/><path d="M4 4V3a3 3 0 016 0v1"/><path d="M5 9h6"/></svg>
+        Accounts
+      </div>
+    </div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-footer">
+      <p>Data since <strong>Jan 2021</strong></p>
+      <p style="margin-top:4px">Last entry <strong>Mar 2026</strong></p>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="section-title">Dashboard</div>
+        <div class="topbar-sub" id="section-sub">All-time overview · Jan 2021 – Mar 2026</div>
+      </div>
+      <button class="btn-add" onclick="openModal()">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1v12M1 7h12"/></svg>
+        Add Entry
+      </button>
+    </div>
+
+    <div class="content">
+
+      <!-- ========== OVERVIEW ========== -->
+      <div class="section active" id="section-overview">
+        <div class="metrics" id="overview-metrics"></div>
+
+        <div class="charts-row full">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Income vs. Expenses — Monthly (all time)</div>
+                <div class="chart-sub">63 months · PLN</div>
+              </div>
+              <div class="legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#3fd68f"></div> Income</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f0614a"></div> Expenses</div>
+              </div>
+            </div>
+            <div style="position:relative;height:220px">
+              <canvas id="overviewMonthlyChart" role="img" aria-label="Monthly income and expenses chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Net Savings per Month</div>
+                <div class="chart-sub">Income minus expenses</div>
+              </div>
+            </div>
+            <div style="position:relative;height:180px">
+              <canvas id="savingsChart" role="img" aria-label="Monthly net savings chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Savings Rate Trend</div>
+                <div class="chart-sub">% of income saved monthly</div>
+              </div>
+            </div>
+            <div style="position:relative;height:180px">
+              <canvas id="savingsRateChart" role="img" aria-label="Monthly savings rate chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== MONTHLY VIEW ========== -->
+      <div class="section" id="section-monthly">
+        <div class="year-filter" id="year-filter"></div>
+        <div class="metrics" id="monthly-metrics"></div>
+        <div class="charts-row full">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title" id="monthly-chart-title">Monthly breakdown</div>
+                <div class="chart-sub">Income vs. expenses · PLN</div>
+              </div>
+              <div class="legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#3fd68f"></div> Income</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f0614a"></div> Expenses</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#5b9cf6"></div> Surplus</div>
+              </div>
+            </div>
+            <div style="position:relative;height:240px">
+              <canvas id="monthlyYearChart" role="img" aria-label="Monthly income and expenses for selected year"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title" style="margin-bottom:14px">All Monthly Data</div>
+          <div class="monthly-table-wrap">
+            <table class="monthly-table" id="monthly-table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Income</th>
+                  <th>Expenses</th>
+                  <th>Surplus</th>
+                  <th>Rate</th>
+                </tr>
+              </thead>
+              <tbody id="monthly-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== YEARLY TRENDS ========== -->
+      <div class="section" id="section-yearly">
+        <div class="metrics" id="yearly-metrics"></div>
+        <div class="charts-row full">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Yearly Income vs. Expenses</div>
+                <div class="chart-sub">2021 – 2026 · PLN</div>
+              </div>
+              <div class="legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#3fd68f"></div> Income</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f0614a"></div> Expenses</div>
+              </div>
+            </div>
+            <div style="position:relative;height:260px">
+              <canvas id="yearlyBarChart" role="img" aria-label="Yearly income and expenses bar chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Yearly Surplus</div></div>
+            <div style="position:relative;height:200px">
+              <canvas id="yearlySurplusChart" role="img" aria-label="Yearly net surplus chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Avg. Savings Rate by Year</div></div>
+            <div style="position:relative;height:200px">
+              <canvas id="yearlySavingsRateChart" role="img" aria-label="Yearly savings rate chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== CATEGORIES ========== -->
+      <div class="section" id="section-categories">
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Spending by Category</div>
+                <div class="chart-sub">All time · top 10</div>
+              </div>
+            </div>
+            <div style="position:relative;height:280px">
+              <canvas id="catDonut" role="img" aria-label="Category spending donut chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div class="chart-title">Category Breakdown</div>
+              <div class="chart-sub" style="font-size:11px;color:var(--text3);font-family:var(--mono)">PLN · all time</div>
+            </div>
+            <table class="cat-table" id="cat-table"></table>
+          </div>
+        </div>
+        <div class="charts-row full">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div><div class="chart-title">Category Comparison (Bar)</div></div>
+            </div>
+            <div style="position:relative;height:260px">
+              <canvas id="catBar" role="img" aria-label="Category spending horizontal bar chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== ACCOUNTS ========== -->
+      <div class="section" id="section-accounts">
+        <div class="accounts-grid" id="accounts-grid"></div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div><div class="chart-title">Portfolio Allocation</div></div>
+            </div>
+            <div style="position:relative;height:280px">
+              <canvas id="portfolioDonut" role="img" aria-label="Portfolio allocation donut chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card" style="display:flex;flex-direction:column;justify-content:center;">
+            <div class="chart-title" style="margin-bottom:18px">Balance Summary</div>
+            <div id="balance-bars"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /app -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <div class="modal-title">Add New Entry</div>
+    <div class="modal-sub">This will be saved and update all charts</div>
+    <div class="form-row">
+      <label class="form-label">Type</label>
+      <div class="type-toggle">
+        <div class="type-btn income active" id="btn-income" onclick="setType('Income')">+ Income</div>
+        <div class="type-btn expense" id="btn-expense" onclick="setType('Expense')">- Expense</div>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">Month</label>
+        <input class="form-input" type="month" id="input-month" value="2026-04">
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">Amount (PLN)</label>
+        <input class="form-input" type="number" id="input-amount" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:16px">
+      <label class="form-label">Category / Note</label>
+      <input class="form-input" type="text" id="input-category" placeholder="e.g. Salary, Rent, Food…">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveEntry()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Entry saved ✓</div>
+
+<script>
+// =================== DATA ===================
+const RAW_MONTHLY = [{"month":"2021-01","income":7669,"expense":6299.35},{"month":"2021-02","income":6009,"expense":3009.59},{"month":"2021-03","income":11153.26,"expense":3300.06},{"month":"2021-04","income":10471,"expense":3278.57},{"month":"2021-05","income":9579.8,"expense":3148.03},{"month":"2021-06","income":10529.8,"expense":4679.76},{"month":"2021-07","income":10924.22,"expense":4600.04},{"month":"2021-08","income":9574.32,"expense":6021.61},{"month":"2021-09","income":9948.08,"expense":6774.41},{"month":"2021-10","income":9914.53,"expense":4947.46},{"month":"2021-11","income":11029.28,"expense":8703.36},{"month":"2021-12","income":8376.08,"expense":7070.73},{"month":"2022-01","income":9502.97,"expense":6063.57},{"month":"2022-02","income":10846,"expense":6253.7},{"month":"2022-03","income":12403.8,"expense":9506.8},{"month":"2022-04","income":11161.56,"expense":5131.9},{"month":"2022-05","income":11443.7,"expense":9314.14},{"month":"2022-06","income":11731.02,"expense":10043.75},{"month":"2022-07","income":11704.38,"expense":7155.9},{"month":"2022-08","income":16015.22,"expense":7015.22},{"month":"2022-09","income":16588.79,"expense":10888.79},{"month":"2022-10","income":12998,"expense":6843.34},{"month":"2022-11","income":11931,"expense":7106.78},{"month":"2022-12","income":14157.63,"expense":7996.39},{"month":"2023-01","income":19718.83,"expense":8487},{"month":"2023-02","income":18327.01,"expense":8326.59},{"month":"2023-03","income":16428.55,"expense":9827.71},{"month":"2023-04","income":17600.53,"expense":14000},{"month":"2023-05","income":17304.74,"expense":8704.74},{"month":"2023-06","income":17227.43,"expense":10102.74},{"month":"2023-07","income":14845.24,"expense":6445.24},{"month":"2023-08","income":15017.55,"expense":11816.74},{"month":"2023-09","income":14726.2,"expense":7516.36},{"month":"2023-10","income":14499.95,"expense":8236.63},{"month":"2023-11","income":21624.76,"expense":8681.56},{"month":"2023-12","income":18205.01,"expense":10179.32},{"month":"2024-01","income":15946.69,"expense":20043.92},{"month":"2024-02","income":19275.58,"expense":17924.8},{"month":"2024-03","income":21365.23,"expense":13623.96},{"month":"2024-04","income":23145.5,"expense":12725.22},{"month":"2024-05","income":22930.9,"expense":18430.97},{"month":"2024-06","income":20817.54,"expense":12217.6},{"month":"2024-07","income":14253.54,"expense":14261.83},{"month":"2024-08","income":14594.99,"expense":10194.99},{"month":"2024-09","income":14594.99,"expense":29099.01},{"month":"2024-10","income":17705.12,"expense":13101.27},{"month":"2024-11","income":18339.39,"expense":11338.84},{"month":"2024-12","income":16415.09,"expense":12353.51},{"month":"2025-01","income":17551.66,"expense":12550.34},{"month":"2025-02","income":20334.53,"expense":9328.18},{"month":"2025-03","income":20817.57,"expense":10433.89},{"month":"2025-04","income":25472.33,"expense":11527.45},{"month":"2025-05","income":20500.66,"expense":10638.7},{"month":"2025-06","income":19114.11,"expense":15697.2},{"month":"2025-07","income":17715.47,"expense":14942.52},{"month":"2025-08","income":17453.82,"expense":15541.58},{"month":"2025-09","income":16024.56,"expense":13939.58},{"month":"2025-10","income":17416.22,"expense":17416.22},{"month":"2025-11","income":17894.66,"expense":12871.01},{"month":"2025-12","income":18311.13,"expense":12467.63},{"month":"2026-01","income":19880.88,"expense":12435.22},{"month":"2026-02","income":23915.13,"expense":11887.87},{"month":"2026-03","income":23816.59,"expense":7032.88}];
+
+const CATEGORIES = [["Czynsz, Rachunki",195808.42],["Jedzenie i dom",126824.72],["Wyjazdy",62247.45],["Zdrowie",49129.74],["Datki / Prezenty",37886.72],["Sport",29191.62],["Transport",21415.77],["Wyposażenie",17282.51],["Orsted",13950.06],["Relaks",12672.55]];
+
+const ACCOUNTS = {
+  "Obligacje": 100300,
+  "IKE": 59339.04,
+  "IKZE": 39504,
+  "Karta/Gotówka": 10293.6,
+  "Gotówka": 1700
+};
+
+const CAT_COLORS = ['#a78bfa','#3fd68f','#f0614a','#f5a623','#5b9cf6','#2dd4bf','#fb923c','#e879f9','#34d399','#f87171'];
+
+let monthlyData = RAW_MONTHLY.map(d => ({...d}));
+let entryType = 'Income';
+let activeYear = 'all';
+let myYearChart = null;
+
+// =================== UTILS ===================
+function fmt(n) {
+  return Math.round(n).toLocaleString('pl-PL');
+}
+function fmtK(n) {
+  if (Math.abs(n) >= 1000) return (n/1000).toFixed(1) + 'k';
+  return Math.round(n).toString();
+}
+function getYear(m) { return parseInt(m.month.split('-')[0]); }
+function getYears() { return [...new Set(monthlyData.map(d => getYear(d)))].sort(); }
+function filterByYear(yr) {
+  if (yr === 'all') return monthlyData;
+  return monthlyData.filter(d => getYear(d) === parseInt(yr));
+}
+function computeYearly() {
+  const y = {};
+  monthlyData.forEach(d => {
+    const yr = getYear(d);
+    if (!y[yr]) y[yr] = {income:0, expense:0};
+    y[yr].income += d.income;
+    y[yr].expense += d.expense;
+  });
+  return y;
+}
+
+// =================== CHARTS ===================
+const chartDefaults = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false } }
+};
+const gridColor = 'rgba(255,255,255,0.05)';
+const tickColor = '#5a5c62';
+const tickFont = { family: 'DM Mono', size: 10 };
+
+function scalesXY(yCallback) {
+  return {
+    x: { ticks: { color: tickColor, font: tickFont, maxRotation: 45, autoSkip: true, maxTicksLimit: 18 }, grid: { color: gridColor } },
+    y: { ticks: { color: tickColor, font: tickFont, callback: yCallback || (v => fmtK(v)) }, grid: { color: gridColor } }
+  };
+}
+
+// OVERVIEW MONTHLY
+function buildOverviewMonthly() {
+  const labels = monthlyData.map(d => { const [y,m] = d.month.split('-'); return m+'/'+y.slice(2); });
+  new Chart(document.getElementById('overviewMonthlyChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Income', data: monthlyData.map(d => d.income), backgroundColor: 'rgba(63,214,143,0.7)', borderRadius: 2 },
+        { label: 'Expenses', data: monthlyData.map(d => d.expense), backgroundColor: 'rgba(240,97,74,0.65)', borderRadius: 2 }
+      ]
+    },
+    options: { ...chartDefaults, scales: scalesXY(), plugins: { ...chartDefaults.plugins, tooltip: { callbacks: { label: c => c.dataset.label + ': ' + fmt(c.raw) + ' PLN' } } } }
+  });
+}
+
+// SAVINGS
+function buildSavingsChart() {
+  const labels = monthlyData.map(d => { const [y,m] = d.month.split('-'); return m+'/'+y.slice(2); });
+  const surpluses = monthlyData.map(d => d.income - d.expense);
+  new Chart(document.getElementById('savingsChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: surpluses, backgroundColor: surpluses.map(v => v >= 0 ? 'rgba(63,214,143,0.7)' : 'rgba(240,97,74,0.7)'), borderRadius: 2 }]
+    },
+    options: { ...chartDefaults, scales: scalesXY(), plugins: { ...chartDefaults.plugins, tooltip: { callbacks: { label: c => fmt(c.raw) + ' PLN' } } } }
+  });
+}
+
+// SAVINGS RATE
+function buildSavingsRateChart() {
+  const labels = monthlyData.map(d => { const [y,m] = d.month.split('-'); return m+'/'+y.slice(2); });
+  const rates = monthlyData.map(d => d.income > 0 ? Math.round((d.income - d.expense)/d.income*100) : 0);
+  new Chart(document.getElementById('savingsRateChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{ data: rates, borderColor: '#5b9cf6', borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: true, backgroundColor: 'rgba(91,156,246,0.08)' }]
+    },
+    options: { ...chartDefaults, scales: scalesXY(v => v + '%'), plugins: { ...chartDefaults.plugins, tooltip: { callbacks: { label: c => c.raw + '%' } } } }
+  });
+}
+
+// OVERVIEW METRICS
+function buildOverviewMetrics() {
+  const totalIncome = monthlyData.reduce((s,d) => s+d.income, 0);
+  const totalExpense = monthlyData.reduce((s,d) => s+d.expense, 0);
+  const surplus = totalIncome - totalExpense;
+  const lastMonth = monthlyData[monthlyData.length-1];
+  const l12 = monthlyData.slice(-12);
+  const l12Inc = l12.reduce((s,d) => s+d.income, 0);
+  const l12Exp = l12.reduce((s,d) => s+d.expense, 0);
+  const sr = Math.round((l12Inc - l12Exp)/l12Inc*100);
+
+  document.getElementById('overview-metrics').innerHTML = `
+    <div class="metric-card">
+      <div class="metric-label">Total income (all time)</div>
+      <div class="metric-value green">${fmt(totalIncome)}</div>
+      <div class="metric-sub">PLN · ${monthlyData.length} months tracked</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Total expenses (all time)</div>
+      <div class="metric-value red">${fmt(totalExpense)}</div>
+      <div class="metric-sub">PLN · all categories</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Net surplus (all time)</div>
+      <div class="metric-value ${surplus >= 0 ? 'green' : 'red'}">${fmt(surplus)}</div>
+      <div class="metric-sub">PLN · saved over all years</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Savings rate (12 months)</div>
+      <div class="metric-value blue">${sr}%</div>
+      <div class="metric-sub">Avg income: ${fmt(l12Inc/12)} PLN/mo</div>
+    </div>
+  `;
+}
+
+// MONTHLY SECTION
+function buildYearFilter() {
+  const yrs = getYears();
+  const el = document.getElementById('year-filter');
+  el.innerHTML = `<div class="year-btn ${activeYear==='all'?'active':''}" onclick="selectYear('all')">All</div>` +
+    yrs.map(y => `<div class="year-btn ${activeYear==y?'active':''}" onclick="selectYear(${y})">${y}</div>`).join('');
+}
+
+function selectYear(yr) {
+  activeYear = yr;
+  buildYearFilter();
+  buildMonthlyYearChart();
+  buildMonthlyMetrics();
+  buildMonthlyTable();
+}
+
+function buildMonthlyYearChart() {
+  const data = filterByYear(activeYear);
+  const labels = data.map(d => { const [y,m] = d.month.split('-'); return activeYear==='all' ? m+'/'+y.slice(2) : m; });
+  const surpluses = data.map(d => d.income - d.expense);
+  document.getElementById('monthly-chart-title').textContent = activeYear === 'all' ? 'All months' : 'Monthly breakdown · ' + activeYear;
+  if (myYearChart) myYearChart.destroy();
+  myYearChart = new Chart(document.getElementById('monthlyYearChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Income', data: data.map(d => d.income), backgroundColor: 'rgba(63,214,143,0.7)', borderRadius: 3, order: 2 },
+        { label: 'Expenses', data: data.map(d => d.expense), backgroundColor: 'rgba(240,97,74,0.65)', borderRadius: 3, order: 2 },
+        { label: 'Surplus', data: surpluses, type: 'line', borderColor: '#5b9cf6', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#5b9cf6', tension: 0.3, fill: false, order: 1 }
+      ]
+    },
+    options: { ...chartDefaults, scales: scalesXY(), plugins: { ...chartDefaults.plugins, tooltip: { callbacks: { label: c => c.dataset.label + ': ' + fmt(c.raw) + ' PLN' } } } }
+  });
+}
+
+function buildMonthlyMetrics() {
+  const data = filterByYear(activeYear);
+  const inc = data.reduce((s,d)=>s+d.income,0);
+  const exp = data.reduce((s,d)=>s+d.expense,0);
+  const sur = inc - exp;
+  const sr = inc > 0 ? Math.round(sur/inc*100) : 0;
+  const avgInc = inc / data.length;
+  const avgExp = exp / data.length;
+  document.getElementById('monthly-metrics').innerHTML = `
+    <div class="metric-card"><div class="metric-label">Total income</div><div class="metric-value green">${fmt(inc)}</div><div class="metric-sub">avg ${fmt(avgInc)} PLN/mo</div></div>
+    <div class="metric-card"><div class="metric-label">Total expenses</div><div class="metric-value red">${fmt(exp)}</div><div class="metric-sub">avg ${fmt(avgExp)} PLN/mo</div></div>
+    <div class="metric-card"><div class="metric-label">Net surplus</div><div class="metric-value ${sur>=0?'green':'red'}">${fmt(sur)}</div><div class="metric-sub">PLN saved</div></div>
+    <div class="metric-card"><div class="metric-label">Savings rate</div><div class="metric-value blue">${sr}%</div><div class="metric-sub">${data.length} months</div></div>
+  `;
+}
+
+function buildMonthlyTable() {
+  const data = filterByYear(activeYear).slice().reverse();
+  const body = document.getElementById('monthly-table-body');
+  body.innerHTML = data.map(d => {
+    const sur = d.income - d.expense;
+    const rate = d.income > 0 ? Math.round(sur/d.income*100) : 0;
+    const [y,m] = d.month.split('-');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const label = months[parseInt(m)-1] + ' ' + y;
+    return `<tr>
+      <td>${label}</td>
+      <td style="color:var(--green)">${fmt(d.income)}</td>
+      <td style="color:var(--red)">${fmt(d.expense)}</td>
+      <td class="${sur>=0?'surplus-pos':'surplus-neg'}">${sur>=0?'+':''}${fmt(sur)}</td>
+      <td style="color:var(--text2)">${rate}%</td>
+    </tr>`;
+  }).join('');
+}
+
+// YEARLY
+let yearlyBarChart = null, yearlySurplusChart = null, yearlySavingsRateChart2 = null;
+function buildYearly() {
+  const yearly = computeYearly();
+  const years = Object.keys(yearly).sort();
+  const incomes = years.map(y => yearly[y].income);
+  const expenses = years.map(y => yearly[y].expense);
+  const surpluses = years.map(y => yearly[y].income - yearly[y].expense);
+  const rates = years.map(y => yearly[y].income > 0 ? Math.round((yearly[y].income-yearly[y].expense)/yearly[y].income*100) : 0);
+
+  const totalIncome = incomes.reduce((a,b)=>a+b,0);
+  const totalExpense = expenses.reduce((a,b)=>a+b,0);
+  const bestYear = years[surpluses.indexOf(Math.max(...surpluses))];
+  const bestRate = Math.max(...rates);
+
+  document.getElementById('yearly-metrics').innerHTML = `
+    <div class="metric-card"><div class="metric-label">Best savings year</div><div class="metric-value green">${bestYear}</div><div class="metric-sub">+${fmt(surpluses[years.indexOf(bestYear)])} PLN surplus</div></div>
+    <div class="metric-card"><div class="metric-label">Best savings rate</div><div class="metric-value blue">${bestRate}%</div><div class="metric-sub">Achieved in ${years[rates.indexOf(bestRate)]}</div></div>
+    <div class="metric-card"><div class="metric-label">Income growth</div><div class="metric-value amber">${Math.round((incomes[incomes.length-2]/incomes[0]-1)*100)}%</div><div class="metric-sub">2021 → 2025</div></div>
+    <div class="metric-card"><div class="metric-label">Total net worth saved</div><div class="metric-value green">${fmt(totalIncome-totalExpense)}</div><div class="metric-sub">PLN across all years</div></div>
+  `;
+
+  if (yearlyBarChart) yearlyBarChart.destroy();
+  yearlyBarChart = new Chart(document.getElementById('yearlyBarChart'), {
+    type: 'bar',
+    data: { labels: years, datasets: [
+      { label:'Income', data: incomes, backgroundColor:'rgba(63,214,143,0.7)', borderRadius:4 },
+      { label:'Expenses', data: expenses, backgroundColor:'rgba(240,97,74,0.65)', borderRadius:4 }
+    ]},
+    options: { ...chartDefaults, scales: scalesXY(v=>(v/1000).toFixed(0)+'k'), plugins: { ...chartDefaults.plugins, tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)+' PLN'}}}}
+  });
+
+  if (yearlySurplusChart) yearlySurplusChart.destroy();
+  yearlySurplusChart = new Chart(document.getElementById('yearlySurplusChart'), {
+    type: 'bar',
+    data: { labels: years, datasets:[{ data:surpluses, backgroundColor:surpluses.map(v=>v>=0?'rgba(63,214,143,0.7)':'rgba(240,97,74,0.7)'), borderRadius:4 }] },
+    options: { ...chartDefaults, scales: scalesXY(v=>(v/1000).toFixed(0)+'k'), plugins: { ...chartDefaults.plugins, tooltip:{callbacks:{label:c=>fmt(c.raw)+' PLN'}}}}
+  });
+
+  if (yearlySavingsRateChart2) yearlySavingsRateChart2.destroy();
+  yearlySavingsRateChart2 = new Chart(document.getElementById('yearlySavingsRateChart'), {
+    type: 'line',
+    data: { labels: years, datasets:[{ data:rates, borderColor:'#5b9cf6', borderWidth:2, pointRadius:5, pointBackgroundColor:'#5b9cf6', fill:true, backgroundColor:'rgba(91,156,246,0.08)', tension:0.2 }] },
+    options: { ...chartDefaults, scales: scalesXY(v=>v+'%'), plugins: { ...chartDefaults.plugins, tooltip:{callbacks:{label:c=>c.raw+'%'}}}}
+  });
+}
+
+// CATEGORIES
+function buildCategories() {
+  const total = CATEGORIES.reduce((s,c)=>s+c[1],0);
+
+  new Chart(document.getElementById('catDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: CATEGORIES.map(c=>c[0]),
+      datasets:[{ data:CATEGORIES.map(c=>c[1]), backgroundColor:CAT_COLORS, borderWidth:0, hoverOffset:6 }]
+    },
+    options: { ...chartDefaults, cutout:'62%', plugins:{ ...chartDefaults.plugins, tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.raw)+' PLN ('+Math.round(c.raw/total*100)+'%)'}}} }
+  });
+
+  const maxCat = CATEGORIES[0][1];
+  const table = document.getElementById('cat-table');
+  table.innerHTML = `<thead><tr><th>Category</th><th></th><th style="text-align:right">Amount</th><th style="text-align:right">Share</th></tr></thead>` +
+    '<tbody>' + CATEGORIES.map((c,i) => `<tr>
+      <td style="color:var(--text2)">${c[0]}</td>
+      <td style="padding:10px 12px"><div class="cat-bar-wrap"><div class="cat-bar" style="width:${Math.round(c[1]/maxCat*100)}%;background:${CAT_COLORS[i]}"></div></div></td>
+      <td class="cat-amount">${fmt(c[1])}</td>
+      <td style="text-align:right;font-family:var(--mono);font-size:12px;color:var(--text3)">${Math.round(c[1]/total*100)}%</td>
+    </tr>`).join('') + '</tbody>';
+
+  new Chart(document.getElementById('catBar'), {
+    type: 'bar',
+    data: {
+      labels: CATEGORIES.map(c=>c[0]),
+      datasets:[{ data:CATEGORIES.map(c=>c[1]), backgroundColor:CAT_COLORS, borderRadius:3 }]
+    },
+    options: { indexAxis:'y', ...chartDefaults, scales: {
+      x:{ ticks:{color:tickColor,font:tickFont,callback:v=>(v/1000).toFixed(0)+'k'}, grid:{color:gridColor} },
+      y:{ ticks:{color:tickColor,font:{family:'DM Mono',size:11}}, grid:{display:false} }
+    }, plugins:{...chartDefaults.plugins,tooltip:{callbacks:{label:c=>fmt(c.raw)+' PLN'}}}}
+  });
+}
+
+// ACCOUNTS
+function buildAccounts() {
+  const accNames = Object.keys(ACCOUNTS);
+  const accVals = Object.values(ACCOUNTS);
+  const total = accVals.reduce((a,b)=>a+b,0);
+  const colors = ['#a78bfa','#3fd68f','#5b9cf6','#f5a623','#f0614a'];
+
+  document.getElementById('accounts-grid').innerHTML = accNames.map((n,i)=>`
+    <div class="acc-card">
+      <div class="acc-name">${n}</div>
+      <div class="acc-val">${fmt(accVals[i])}</div>
+      <div class="acc-currency">PLN · ${Math.round(accVals[i]/total*100)}% of portfolio</div>
+    </div>
+  `).join('');
+
+  new Chart(document.getElementById('portfolioDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: accNames,
+      datasets:[{ data:accVals, backgroundColor:colors, borderWidth:0, hoverOffset:6 }]
+    },
+    options: { ...chartDefaults, cutout:'65%', plugins:{...chartDefaults.plugins, tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.raw)+' PLN'}}}} }
+  );
+
+  const barsEl = document.getElementById('balance-bars');
+  barsEl.innerHTML = accNames.map((n,i) => `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div style="font-size:12px;color:var(--text2);width:130px;font-family:var(--mono)">${n}</div>
+      <div style="flex:1;height:6px;background:var(--bg3);border-radius:3px">
+        <div style="width:${Math.round(accVals[i]/accVals[0]*100)}%;height:6px;border-radius:3px;background:${colors[i]}"></div>
+      </div>
+      <div style="font-size:13px;font-family:var(--mono);width:100px;text-align:right">${fmt(accVals[i])}</div>
+    </div>
+  `).join('') + `<div style="border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;font-size:13px">
+    <span style="color:var(--text3);font-family:var(--mono)">TOTAL</span>
+    <span style="font-family:var(--mono);font-weight:500">${fmt(total)} PLN</span>
+  </div>`;
+}
+
+// =================== NAV ===================
+const sectionTitles = {
+  overview: ['Dashboard', 'All-time overview · Jan 2021 – Mar 2026'],
+  monthly: ['Monthly View', 'Income & expenses by month'],
+  yearly: ['Yearly Trends', 'Annual financial performance'],
+  categories: ['Categories', 'Spending breakdown by category'],
+  accounts: ['Accounts', 'Portfolio & balance overview']
+};
+
+function showSection(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('section-title').textContent = sectionTitles[name][0];
+  document.getElementById('section-sub').textContent = sectionTitles[name][1];
+  if (name === 'yearly') buildYearly();
+}
+
+// =================== MODAL ===================
+function openModal() { document.getElementById('modal-overlay').classList.add('open'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function closeModalOnBg(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+function setType(t) {
+  entryType = t;
+  document.getElementById('btn-income').classList.toggle('active', t==='Income');
+  document.getElementById('btn-expense').classList.toggle('active', t==='Expense');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function saveEntry() {
+  const month = document.getElementById('input-month').value;
+  const amount = parseFloat(document.getElementById('input-amount').value);
+  if (!month || !amount || amount <= 0) { alert('Please fill in month and a valid amount.'); return; }
+
+  const existing = monthlyData.find(d => d.month === month);
+  if (existing) {
+    if (entryType === 'Income') existing.income += amount;
+    else existing.expense += amount;
+  } else {
+    const newEntry = { month, income: entryType==='Income' ? amount : 0, expense: entryType==='Expense' ? amount : 0 };
+    monthlyData.push(newEntry);
+    monthlyData.sort((a,b) => a.month.localeCompare(b.month));
+  }
+
+  closeModal();
+  document.getElementById('input-amount').value = '';
+  document.getElementById('input-category').value = '';
+  rebuildAll();
+  showToast(entryType + ' of ' + amount.toLocaleString('pl-PL', {maximumFractionDigits:2}) + ' PLN saved ✓');
+}
+
+function rebuildAll() {
+  Chart.getChart('overviewMonthlyChart')?.destroy();
+  Chart.getChart('savingsChart')?.destroy();
+  Chart.getChart('savingsRateChart')?.destroy();
+  buildOverviewMetrics();
+  buildOverviewMonthly();
+  buildSavingsChart();
+  buildSavingsRateChart();
+  buildYearFilter();
+  buildMonthlyYearChart();
+  buildMonthlyMetrics();
+  buildMonthlyTable();
+}
+
+// =================== INIT ===================
+buildOverviewMetrics();
+buildOverviewMonthly();
+buildSavingsChart();
+buildSavingsRateChart();
+buildYearFilter();
+buildMonthlyYearChart();
+buildMonthlyMetrics();
+buildMonthlyTable();
+buildCategories();
+buildAccounts();
+</script>
+</body>
+</html>
