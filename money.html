@@ -54,7 +54,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:14px
 .fbn{color:var(--text)}.fbp{font-family:var(--fm);color:var(--accent)}
 .fbb{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
 .fbf{height:100%;border-radius:3px;background:var(--accent);transition:width .8s cubic-bezier(.4,0,.2,1)}
-.fbf.teal{background:var(--a2)}.fbf.gold{background:var(--gold)}.fbf.red{background:var(--red)}
+.fbf.teal{background:var(--a2)}.fbf.gold{background:var(--gold)}
 .fbs{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--fm)}
 .ar{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
 .ar:last-child{border-bottom:none}
@@ -77,7 +77,7 @@ select option{background:var(--bg3)}
 .bta:hover{background:#caf060}
 .bts{background:rgba(74,143,224,.15);color:var(--blue);border-color:rgba(74,143,224,.3)}
 .bts:hover{background:rgba(74,143,224,.25)}
-.tl{max-height:260px;overflow-y:auto}
+.tl{max-height:320px;overflow-y:auto}
 .tl::-webkit-scrollbar{width:3px}
 .tl::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .ti{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
@@ -94,6 +94,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .mr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
 .mr:last-child{border-bottom:none}
 .mrl{color:var(--muted)}.mrv{font-family:var(--fm)}
+/* Planning grid */
+.plan-grid{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--fm)}
+.plan-grid th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border2);color:var(--muted);font-weight:400;font-size:10px;text-transform:uppercase;letter-spacing:.07em}
+.plan-grid td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.plan-grid tr:last-child td{border-bottom:none}
+.plan-grid tr.future-row td{opacity:.85}
+.plan-grid tr.future-row{background:rgba(184,224,74,.03)}
+.plan-grid td.inc-cell{color:var(--accent)}.plan-grid td.exp-cell{color:var(--red)}.plan-grid td.sav-cell-pos{color:var(--a2)}.plan-grid td.sav-cell-neg{color:var(--red)}
+.tag-future{display:inline-block;font-size:9px;background:rgba(224,184,74,.15);color:var(--gold);padding:1px 5px;border-radius:8px;margin-left:5px;vertical-align:middle}
+.tag-hist{display:inline-block;font-size:9px;background:rgba(255,255,255,.06);color:var(--muted);padding:1px 5px;border-radius:8px;margin-left:5px;vertical-align:middle}
+/* flash animation when chart updates */
+@keyframes flash{0%{opacity:.4}100%{opacity:1}}
+.chart-flash{animation:flash .4s ease}
 @media(max-width:1100px){.m4{grid-template-columns:repeat(2,1fr)}.m6{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:800px){.sidebar{width:54px}.logo,.ni span:not(.nicon),.nsec,.sfooter{display:none}.main{margin-left:54px;max-width:calc(100vw - 54px)}.g2,.g3{grid-template-columns:1fr}.fg{grid-template-columns:1fr}.m6,.m4{grid-template-columns:repeat(2,1fr)}}
 </style>
@@ -120,6 +133,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <!-- OVERVIEW -->
 <div id="page-overview" class="page active">
   <div class="ph"><div class="pt">Przegląd finansowy</div><div class="ps">YTD 2026 · DANE OD 2021</div></div>
+  <div id="future-banner" style="display:none;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;font-size:12px;margin-bottom:1rem;background:rgba(224,184,74,.08);border:1px solid rgba(224,184,74,.2);color:var(--gold);font-family:var(--fm)">◈ Wykres zawiera dane prognozowane (jasne słupki z obwódką)</div>
   <div class="mrow m4" id="ov1"></div>
   <div class="mrow m4" id="ov2"></div>
   <div class="g2">
@@ -136,18 +150,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 <!-- CASHFLOW -->
 <div id="page-cashflow" class="page">
-  <div class="ph"><div class="pt">Przepływy pieniężne</div><div class="ps">MIESIĘCZNE I ROCZNE</div></div>
+  <div class="ph"><div class="pt">Przepływy pieniężne</div><div class="ps">MIESIĘCZNE I ROCZNE · HISTORIA + PROGNOZY</div></div>
   <div class="mrow m4" id="cf-kpi"></div>
-  <select class="vsel" id="cf-view" onchange="updateCF()">
+  <select class="vsel" id="cf-view" onchange="rebuildCF()">
     <option value="m24">Ostatnie 24 miesiące</option>
     <option value="m12">Ostatnie 12 miesięcy</option>
+    <option value="all">Wszystkie miesiące</option>
     <option value="yr">Widok roczny</option>
   </select>
-  <div class="cc"><div class="ct">Przychody vs wydatki</div>
+  <div class="cc"><div class="ct">Przychody vs wydatki <span id="cf-future-note" style="display:none;font-size:10px;color:var(--gold)">· jasne słupki = prognoza</span></div>
     <div class="leg"><div class="li"><div class="ld" style="background:#b8e04a"></div>Przychody</div><div class="li"><div class="ld" style="background:#e05a5a"></div>Wydatki</div></div>
-    <div class="cw" style="height:280px"><canvas id="cfChart" role="img" aria-label="Przychody i wydatki"></canvas></div>
+    <div class="cw" style="height:300px"><canvas id="cfChart" role="img" aria-label="Przychody i wydatki"></canvas></div>
   </div>
-  <div class="cc"><div class="ct">Oszczędności netto</div>
+  <div class="cc"><div class="ct">Oszczędności netto miesięcznie</div>
     <div class="cw" style="height:180px"><canvas id="savChart" role="img" aria-label="Oszczędności netto"></canvas></div>
   </div>
 </div>
@@ -211,7 +226,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     </div>
   </div>
   <div class="cc"><div class="ct">Projekcja portfela: nominalna vs realna siła nabywcza</div>
-    <div class="leg"><div class="li"><div class="ld" style="background:#4a8fe0"></div>Portfel nominalny</div><div class="li"><div class="ld" style="background:#4abeac"></div>Portfel realny</div><div class="li"><div class="ld" style="background:#b8e04a"></div>Cel FIRE</div><div class="li"><div class="ld" style="background:#e0b84a"></div>Fat FIRE</div></div>
+    <div class="leg"><div class="li"><div class="ld" style="background:#4a8fe0"></div>Nominalny</div><div class="li"><div class="ld" style="background:#4abeac"></div>Realny</div><div class="li"><div class="ld" style="background:#b8e04a"></div>Cel FIRE</div><div class="li"><div class="ld" style="background:#e0b84a"></div>Fat FIRE</div></div>
     <div class="cw" style="height:300px"><canvas id="fireChart" role="img" aria-label="Projekcja FIRE"></canvas></div>
   </div>
 </div>
@@ -238,32 +253,57 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 <!-- ADD -->
 <div id="page-add" class="page">
-  <div class="ph"><div class="pt">Dodaj wpis</div><div class="ps">PRZYCHÓD · WYDATEK · INWESTYCJA</div></div>
+  <div class="ph"><div class="pt">Dodaj wpis</div><div class="ps">HISTORIA · PROGNOZA · INWESTYCJA</div></div>
+
+  <!-- Live summary -->
+  <div class="mrow m4" id="live-summary"></div>
+
   <div class="g2">
-    <div class="cc"><div class="ct">Przychód lub wydatek</div>
+    <!-- Left: form -->
+    <div class="cc">
+      <div class="ct">Nowy przychód lub wydatek</div>
       <div class="fg">
         <div><label>Typ</label><select id="add-type" style="width:100%"><option>Przychód</option><option>Wydatek</option></select></div>
         <div><label>Data</label><input type="date" id="add-date" value="2026-04-10" style="width:100%"></div>
-        <div><label>Kwota (PLN)</label><input type="number" id="add-amt" placeholder="0.00" style="width:100%"></div>
+        <div><label>Kwota (PLN)</label><input type="number" id="add-amt" placeholder="0.00" style="width:100%" min="0"></div>
         <div><label>Kategoria</label><input type="text" id="add-cat" placeholder="np. Wynagrodzenie" style="width:100%"></div>
       </div>
-      <div style="margin-bottom:12px"><label style="display:block;font-size:10px;font-family:var(--fm);color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Opis</label><input type="text" id="add-desc" placeholder="Krótki opis..." style="width:100%"></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn bta" onclick="addEntry()">Dodaj wpis</button>
+      <div style="margin-bottom:12px"><label style="display:block;font-size:10px;font-family:var(--fm);color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Opis (opcjonalny)</label><input type="text" id="add-desc" placeholder="Krótki opis..." style="width:100%"></div>
+      <div style="display:flex;gap:8px;margin-bottom:1.5rem">
+        <button class="btn bta" onclick="addEntry()">Dodaj wpis →</button>
         <button class="btn bts" onclick="exportCSV()">Eksportuj CSV ↓</button>
       </div>
-      <div class="tl" id="added-entries" style="margin-top:1.25rem"></div>
-    </div>
-    <div class="cc"><div class="ct">Inwestycja</div>
+
+      <div class="ct">Nowa inwestycja</div>
       <div class="fg">
         <div><label>Data</label><input type="date" id="inv-date" value="2026-04-10" style="width:100%"></div>
         <div><label>Instrument</label><select id="inv-type" style="width:100%"><option>MSCI ACWI + NASDAQ</option><option>PPE – Akcje USA</option><option>Obligacje skarbowe</option><option>Bitcoin</option><option>IKZE</option><option>IKE</option><option>Inne</option></select></div>
-        <div><label>Kwota (PLN)</label><input type="number" id="inv-amt" placeholder="0.00" style="width:100%"></div>
+        <div><label>Kwota (PLN)</label><input type="number" id="inv-amt" placeholder="0.00" style="width:100%" min="0"></div>
         <div><label>Uwagi</label><input type="text" id="inv-note" placeholder="np. zakup ETF..." style="width:100%"></div>
       </div>
-      <button class="btn bta" onclick="addInv()">Dodaj inwestycję</button>
-      <div class="tl" id="added-invs" style="margin-top:1.25rem"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn bta" onclick="addInv()">Dodaj inwestycję →</button>
+      </div>
       <div id="new-passive" style="margin-top:1rem"></div>
+    </div>
+
+    <!-- Right: entries list -->
+    <div class="cc">
+      <div class="ct">Historia wpisów <span id="entry-count" style="color:var(--muted)"></span></div>
+      <div class="tl" id="added-entries"></div>
+    </div>
+  </div>
+
+  <!-- Planning table — all months with data -->
+  <div class="cc">
+    <div class="ct">Tabela miesięczna — historia + prognozy</div>
+    <div style="overflow-x:auto">
+      <table class="plan-grid" id="plan-table">
+        <thead><tr>
+          <th>Miesiąc</th><th>Przychód</th><th>Wydatki</th><th>Oszczędności</th><th>Stopa</th><th>Status</th>
+        </tr></thead>
+        <tbody id="plan-body"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -271,10 +311,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 </main>
 </div>
 <script>
-const MI={"2021-01":7669,"2021-02":6009,"2021-03":11153.26,"2021-04":10471,"2021-05":9579.8,"2021-06":10529.8,"2021-07":10924.22,"2021-08":9574.32,"2021-09":9948.08,"2021-10":9914.53,"2021-11":11029.28,"2021-12":8376.08,"2022-01":9502.97,"2022-02":10846,"2022-03":12403.8,"2022-04":11161.56,"2022-05":11443.7,"2022-06":11731.02,"2022-07":11704.38,"2022-08":16015.22,"2022-09":16588.79,"2022-10":12998,"2022-11":11931,"2022-12":14157.63,"2023-01":19718.83,"2023-02":18327.01,"2023-03":16428.55,"2023-04":17600.53,"2023-05":17304.74,"2023-06":17227.43,"2023-07":14845.24,"2023-08":15017.55,"2023-09":14726.2,"2023-10":14499.95,"2023-11":21624.76,"2023-12":18205.01,"2024-01":15946.69,"2024-02":19275.58,"2024-03":21365.23,"2024-04":23145.5,"2024-05":22930.9,"2024-06":20817.54,"2024-07":14253.54,"2024-08":14594.99,"2024-09":14594.99,"2024-10":17705.12,"2024-11":18339.39,"2024-12":16415.09,"2025-01":17551.66,"2025-02":20334.53,"2025-03":20817.57,"2025-04":25472.33,"2025-05":20500.66,"2025-06":19114.11,"2025-07":17715.47,"2025-08":17453.82,"2025-09":16024.56,"2025-10":17416.22,"2025-11":17894.66,"2025-12":18311.13,"2026-01":19880.88,"2026-02":23915.13,"2026-03":23816.59};
-const ME={"2021-01":6299.35,"2021-02":3009.59,"2021-03":3300.06,"2021-04":3278.57,"2021-05":3148.03,"2021-06":4679.76,"2021-07":4600.04,"2021-08":6021.61,"2021-09":6774.41,"2021-10":4947.46,"2021-11":8703.36,"2021-12":7070.73,"2022-01":6063.57,"2022-02":6253.7,"2022-03":9506.8,"2022-04":5131.9,"2022-05":9314.14,"2022-06":10043.75,"2022-07":7155.9,"2022-08":7015.22,"2022-09":10888.79,"2022-10":6843.34,"2022-11":7106.78,"2022-12":7996.39,"2023-01":8487,"2023-02":8326.59,"2023-03":9827.71,"2023-04":14000,"2023-05":8704.74,"2023-06":10102.74,"2023-07":6445.24,"2023-08":11816.74,"2023-09":7516.36,"2023-10":8236.63,"2023-11":8681.56,"2023-12":10179.32,"2024-01":20043.92,"2024-02":17924.8,"2024-03":13623.96,"2024-04":12725.22,"2024-05":18430.97,"2024-06":12217.6,"2024-07":14261.83,"2024-08":10194.99,"2024-09":29099.01,"2024-10":13101.27,"2024-11":11338.84,"2024-12":12353.51,"2025-01":12550.34,"2025-02":9328.18,"2025-03":10433.89,"2025-04":11527.45,"2025-05":10638.7,"2025-06":15697.2,"2025-07":14942.52,"2025-08":15541.58,"2025-09":13939.58,"2025-10":17416.22,"2025-11":12871.01,"2025-12":12467.63,"2026-01":12435.22,"2026-02":11887.87,"2026-03":7032.88};
-const AI={2021:115178.37,2022:150484.07,2023:205525.8,2024:219384.56,2025:228606.72,2026:67612.6};
-const AE={2021:61832.97,2022:93320.28,2023:112324.63,2024:185315.92,2025:157354.3,2026:31355.97};
+// ═══════════════════════════════════════════════════════════════
+// DATA — single source of truth. MI/ME are the live stores.
+// ═══════════════════════════════════════════════════════════════
+const LAST_REAL = '2026-03'; // last month with actual historical data
+
+const MI_BASE = {"2021-01":7669,"2021-02":6009,"2021-03":11153.26,"2021-04":10471,"2021-05":9579.8,"2021-06":10529.8,"2021-07":10924.22,"2021-08":9574.32,"2021-09":9948.08,"2021-10":9914.53,"2021-11":11029.28,"2021-12":8376.08,"2022-01":9502.97,"2022-02":10846,"2022-03":12403.8,"2022-04":11161.56,"2022-05":11443.7,"2022-06":11731.02,"2022-07":11704.38,"2022-08":16015.22,"2022-09":16588.79,"2022-10":12998,"2022-11":11931,"2022-12":14157.63,"2023-01":19718.83,"2023-02":18327.01,"2023-03":16428.55,"2023-04":17600.53,"2023-05":17304.74,"2023-06":17227.43,"2023-07":14845.24,"2023-08":15017.55,"2023-09":14726.2,"2023-10":14499.95,"2023-11":21624.76,"2023-12":18205.01,"2024-01":15946.69,"2024-02":19275.58,"2024-03":21365.23,"2024-04":23145.5,"2024-05":22930.9,"2024-06":20817.54,"2024-07":14253.54,"2024-08":14594.99,"2024-09":14594.99,"2024-10":17705.12,"2024-11":18339.39,"2024-12":16415.09,"2025-01":17551.66,"2025-02":20334.53,"2025-03":20817.57,"2025-04":25472.33,"2025-05":20500.66,"2025-06":19114.11,"2025-07":17715.47,"2025-08":17453.82,"2025-09":16024.56,"2025-10":17416.22,"2025-11":17894.66,"2025-12":18311.13,"2026-01":19880.88,"2026-02":23915.13,"2026-03":23816.59};
+const ME_BASE = {"2021-01":6299.35,"2021-02":3009.59,"2021-03":3300.06,"2021-04":3278.57,"2021-05":3148.03,"2021-06":4679.76,"2021-07":4600.04,"2021-08":6021.61,"2021-09":6774.41,"2021-10":4947.46,"2021-11":8703.36,"2021-12":7070.73,"2022-01":6063.57,"2022-02":6253.7,"2022-03":9506.8,"2022-04":5131.9,"2022-05":9314.14,"2022-06":10043.75,"2022-07":7155.9,"2022-08":7015.22,"2022-09":10888.79,"2022-10":6843.34,"2022-11":7106.78,"2022-12":7996.39,"2023-01":8487,"2023-02":8326.59,"2023-03":9827.71,"2023-04":14000,"2023-05":8704.74,"2023-06":10102.74,"2023-07":6445.24,"2023-08":11816.74,"2023-09":7516.36,"2023-10":8236.63,"2023-11":8681.56,"2023-12":10179.32,"2024-01":20043.92,"2024-02":17924.8,"2024-03":13623.96,"2024-04":12725.22,"2024-05":18430.97,"2024-06":12217.6,"2024-07":14261.83,"2024-08":10194.99,"2024-09":29099.01,"2024-10":13101.27,"2024-11":11338.84,"2024-12":12353.51,"2025-01":12550.34,"2025-02":9328.18,"2025-03":10433.89,"2025-04":11527.45,"2025-05":10638.7,"2025-06":15697.2,"2025-07":14942.52,"2025-08":15541.58,"2025-09":13939.58,"2025-10":17416.22,"2025-11":12871.01,"2025-12":12467.63,"2026-01":12435.22,"2026-02":11887.87,"2026-03":7032.88};
+
+// Live mutable copies
+let MI = {...MI_BASE};
+let ME = {...ME_BASE};
+
+// Derived annual totals — recomputed from MI/ME when needed
+function computeAI(){ const r={};Object.keys(MI).forEach(k=>{const y=k.slice(0,4);r[y]=(r[y]||0)+(MI[k]||0);});return r; }
+function computeAE(){ const r={};Object.keys(ME).forEach(k=>{const y=k.slice(0,4);r[y]=(r[y]||0)+(ME[k]||0);});return r; }
+
+// All months sorted
+function allMonths(){ return [...new Set([...Object.keys(MI),...Object.keys(ME)])].sort(); }
+function isFuture(mk){ return mk > LAST_REAL; }
+
 const PF=[{"D":"2025-10-05","B":0,"A":30534.75,"O":130547.67,"P":0},{"D":"2025-10-12","B":0,"A":30673.49,"O":130689.57,"P":0},{"D":"2025-10-19","B":0,"A":30579,"O":130841.71,"P":0},{"D":"2025-10-26","B":0,"A":31035.7,"O":130994.14,"P":0},{"D":"2025-11-02","B":0,"A":31479.29,"O":131146.29,"P":0},{"D":"2025-11-09","B":0,"A":37157.64,"O":131298.29,"P":0},{"D":"2025-11-16","B":0,"A":41746.84,"O":131450.71,"P":0},{"D":"2025-11-23","B":0,"A":40870.99,"O":131601.57,"P":0},{"D":"2025-11-30","B":0,"A":41576.86,"O":131751.14,"P":0},{"D":"2025-12-07","B":0,"A":47165.96,"O":131900.71,"P":36317.83},{"D":"2025-12-14","B":0,"A":46973.73,"O":132050.29,"P":36960.97},{"D":"2025-12-21","B":0,"A":45922.79,"O":132200.57,"P":36664.97},{"D":"2025-12-28","B":0,"A":47103.96,"O":132260.86,"P":37202.46},{"D":"2026-01-04","B":0,"A":62194.67,"O":121868.43,"P":37097.09},{"D":"2026-01-11","B":0,"A":63563.11,"O":122006.29,"P":38149.33},{"D":"2026-01-18","B":0,"A":69761.01,"O":116344,"P":38543.31},{"D":"2026-01-25","B":0,"A":76539.11,"O":108737.57,"P":38258.81},{"D":"2026-02-01","B":0,"A":81141.43,"O":108858.86,"P":38565.37},{"D":"2026-02-08","B":973.97,"A":86484.46,"O":108977.29,"P":38885.56},{"D":"2026-02-15","B":1649.7,"A":87299.5,"O":109094.71,"P":39278.94},{"D":"2026-02-22","B":1624.46,"A":89424.91,"O":109210,"P":39215.36},{"D":"2026-03-01","B":1595.79,"A":93273.34,"O":109325.14,"P":39286.4},{"D":"2026-03-08","B":1675.11,"A":99274.86,"O":109438.29,"P":39370.91},{"D":"2026-03-15","B":1704.94,"A":99674.81,"O":109549.86,"P":39253.71},{"D":"2026-03-22","B":1706.83,"A":98454.41,"O":109661,"P":38629.41},{"D":"2026-03-29","B":1638.51,"A":96648.19,"O":109772.14,"P":37904.47},{"D":"2026-04-05","B":1609.93,"A":107183.43,"O":109882.57,"P":38201.34},{"D":"2026-04-10","B":1660.62,"A":108762.62,"O":109976.64,"P":39087.15}];
 const MORT={orig:500000,rate:0.055,term:25,start:2021,capPaid:79670.25,intPaid:24172.05};
 const TARGET={stocks:60,bonds:35,crypto:5};
@@ -283,7 +339,9 @@ const fmt=n=>Math.round(n).toLocaleString('pl-PL')+' PLN';
 const fmtK=n=>(n>=1e6?(n/1e6).toFixed(2)+'M':Math.round(n/1000)+'k')+' PLN';
 const fmtP=n=>n.toFixed(1)+'%';
 const pfT=r=>(r.B||0)+(r.A||0)+(r.O||0)+(r.P||0);
-let C={},xPF=0,addedE=[],addedI=[];
+
+let C={}, xPF=0, addedE=[], addedI=[];
+
 Chart.defaults.color='#7a8278';
 Chart.defaults.borderColor='rgba(255,255,255,0.07)';
 Chart.defaults.font.family="'DM Mono',monospace";
@@ -291,75 +349,212 @@ Chart.defaults.font.size=11;
 
 function kpi(arr){return arr.map(m=>`<div class="mc ${m.c}"><div class="ml">${m.l}</div><div class="mv ${m.c}">${m.v}</div><div class="ms">${m.s}</div>${m.b?`<div class="mbadge ${m.bc}">${m.b}</div>`:''}</div>`).join('');}
 
+// ═══ CHART COLOR HELPERS ═══════════════════════════════════════
+// Returns per-bar colors: solid for history, faded+bordered for future
+function barColors(months, solidColor, fadeColor){
+  return months.map(m=>isFuture(m)?fadeColor:solidColor);
+}
+function barBorderColors(months, borderColor){
+  return months.map(m=>isFuture(m)?borderColor:'transparent');
+}
+function barBorderWidths(months){
+  return months.map(m=>isFuture(m)?1.5:0);
+}
+
+// ═══ NAV ═══════════════════════════════════════════════════════
 function nav(id,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   if(el)el.classList.add('active');
-  if(id==='cashflow'&&!C.cf)initCF();
-  if(id==='investments'&&!C.pf)initInv();
-  if(id==='mortgage'&&!C.mort)initMort();
-  if(id==='fire'&&!C.fire)initFire();
-  if(id==='whatif'&&!C.wi)initWI();
+  if(id==='cashflow') buildCF();
+  if(id==='investments'&&!C.pf) buildInv();
+  if(id==='mortgage'&&!C.mort) buildMort();
+  if(id==='fire') buildFire();
+  if(id==='whatif') buildWI();
+  if(id==='add') buildPlanTable();
 }
 
-// ── OVERVIEW ──────────────────────────────────────────────────────────────
-function initOverview(){
-  const yrs=Object.keys(AI),iA=yrs.map(y=>AI[y]),eA=yrs.map(y=>AE[y]),sA=yrs.map((_,i)=>iA[i]-eA[i]);
-  const m26=Object.keys(MI).filter(k=>k.startsWith('2026')).length;
-  const i26=AI[2026],e26=AE[2026],s26=i26-e26;
-  const mi26=i26/m26,me26=e26/m26,mi25=AI[2025]/12,me25=AE[2025]/12;
-  const lat=PF[PF.length-1],tot=pfT(lat)+xPF;
+// ═══════════════════════════════════════════════════════════════
+// OVERVIEW — built once, then data patched via .update()
+// ═══════════════════════════════════════════════════════════════
+function buildOverview(){
+  const AI=computeAI(), AE=computeAE();
+  const yrs=Object.keys(AI).sort();
+  const iA=yrs.map(y=>AI[y]||0), eA=yrs.map(y=>AE[y]||0);
+  const sA=iA.map((v,i)=>v-eA[i]);
+  const sR=iA.map((v,i)=>v>0?+((sA[i]/v*100).toFixed(1)):0);
+
+  const futureYears=new Set(allMonths().filter(isFuture).map(m=>m.slice(0,4)));
+
+  const incBC=yrs.map(y=>futureYears.has(y)?'rgba(184,224,74,.22)':'rgba(184,224,74,.7)');
+  const expBC=yrs.map(y=>futureYears.has(y)?'rgba(224,90,90,.22)':'rgba(224,90,90,.7)');
+  const bColor=yrs.map(y=>futureYears.has(y)?1.5:0);
+  const bInc=yrs.map(y=>futureYears.has(y)?'rgba(184,224,74,.8)':'transparent');
+  const bExp=yrs.map(y=>futureYears.has(y)?'rgba(224,90,90,.8)':'transparent');
+  const sAbc=sA.map((v,i)=>futureYears.has(yrs[i])?(v>=0?'rgba(74,190,172,.25)':'rgba(224,90,90,.25)'):(v>=0?'rgba(74,190,172,.75)':'rgba(224,90,90,.75)'));
+
+  if(!C.annual){
+    C.annual=new Chart(document.getElementById('annualChart'),{
+      data:{labels:yrs,datasets:[
+        {type:'bar',data:iA,backgroundColor:incBC,borderColor:bInc,borderWidth:bColor,borderRadius:4,label:'Przychody'},
+        {type:'bar',data:eA,backgroundColor:expBC,borderColor:bExp,borderWidth:bColor,borderRadius:4,label:'Wydatki'},
+        {type:'line',data:sA,borderColor:'#4abeac',backgroundColor:'rgba(74,190,172,.06)',fill:true,tension:.4,pointRadius:4,borderWidth:2,label:'Oszczędności'}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:t=>t[0].label+(futureYears.has(t[0].label)?' (prognoza)':'')}}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false}}}}
+    });
+    C.annSav=new Chart(document.getElementById('annualSavChart'),{
+      data:{labels:yrs,datasets:[
+        {type:'bar',data:sA,backgroundColor:sAbc,borderRadius:5,yAxisID:'y',label:'PLN'},
+        {type:'line',data:sR,borderColor:'#b8e04a',pointBackgroundColor:'#b8e04a',pointRadius:5,tension:.4,borderWidth:2,yAxisID:'y2',fill:false,label:'%'}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'},position:'left'},y2:{ticks:{callback:v=>v+'%'},grid:{display:false},position:'right',min:-20,max:60},x:{grid:{display:false}}}}
+    });
+  } else {
+    // Patch data in place — no destroy, smooth update
+    C.annual.data.labels=yrs;
+    C.annual.data.datasets[0].data=iA; C.annual.data.datasets[0].backgroundColor=incBC; C.annual.data.datasets[0].borderColor=bInc; C.annual.data.datasets[0].borderWidth=bColor;
+    C.annual.data.datasets[1].data=eA; C.annual.data.datasets[1].backgroundColor=expBC; C.annual.data.datasets[1].borderColor=bExp; C.annual.data.datasets[1].borderWidth=bColor;
+    C.annual.data.datasets[2].data=sA;
+    C.annual.update('active');
+
+    C.annSav.data.labels=yrs;
+    C.annSav.data.datasets[0].data=sA; C.annSav.data.datasets[0].backgroundColor=sAbc;
+    C.annSav.data.datasets[1].data=sR;
+    C.annSav.update('active');
+
+    // Flash canvases
+    ['annualChart','annualSavChart'].forEach(id=>{
+      const el=document.getElementById(id);
+      el.classList.remove('chart-flash'); void el.offsetWidth; el.classList.add('chart-flash');
+    });
+  }
+
+  // KPI cards
+  const months26=Object.keys(MI).filter(k=>k.startsWith('2026'));
+  const i26=months26.reduce((a,k)=>a+(MI[k]||0),0);
+  const e26=months26.reduce((a,k)=>a+(ME[k]||0),0);
+  const s26=i26-e26, m26=months26.length;
+  const mi26=i26/Math.max(m26,1), me26=e26/Math.max(m26,1);
+  const mi25=(AI['2025']||0)/12, me25=(AE['2025']||0)/12;
+  const lat=PF[PF.length-1], tot=pfT(lat)+xPF;
   const passive=tot*0.04/12;
-  const efM=s26/me26;
-  const expCAGR=((Math.pow(me25/(AE[2021]/12),1/4)-1)*100);
-  const totSav=Object.values(AI).reduce((a,v)=>a+v,0)-Object.values(AE).reduce((a,v)=>a+v,0);
+  const efM=s26/Math.max(me26,1);
+  const me21=(AE['2021']||1)/12;
+  const expCAGR=(me25>0&&me21>0)?((Math.pow(me25/me21,1/4)-1)*100):0;
+  const totSav=Object.values(computeAI()).reduce((a,v)=>a+v,0)-Object.values(computeAE()).reduce((a,v)=>a+v,0);
 
   document.getElementById('ov1').innerHTML=kpi([
-    {l:`Przychód 2026 YTD (${m26} mies.)`,v:fmt(i26),c:'green',s:`śr. ${fmt(mi26)}/mies.`,b:`${mi26>=mi25?'▲':'▼'} ${Math.abs((mi26-mi25)/mi25*100).toFixed(1)}% vs śr. 2025`,bc:mi26>=mi25?'bu':'bd'},
-    {l:`Wydatki 2026 YTD (${m26} mies.)`,v:fmt(e26),c:'red',s:`śr. ${fmt(me26)}/mies.`,b:`${me26<=me25?'▼':'▲'} ${Math.abs((me26-me25)/me25*100).toFixed(1)}% vs śr. 2025`,bc:me26<=me25?'bu':'bd'},
-    {l:'Oszczędności 2026 YTD',v:fmt(s26),c:'teal',s:`stopa ${fmtP(s26/i26*100)}`,b:`śr. ${fmt(s26/m26)}/mies.`,bc:'bn'},
-    {l:'Dochód pasywny/mies.',v:fmt(passive),c:'blue',s:'reguła 4% z portfela',b:`${fmtP(passive/(AE[2025]/12)*100)} pokrycia wydatków`,bc:passive>=AE[2025]/12?'bu':'bn'},
+    {l:`Przychód 2026 YTD (${m26}m)`,v:fmt(i26),c:'green',s:`śr. ${fmt(mi26)}/mies.`,b:`${mi26>=mi25?'▲':'▼'} ${Math.abs((mi26-mi25)/Math.max(mi25,1)*100).toFixed(1)}% vs śr. 2025`,bc:mi26>=mi25?'bu':'bd'},
+    {l:`Wydatki 2026 YTD (${m26}m)`,v:fmt(e26),c:'red',s:`śr. ${fmt(me26)}/mies.`,b:`${me26<=me25?'▼':'▲'} ${Math.abs((me26-me25)/Math.max(me25,1)*100).toFixed(1)}% vs śr. 2025`,bc:me26<=me25?'bu':'bd'},
+    {l:'Oszczędności 2026 YTD',v:fmt(s26),c:'teal',s:`stopa ${fmtP(i26>0?s26/i26*100:0)}`,b:`śr. ${fmt(s26/Math.max(m26,1))}/mies.`,bc:'bn'},
+    {l:'Dochód pasywny/mies.',v:fmt(passive),c:'blue',s:'reguła 4% z portfela',b:`${fmtP(passive/Math.max(me25,1)*100)} pokrycia wydatków`,bc:passive>=me25?'bu':'bn'},
   ]);
   document.getElementById('ov2').innerHTML=kpi([
-    {l:'Poduszka bezpieczeństwa',v:efM.toFixed(1)+' mies.',c:efM>=6?'green':efM>=3?'gold':'red',s:`${fmt(s26)} oszcz. YTD 2026`,b:efM>=6?'Bezpieczny poziom ✓':efM>=3?'Minimalny poziom':'Poniżej minimum!',bc:efM>=6?'bu':efM>=3?'bw':'bd'},
-    {l:'Stopa oszcz. 2025',v:fmtP((AI[2025]-AE[2025])/AI[2025]*100),c:'green',s:`${fmt(AI[2025]-AE[2025])} oszczędności`,b:'Najlepszy rok w historii',bc:'bu'},
-    {l:'Realny wzrost wydatków/rok',v:fmtP(expCAGR),c:expCAGR>5?'red':'gold',s:'CAGR wydatków 2021→2025',b:`z ${fmt(AE[2021]/12)} do ${fmt(me25)}/mies.`,bc:expCAGR>5?'bd':'bw'},
-    {l:'Łączne oszczędności 5 lat',v:fmtK(totSav),c:'teal',s:'2021–2026 skumulowane',b:'dochód minus wydatki',bc:'bn'},
+    {l:'Poduszka bezpieczeństwa',v:efM.toFixed(1)+' mies.',c:efM>=6?'green':efM>=3?'gold':'red',s:`${fmt(s26)} oszcz. YTD`,b:efM>=6?'Bezpieczny ✓':efM>=3?'Minimalny':'Poniżej minimum!',bc:efM>=6?'bu':efM>=3?'bw':'bd'},
+    {l:'Stopa oszcz. 2025',v:fmtP(mi25>0?(mi25-me25)/mi25*100:0),c:'green',s:`${fmt((AI['2025']||0)-(AE['2025']||0))} oszczędności`,b:'',bc:'bn'},
+    {l:'Realny wzrost wydatków/rok',v:fmtP(expCAGR),c:expCAGR>5?'red':'gold',s:'CAGR 2021→2025',b:`z ${fmt(me21)} do ${fmt(me25)}/mies.`,bc:expCAGR>5?'bd':'bw'},
+    {l:'Łączne oszczędności',v:fmtK(totSav),c:'teal',s:'2021–2026 skumulowane',b:'',bc:'bn'},
   ]);
 
-  C.annual=new Chart(document.getElementById('annualChart'),{data:{labels:yrs,datasets:[{type:'bar',data:iA,backgroundColor:'rgba(184,224,74,.7)',borderRadius:4},{type:'bar',data:eA,backgroundColor:'rgba(224,90,90,.7)',borderRadius:4},{type:'line',data:sA,borderColor:'#4abeac',backgroundColor:'rgba(74,190,172,.06)',fill:true,tension:.4,pointRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false}}}}});
-
-  const sR=yrs.map((_,i)=>+((sA[i]/iA[i]*100).toFixed(1)));
-  C.annSav=new Chart(document.getElementById('annualSavChart'),{data:{labels:yrs,datasets:[{type:'bar',data:sA,backgroundColor:sA.map(v=>v>=0?'rgba(74,190,172,.75)':'rgba(224,90,90,.75)'),borderRadius:5,yAxisID:'y'},{type:'line',data:sR,borderColor:'#b8e04a',pointBackgroundColor:'#b8e04a',pointRadius:5,tension:.4,borderWidth:2,yAxisID:'y2',fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'},position:'left'},y2:{ticks:{callback:v=>v+'%'},grid:{display:false},position:'right',min:-20,max:60},x:{grid:{display:false}}}}});
+  // Future banner
+  const hasFuture=allMonths().some(isFuture);
+  document.getElementById('future-banner').style.display=hasFuture?'flex':'none';
 }
 
-// ── CASHFLOW ─────────────────────────────────────────────────────────────
-function initCF(){
-  const l6=Object.keys(MI).sort().slice(-6);
-  const aI6=l6.reduce((a,k)=>a+(MI[k]||0),0)/6,aE6=l6.reduce((a,k)=>a+(ME[k]||0),0)/6;
-  const lk=Object.keys(MI).sort().slice(-1)[0],lI=MI[lk]||0,lE=ME[lk]||0;
-  document.getElementById('cf-kpi').innerHTML=kpi([
-    {l:'Przychód mar 2026',v:fmt(lI),c:'green',s:'ostatni miesiąc',b:'',bc:'bn'},
-    {l:'Wydatki mar 2026',v:fmt(lE),c:'red',s:'ostatni miesiąc',b:'',bc:'bn'},
-    {l:'Oszcz. mar 2026',v:fmt(lI-lE),c:'teal',s:fmtP((lI-lE)/lI*100)+' stopa',b:'',bc:'bn'},
-    {l:'Śr. oszczędności 6m',v:fmt(aI6-aE6),c:'blue',s:fmtP((aI6-aE6)/aI6*100)+' stopa',b:'',bc:'bn'},
-  ]);
-  updateCF();
-}
-function updateCF(){
-  if(C.cf)C.cf.destroy();if(C.sv)C.sv.destroy();
+// ═══════════════════════════════════════════════════════════════
+// CASHFLOW — built/rebuilt on nav & on data change
+// ═══════════════════════════════════════════════════════════════
+function buildCF(){
   const v=document.getElementById('cf-view').value;
-  let lb,iA,eA;
-  if(v==='yr'){lb=Object.keys(AI);iA=lb.map(y=>AI[y]);eA=lb.map(y=>AE[y]);}
-  else{const n=v==='m12'?12:24;const sk=Object.keys(MI).sort().slice(-n);lb=sk;iA=sk.map(k=>MI[k]||0);eA=sk.map(k=>ME[k]||0);}
+  let months;
+  if(v==='yr'){
+    buildCFYearly(); return;
+  } else if(v==='m12'){
+    months=allMonths().slice(-12);
+  } else if(v==='m24'){
+    months=allMonths().slice(-24);
+  } else {
+    months=allMonths();
+  }
+
+  const iA=months.map(m=>MI[m]||0);
+  const eA=months.map(m=>ME[m]||0);
   const sA=iA.map((v,i)=>v-eA[i]);
-  C.cf=new Chart(document.getElementById('cfChart'),{type:'bar',data:{labels:lb,datasets:[{data:iA,backgroundColor:'rgba(184,224,74,.65)',borderRadius:3},{data:eA,backgroundColor:'rgba(224,90,90,.65)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:14}}}}});
-  C.sv=new Chart(document.getElementById('savChart'),{type:'bar',data:{labels:lb,datasets:[{data:sA,backgroundColor:sA.map(v=>v>=0?'rgba(74,190,172,.7)':'rgba(224,90,90,.7)'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:14}}}}});
+  const hasFut=months.some(isFuture);
+  document.getElementById('cf-future-note').style.display=hasFut?'inline':'none';
+
+  const incC=barColors(months,'rgba(184,224,74,.7)','rgba(184,224,74,.22)');
+  const expC=barColors(months,'rgba(224,90,90,.7)','rgba(224,90,90,.22)');
+  const incBC=barBorderColors(months,'rgba(184,224,74,.9)');
+  const expBC=barBorderColors(months,'rgba(224,90,90,.9)');
+  const bw=barBorderWidths(months);
+  const savC=sA.map((v,i)=>isFuture(months[i])?(v>=0?'rgba(74,190,172,.25)':'rgba(224,90,90,.25)'):(v>=0?'rgba(74,190,172,.75)':'rgba(224,90,90,.75)'));
+  const savBC=barBorderColors(months,'rgba(255,255,255,.3)');
+
+  const ttCb={callbacks:{title:t=>{const m=t[0].label;return m+(isFuture(m)?' ✦ prognoza':' ● historia');}}};
+
+  if(!C.cf){
+    C.cf=new Chart(document.getElementById('cfChart'),{type:'bar',
+      data:{labels:months,datasets:[
+        {label:'Przychody',data:iA,backgroundColor:incC,borderColor:incBC,borderWidth:bw,borderRadius:3},
+        {label:'Wydatki',data:eA,backgroundColor:expC,borderColor:expBC,borderWidth:bw,borderRadius:3}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttCb},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:16}}}}
+    });
+    C.sv=new Chart(document.getElementById('savChart'),{type:'bar',
+      data:{labels:months,datasets:[{label:'Oszcz.',data:sA,backgroundColor:savC,borderColor:savBC,borderWidth:bw,borderRadius:3}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttCb},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:16}}}}
+    });
+  } else {
+    C.cf.data.labels=months;
+    C.cf.data.datasets[0].data=iA; C.cf.data.datasets[0].backgroundColor=incC; C.cf.data.datasets[0].borderColor=incBC; C.cf.data.datasets[0].borderWidth=bw;
+    C.cf.data.datasets[1].data=eA; C.cf.data.datasets[1].backgroundColor=expC; C.cf.data.datasets[1].borderColor=expBC; C.cf.data.datasets[1].borderWidth=bw;
+    C.cf.update('active');
+    C.sv.data.labels=months; C.sv.data.datasets[0].data=sA; C.sv.data.datasets[0].backgroundColor=savC; C.sv.data.datasets[0].borderColor=savBC; C.sv.data.datasets[0].borderWidth=bw;
+    C.sv.update('active');
+    ['cfChart','savChart'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('chart-flash');void el.offsetWidth;el.classList.add('chart-flash');});
+  }
+
+  // KPI
+  const lk=allMonths().slice(-1)[0], lI=MI[lk]||0, lE=ME[lk]||0;
+  const last6=allMonths().filter(m=>!isFuture(m)).slice(-6);
+  const aI6=last6.reduce((a,k)=>a+(MI[k]||0),0)/Math.max(last6.length,1);
+  const aE6=last6.reduce((a,k)=>a+(ME[k]||0),0)/Math.max(last6.length,1);
+  document.getElementById('cf-kpi').innerHTML=kpi([
+    {l:'Przychód '+lk+(isFuture(lk)?' (prog.)':''),v:fmt(lI),c:'green',s:'',b:'',bc:'bn'},
+    {l:'Wydatki '+lk+(isFuture(lk)?' (prog.)':''),v:fmt(lE),c:'red',s:'',b:'',bc:'bn'},
+    {l:'Oszcz. '+lk,v:fmt(lI-lE),c:'teal',s:lI>0?fmtP((lI-lE)/lI*100)+' stopa':'',b:'',bc:'bn'},
+    {l:'Śr. oszcz. hist. 6m',v:fmt(aI6-aE6),c:'blue',s:aI6>0?fmtP((aI6-aE6)/aI6*100)+' stopa':'',b:'',bc:'bn'},
+  ]);
 }
 
-// ── INVESTMENTS ──────────────────────────────────────────────────────────
-function initInv(){
+function buildCFYearly(){
+  const AI=computeAI(), AE=computeAE();
+  const yrs=Object.keys(AI).sort();
+  const iA=yrs.map(y=>AI[y]||0), eA=yrs.map(y=>AE[y]||0), sA=iA.map((v,i)=>v-eA[i]);
+  const futYrs=new Set(allMonths().filter(isFuture).map(m=>m.slice(0,4)));
+  const incC=yrs.map(y=>futYrs.has(y)?'rgba(184,224,74,.22)':'rgba(184,224,74,.7)');
+  const expC=yrs.map(y=>futYrs.has(y)?'rgba(224,90,90,.22)':'rgba(224,90,90,.7)');
+  const bw=yrs.map(y=>futYrs.has(y)?1.5:0);
+  const bInc=yrs.map(y=>futYrs.has(y)?'rgba(184,224,74,.8)':'transparent');
+  const bExp=yrs.map(y=>futYrs.has(y)?'rgba(224,90,90,.8)':'transparent');
+  const savC=sA.map((v,i)=>futYrs.has(yrs[i])?(v>=0?'rgba(74,190,172,.25)':'rgba(224,90,90,.25)'):(v>=0?'rgba(74,190,172,.75)':'rgba(224,90,90,.75)'));
+  if(!C.cf){
+    C.cf=new Chart(document.getElementById('cfChart'),{type:'bar',data:{labels:yrs,datasets:[{data:iA,backgroundColor:incC,borderColor:bInc,borderWidth:bw,borderRadius:3},{data:eA,backgroundColor:expC,borderColor:bExp,borderWidth:bw,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false}}}}});
+    C.sv=new Chart(document.getElementById('savChart'),{type:'bar',data:{labels:yrs,datasets:[{data:sA,backgroundColor:savC,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false}}}}});
+  } else {
+    C.cf.data.labels=yrs; C.cf.data.datasets[0].data=iA; C.cf.data.datasets[0].backgroundColor=incC; C.cf.data.datasets[0].borderColor=bInc; C.cf.data.datasets[0].borderWidth=bw; C.cf.data.datasets[1].data=eA; C.cf.data.datasets[1].backgroundColor=expC; C.cf.data.datasets[1].borderColor=bExp; C.cf.data.datasets[1].borderWidth=bw; C.cf.update('active');
+    C.sv.data.labels=yrs; C.sv.data.datasets[0].data=sA; C.sv.data.datasets[0].backgroundColor=savC; C.sv.update('active');
+  }
+}
+
+function rebuildCF(){ buildCF(); }
+
+// ═══════════════════════════════════════════════════════════════
+// INVESTMENTS
+// ═══════════════════════════════════════════════════════════════
+function buildInv(){
   const lat=PF[PF.length-1],fst=PF[0],tot=pfT(lat)+xPF,totF=pfT(fst);
   const gr=((tot-totF)/totF*100).toFixed(1);
   document.getElementById('inv-kpi').innerHTML=kpi([
@@ -370,100 +565,104 @@ function initInv(){
     {l:'Bitcoin',v:fmt(lat.B),c:'orange',s:fmtP(lat.B/tot*100),b:'',bc:'bn'},
     {l:'Wzrost (6 mies.)',v:gr+'%',c:parseFloat(gr)>=0?'green':'red',s:'okt 2025 → kwi 2026',b:'',bc:parseFloat(gr)>=0?'bu':'bd'},
   ]);
-
-  // Rebalancing
   const sP=(lat.A+lat.P)/tot*100,bP=lat.O/tot*100,cP=lat.B/tot*100;
   const alerts=[];
-  const chk=(n,a,t,cls)=>{const d=a-t;if(Math.abs(d)>5)alerts.push(`<div class="abar ${Math.abs(d)>10?'ae':'aw'}">⚠ <strong>${n}</strong>: aktualne ${fmtP(a)}, cel ${fmtP(t)} (${d>0?'+':''}${fmtP(d)}) — ${d>0?'rozważ redukcję':'rozważ dokupienie'}</div>`);};
+  const chk=(n,a,t)=>{const d=a-t;if(Math.abs(d)>5)alerts.push(`<div class="abar ${Math.abs(d)>10?'ae':'aw'}">⚠ <strong>${n}</strong>: ${fmtP(a)} vs cel ${fmtP(t)} (${d>0?'+':''}${fmtP(d)}) — ${d>0?'rozważ redukcję':'rozważ dokupienie'}</div>`);};
   chk('Akcje łącznie',sP,TARGET.stocks);chk('Obligacje',bP,TARGET.bonds);chk('Bitcoin',cP,TARGET.crypto);
-  document.getElementById('rebal').innerHTML=alerts.length?alerts.join(''):`<div class="abar aok">✓ Alokacja zgodna z celami (${TARGET.stocks}% / ${TARGET.bonds}% / ${TARGET.crypto}%) w tolerancji ±5%</div>`;
+  document.getElementById('rebal').innerHTML=alerts.length?alerts.join(''):`<div class="abar aok">✓ Alokacja zgodna z celami (${TARGET.stocks}%/${TARGET.bonds}%/${TARGET.crypto}%) w tolerancji ±5%</div>`;
 
-  C.pf=new Chart(document.getElementById('pfChart'),{type:'line',data:{labels:PF.map(p=>p.D),datasets:[{data:PF.map(p=>p.A),borderColor:'#4a8fe0',fill:true,backgroundColor:'rgba(74,143,224,.06)',tension:.3,pointRadius:2,borderWidth:2},{data:PF.map(p=>p.O),borderColor:'#b8e04a',fill:true,backgroundColor:'rgba(184,224,74,.06)',tension:.3,pointRadius:2,borderWidth:2},{data:PF.map(p=>p.P),borderColor:'#e0b84a',fill:true,backgroundColor:'rgba(224,184,74,.06)',tension:.3,pointRadius:2,borderWidth:2},{data:PF.map(p=>p.B),borderColor:'#f97316',fill:true,backgroundColor:'rgba(249,115,22,.06)',tension:.3,pointRadius:2,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{ticks:{maxTicksLimit:10},grid:{display:false}}}}});
+  C.pf=new Chart(document.getElementById('pfChart'),{type:'line',data:{labels:PF.map(p=>p.D),datasets:[
+    {data:PF.map(p=>p.A),borderColor:'#4a8fe0',fill:true,backgroundColor:'rgba(74,143,224,.06)',tension:.3,pointRadius:2,borderWidth:2},
+    {data:PF.map(p=>p.O),borderColor:'#b8e04a',fill:true,backgroundColor:'rgba(184,224,74,.06)',tension:.3,pointRadius:2,borderWidth:2},
+    {data:PF.map(p=>p.P),borderColor:'#e0b84a',fill:true,backgroundColor:'rgba(224,184,74,.06)',tension:.3,pointRadius:2,borderWidth:2},
+    {data:PF.map(p=>p.B),borderColor:'#f97316',fill:true,backgroundColor:'rgba(249,115,22,.06)',tension:.3,pointRadius:2,borderWidth:2},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{ticks:{maxTicksLimit:10},grid:{display:false}}}}});
 
-  const aD=[lat.A,lat.O,lat.P,lat.B],aC=['#4a8fe0','#b8e04a','#e0b84a','#f97316'],aN=['MSCI ACWI + NASDAQ','Obligacje skarbowe','PPE – Akcje USA','Bitcoin'];
+  const aD=[lat.A,lat.O,lat.P,lat.B],aC=['#4a8fe0','#b8e04a','#e0b84a','#f97316'],aN=['MSCI ACWI+NASDAQ','Obligacje','PPE – Akcje USA','Bitcoin'];
   C.alloc=new Chart(document.getElementById('allocChart'),{type:'doughnut',data:{labels:aN,datasets:[{data:aD,backgroundColor:aC,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'62%'}});
 
-  const pItems=[{n:'Akcje łącznie',v:lat.A+lat.P,c:'#4a8fe0',t:TARGET.stocks,sub:'MSCI ACWI + NASDAQ + PPE'},{n:'Obligacje',v:lat.O,c:'#b8e04a',t:TARGET.bonds,sub:'Obligacje skarbowe'},{n:'Bitcoin',v:lat.B,c:'#f97316',t:TARGET.crypto,sub:'BTC'}];
+  const pItems=[{n:'Akcje łącznie',v:lat.A+lat.P,c:'#4a8fe0',t:TARGET.stocks,sub:'MSCI ACWI+NASDAQ+PPE'},{n:'Obligacje',v:lat.O,c:'#b8e04a',t:TARGET.bonds,sub:'Obligacje skarbowe'},{n:'Bitcoin',v:lat.B,c:'#f97316',t:TARGET.crypto,sub:'BTC'}];
   document.getElementById('alloc-list').innerHTML=
     aN.map((n,i)=>`<div class="ar"><div class="ad" style="background:${aC[i]}"></div><div class="an">${n}</div><div class="av">${fmt(aD[i])}</div><div class="ap">${fmtP(aD[i]/tot*100)}</div></div>`).join('')+
-    `<div style="border-top:1px solid var(--border);margin:10px 0 8px;font-size:10px;color:var(--muted);font-family:var(--fm);letter-spacing:.07em">PROPORCJE · CEL: ${TARGET.stocks}%/${TARGET.bonds}%/${TARGET.crypto}%</div>`+
+    `<div style="border-top:1px solid var(--border);margin:10px 0 8px;font-size:10px;color:var(--muted);font-family:var(--fm)">PROPORCJE · CEL: ${TARGET.stocks}%/${TARGET.bonds}%/${TARGET.crypto}%</div>`+
     pItems.map(p=>{const pct=p.v/tot*100,d=pct-p.t;return`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--text)">${p.n}</span><span style="font-family:var(--fm);color:${p.c}">${fmtP(pct)} <span style="font-size:10px;color:${Math.abs(d)>5?'var(--red)':'var(--muted)'}">${d>0?'+':''}${d.toFixed(1)}%</span></span></div><div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(pct,100)}%;background:${p.c};border-radius:2px"></div></div><div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--fm)">${fmt(p.v)}</div></div>`;}).join('');
 
   const dl=[],dlb=[];for(let i=1;i<PF.length;i++){dl.push(Math.round(pfT(PF[i])-pfT(PF[i-1])));dlb.push(PF[i].D);}
   C.delta=new Chart(document.getElementById('pfDelta'),{type:'bar',data:{labels:dlb,datasets:[{data:dl,backgroundColor:dl.map(v=>v>=0?'rgba(184,224,74,.7)':'rgba(224,90,90,.7)'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:10}}}}});
 
-  // Benchmark 60/40 indexed to 100 at start
   const pfIdx=PF.map(p=>pfT(p)>0?pfT(p)/pfT(PF[0])*100:100);
-  const aBase=PF.find(p=>p.A>0)||PF[9];const aBaseV=aBase.A,oBaseV=PF[0].O;
+  const aBase=PF.find(p=>p.A>0)||PF[9],aBaseV=aBase.A,oBaseV=PF[0].O;
   const bkIdx=PF.map(p=>(0.6*(p.A>0?p.A:aBaseV)/aBaseV+0.4*p.O/oBaseV)*100);
   C.bench=new Chart(document.getElementById('benchChart'),{type:'line',data:{labels:PF.map(p=>p.D),datasets:[{data:pfIdx,borderColor:'#4a8fe0',fill:false,tension:.3,pointRadius:2,borderWidth:2},{data:bkIdx,borderColor:'#e05a5a',borderDash:[5,3],fill:false,tension:.3,pointRadius:0,borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v.toFixed(0)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:8}}}}});
 }
 
-// ── MORTGAGE ──────────────────────────────────────────────────────────────
-function initMort(){
-  const m=MORT,ye=2026-m.start,rem=m.orig-m.capPaid,mr=m.rate/12,tm=m.term*12,em=ye*12,rm=tm-em;
+// ═══════════════════════════════════════════════════════════════
+// MORTGAGE
+// ═══════════════════════════════════════════════════════════════
+function buildMort(){
+  const m=MORT,ye=2026-m.start,rem=m.orig-m.capPaid,mr=m.rate/12,tm=m.term*12;
   const mPay=m.orig*mr/(1-Math.pow(1+mr,-tm));
   const totCost=mPay*tm,totInt=totCost-m.orig,remInt=totInt-m.intPaid;
   document.getElementById('mort-kpi').innerHTML=kpi([
     {l:'Pozostały kapitał',v:fmt(rem),c:'red',s:`z ${fmt(m.orig)} oryginalnych`,b:`spłacono ${fmtP(m.capPaid/m.orig*100)}`,bc:'bu'},
-    {l:'Spłacony kapitał',v:fmt(m.capPaid),c:'green',s:`przez ${ye} lata`,b:`${fmt(m.capPaid/ye/12)}/mies. śr.`,bc:'bn'},
-    {l:'Zapłacone odsetki',v:fmt(m.intPaid),c:'gold',s:'koszt finansowania',b:'łącznie od startu',bc:'bw'},
-    {l:'Pozostałe odsetki',v:fmt(remInt),c:'orange',s:`przy ${fmtP(m.rate*100)} bez nadpłat`,b:`${rm} rat pozostało`,bc:'bd'},
+    {l:'Spłacony kapitał',v:fmt(m.capPaid),c:'green',s:`przez ${ye} lata`,b:'',bc:'bn'},
+    {l:'Zapłacone odsetki',v:fmt(m.intPaid),c:'gold',s:'koszt finansowania',b:'',bc:'bw'},
+    {l:'Pozostałe odsetki',v:fmt(remInt),c:'orange',s:`przy ${fmtP(m.rate*100)} bez nadpłat`,b:'',bc:'bd'},
   ]);
   document.getElementById('mort-detail').innerHTML=`
     <div class="mr"><span class="mrl">Kwota kredytu</span><span class="mrv">${fmt(m.orig)}</span></div>
     <div class="mr"><span class="mrl">Oprocentowanie</span><span class="mrv">${fmtP(m.rate*100)}</span></div>
     <div class="mr"><span class="mrl">Okres kredytu</span><span class="mrv">${m.term} lat (do ${m.start+m.term})</span></div>
     <div class="mr"><span class="mrl">Miesięczna rata (szac.)</span><span class="mrv">${fmt(mPay)}</span></div>
-    <div class="mr"><span class="mrl">Łączny koszt kredytu</span><span class="mrv">${fmt(totCost)}</span></div>
-    <div class="mr"><span class="mrl">Łączne odsetki</span><span class="mrv">${fmt(totInt)}</span></div>
-    <div class="mr" style="margin-top:8px;padding-top:10px;border-top:1px solid var(--border2)"><span class="mrl" style="color:var(--text)">Pozostało do spłaty</span><span class="mrv" style="color:var(--red);font-size:16px">${fmt(rem)}</span></div>`;
+    <div class="mr"><span class="mrl">Łączny koszt</span><span class="mrv">${fmt(totCost)}</span></div>
+    <div class="mr" style="padding-top:10px;border-top:1px solid var(--border2)"><span class="mrl" style="color:var(--text)">Pozostało do spłaty</span><span class="mrv" style="color:var(--red);font-size:16px">${fmt(rem)}</span></div>`;
   const capY=[0,10000,15000,18000,25000,11670],intY=[0,3500,5000,6000,6500,3172];
   C.mort=new Chart(document.getElementById('mortChart'),{type:'bar',data:{labels:['2021','2022','2023','2024','2025','2026'],datasets:[{data:capY,backgroundColor:'rgba(184,224,74,.7)',borderRadius:4},{data:intY,backgroundColor:'rgba(224,90,90,.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false}}}}});
   updateMort();
 }
 function updateMort(){
-  const op=parseInt(document.getElementById('overpay').value)||0,me=parseInt(document.getElementById('mex').value)||0;
+  const op=parseInt(document.getElementById('overpay').value)||0,me2=parseInt(document.getElementById('mex').value)||0;
   document.getElementById('ov-val').textContent=op.toLocaleString('pl-PL')+' PLN';
-  document.getElementById('mos-val').textContent=me.toLocaleString('pl-PL')+' PLN';
+  document.getElementById('mos-val').textContent=me2.toLocaleString('pl-PL')+' PLN';
   const m=MORT,rem=m.orig-m.capPaid-op,mr=m.rate/12,tm=m.term*12,em=(2026-m.start)*12;
-  const basePay=m.orig*mr/(1-Math.pow(1+mr,-tm)),pay=basePay+me;
+  const basePay=m.orig*mr/(1-Math.pow(1+mr,-tm)),pay=basePay+me2;
   let bal=rem,mos=0;while(bal>0&&mos<600){bal=bal*(1+mr)-pay;mos++;}
-  const yrsSaved=Math.max(0,(tm-em-mos)/12),intSaved=yrsSaved*12*basePay*0.38;
+  const yrsSaved=Math.max(0,(tm-em-mos)/12);
   document.getElementById('mort-res').innerHTML=`<div class="mrow m2" style="gap:.75rem">
     <div class="mc green"><div class="ml">Spłata za</div><div class="mv green">${Math.floor(mos/12)}r ${mos%12}m</div><div class="ms">przy tych nadpłatach</div></div>
-    <div class="mc teal"><div class="ml">Oszczędność czasu</div><div class="mv teal">${yrsSaved.toFixed(1)} lat</div><div class="ms">~${fmt(intSaved)} odsetek</div></div>
+    <div class="mc teal"><div class="ml">Oszczędność czasu</div><div class="mv teal">${yrsSaved.toFixed(1)} lat</div><div class="ms">~${fmt(yrsSaved*12*basePay*.38)} odsetek</div></div>
   </div>`;
 }
 
-// ── FIRE ──────────────────────────────────────────────────────────────────
-function initFire(){
-  const lat=PF[PF.length-1],tot=pfT(lat)+xPF,pM=tot*0.04/12,aExpM=AE[2025]/12,tFIRE=aExpM*12/0.04;
+// ═══════════════════════════════════════════════════════════════
+// FIRE
+// ═══════════════════════════════════════════════════════════════
+function buildFire(){
+  const AE=computeAE();
+  const lat=PF[PF.length-1],tot=pfT(lat)+xPF,pM=tot*0.04/12,aExpM=(AE['2025']||0)/12,tFIRE=aExpM*12/0.04;
   document.getElementById('fire-kpi').innerHTML=kpi([
-    {l:'Wartość portfela',v:fmt(tot),c:'blue',s:'łącznie aktywów',b:'',bc:'bn'},
-    {l:'Dochód pasywny/mies.',v:fmt(pM),c:'green',s:'reguła 4%',b:`${fmtP(pM/aExpM*100)} pokrycia wydatków`,bc:pM>=aExpM?'bu':'bn'},
-    {l:'Cel FIRE (wg 2025)',v:fmtK(tFIRE),c:'',s:`przy ${fmt(aExpM)}/mies.`,b:'',bc:'bn'},
-    {l:'Postęp do celu',v:fmtP(tot/tFIRE*100),c:tot>=tFIRE?'green':'blue',s:`brakuje ${fmt(Math.max(0,tFIRE-tot))}`,b:'',bc:'bn'},
+    {l:'Wartość portfela',v:fmt(tot),c:'blue',s:'łącznie',b:'',bc:'bn'},
+    {l:'Dochód pasywny/mies.',v:fmt(pM),c:'green',s:'reguła 4%',b:`${fmtP(aExpM>0?pM/aExpM*100:0)} pokrycia`,bc:pM>=aExpM?'bu':'bn'},
+    {l:'Cel FIRE',v:fmtK(tFIRE),c:'',s:`${fmt(aExpM)}/mies.`,b:'',bc:'bn'},
+    {l:'Postęp',v:fmtP(tFIRE>0?tot/tFIRE*100:0),c:tot>=tFIRE?'green':'blue',s:`brakuje ${fmt(Math.max(0,tFIRE-tot))}`,b:'',bc:'bn'},
   ]);
   const sc=[{n:'FIRE – bieżące wydatki',t:tFIRE,cl:''},{n:'Lean FIRE – 8 000 PLN/mies.',t:8000*12/0.04,cl:'teal'},{n:'Fat FIRE – 20 000 PLN/mies.',t:20000*12/0.04,cl:'gold'}];
-  document.getElementById('fire-prog').innerHTML=sc.map(s=>{const p=Math.min(tot/s.t*100,100).toFixed(1);return`<div class="fb"><div class="fbl"><span class="fbn">${s.n}</span><span class="fbp">${p}%</span></div><div class="fbb"><div class="fbf ${s.cl}" style="width:${p}%"></div></div><div class="fbs"><span>${fmt(tot)}</span><span>cel: ${fmtK(s.t)}</span></div></div>`;}).join('');
+  document.getElementById('fire-prog').innerHTML=sc.map(s=>{const p=Math.min(tFIRE>0?tot/s.t*100:0,100).toFixed(1);return`<div class="fb"><div class="fbl"><span class="fbn">${s.n}</span><span class="fbp">${p}%</span></div><div class="fbb"><div class="fbf ${s.cl}" style="width:${p}%"></div></div><div class="fbs"><span>${fmt(tot)}</span><span>cel: ${fmtK(s.t)}</span></div></div>`;}).join('');
   updateFire();
 }
 function updateFire(){
-  const mi=parseInt(document.getElementById('mi').value)||0;
-  const rr=parseFloat(document.getElementById('rr').value);
-  const inf=parseFloat(document.getElementById('inf').value);
-  const yr=parseInt(document.getElementById('yr').value);
-  document.getElementById('mi-v').textContent=mi.toLocaleString('pl-PL')+' PLN';
+  const mi2=parseInt(document.getElementById('mi').value)||0,rr=parseFloat(document.getElementById('rr').value),inf=parseFloat(document.getElementById('inf').value),yr=parseInt(document.getElementById('yr').value);
+  document.getElementById('mi-v').textContent=mi2.toLocaleString('pl-PL')+' PLN';
   document.getElementById('rr-v').textContent=rr.toFixed(1)+'%';
   document.getElementById('inf-v').textContent=inf.toFixed(1)+'%';
   document.getElementById('yr-v').textContent=yr;
-  const lat=PF[PF.length-1],totN=pfT(lat)+xPF,aExpM=AE[2025]/12,tFIRE=aExpM*12/0.04,tFat=20000*12/0.04;
+  const AE=computeAE();
+  const lat=PF[PF.length-1],totN=pfT(lat)+xPF,aExpM=(AE['2025']||0)/12,tFIRE=aExpM*12/0.04,tFat=20000*12/0.04;
   const mr=(rr/100)/12,ir=(inf/100)/12;
   const pL=[],pN=[totN],pR=[totN];
   const now=new Date().getFullYear();pL.push(now+'');
   let vN=totN,vR=totN,fyN=null,fyR=null;
-  for(let y=1;y<=yr;y++){for(let mo=0;mo<12;mo++){vN=vN*(1+mr)+mi;vR=vR*(1+mr-ir)+mi;}pL.push((now+y)+'');pN.push(Math.round(vN));pR.push(Math.round(vR));if(!fyN&&vN>=tFIRE)fyN=(now+y)+'';if(!fyR&&vR>=tFIRE)fyR=(now+y)+'';}
+  for(let y=1;y<=yr;y++){for(let mo=0;mo<12;mo++){vN=vN*(1+mr)+mi2;vR=vR*(1+mr-ir)+mi2;}pL.push((now+y)+'');pN.push(Math.round(vN));pR.push(Math.round(vR));if(!fyN&&vN>=tFIRE)fyN=(now+y)+'';if(!fyR&&vR>=tFIRE)fyR=(now+y)+'';}
   document.getElementById('fire-res').innerHTML=`<div class="mrow m2" style="gap:.75rem">
     <div class="mc green"><div class="ml">Portfel za ${yr} lat (nom.)</div><div class="mv green">${fmtK(pN[pN.length-1])}</div><div class="ms">${fyN?'FIRE ok. '+fyN:'poza horyzontem'}</div></div>
     <div class="mc teal"><div class="ml">Portfel za ${yr} lat (realny)</div><div class="mv teal">${fmtK(pR[pR.length-1])}</div><div class="ms">${fyR?'FIRE realny ok. '+fyR:'poza horyzontem'}</div></div>
@@ -472,74 +671,166 @@ function updateFire(){
   C.fire=new Chart(document.getElementById('fireChart'),{type:'line',data:{labels:pL,datasets:[{data:pN,borderColor:'#4a8fe0',backgroundColor:'rgba(74,143,224,.06)',fill:true,tension:.3,pointRadius:2,borderWidth:2},{data:pR,borderColor:'#4abeac',backgroundColor:'rgba(74,190,172,.04)',fill:true,tension:.3,pointRadius:2,borderWidth:1.5,borderDash:[4,2]},{data:pL.map(()=>tFIRE),borderColor:'#b8e04a',borderDash:[6,4],pointRadius:0,fill:false,borderWidth:1.5},{data:pL.map(()=>tFat),borderColor:'#e0b84a',borderDash:[6,4],pointRadius:0,fill:false,borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:10}}}}});
 }
 
-// ── WHAT IF ───────────────────────────────────────────────────────────────
-function initWI(){updateWI();}
+// ═══════════════════════════════════════════════════════════════
+// WHAT IF
+// ═══════════════════════════════════════════════════════════════
+function buildWI(){updateWI();}
 function updateWI(){
-  const eD=parseInt(document.getElementById('we').value)||0;
-  const iD=parseInt(document.getElementById('wi-inc').value)||0;
-  const vD=parseInt(document.getElementById('wv').value)||0;
-  const rr=parseFloat(document.getElementById('wr').value);
-  const inf=parseFloat(document.getElementById('wn').value);
+  const eD=parseInt(document.getElementById('we').value)||0,iD=parseInt(document.getElementById('wi-inc').value)||0,vD=parseInt(document.getElementById('wv').value)||0;
+  const rr=parseFloat(document.getElementById('wr').value),inf=parseFloat(document.getElementById('wn').value);
   document.getElementById('we-v').textContent=(eD>=0?'+':'')+eD.toLocaleString('pl-PL')+' PLN';
   document.getElementById('wi-v').textContent=(iD>=0?'+':'')+iD.toLocaleString('pl-PL')+' PLN';
   document.getElementById('wv-v').textContent=(vD>=0?'+':'')+vD.toLocaleString('pl-PL')+' PLN';
   document.getElementById('wr-v').textContent=rr.toFixed(1)+'%';
   document.getElementById('wn-v').textContent=inf.toFixed(1)+'%';
-  const lat=PF[PF.length-1],totN=pfT(lat)+xPF;
-  const aExpM=AE[2025]/12,aSavM=(AI[2025]-AE[2025])/12,tFIRE=aExpM*12/0.04;
+  const AE=computeAE();
+  const lat=PF[PF.length-1],totN=pfT(lat)+xPF,aExpM=(AE['2025']||0)/12,aSavM=((computeAI()['2025']||0)-(AE['2025']||0))/12,tFIRE=aExpM*12/0.04;
   const bMI=aSavM,sMI=aSavM+iD+vD-Math.max(0,eD);
-  const bMR=(7/100)/12,bIR=(3/100)/12,sMR=(rr/100)/12,sIR=(inf/100)/12;
-  function proj(start,mo,r,ir,yrs){let v=start,vals=[start],labs=[new Date().getFullYear()+''],fy=null;for(let y=1;y<=yrs;y++){for(let m=0;m<12;m++)v=v*(1+r-ir)+mo;vals.push(Math.round(v));labs.push((new Date().getFullYear()+y)+'');if(!fy&&v>=tFIRE)fy=(new Date().getFullYear()+y)+'';}return{vals,labs,fy};}
-  const yr=30,base=proj(totN,bMI,bMR,bIR,yr),scen=proj(totN,sMI,sMR,sIR,yr);
+  function proj(start,mo,r,ir,yrs){let v=start,vals=[start],labs=[new Date().getFullYear()+''],fy=null;for(let y=1;y<=yrs;y++){for(let m=0;m<12;m++)v=v*(1+r/12-ir/12)+mo;vals.push(Math.round(v));labs.push((new Date().getFullYear()+y)+'');if(!fy&&v>=tFIRE)fy=(new Date().getFullYear()+y)+'';}return{vals,labs,fy};}
+  const yr=30,base=proj(totN,bMI,7,3,yr),scen=proj(totN,sMI,rr,inf,yr);
   const diff=scen.vals[scen.vals.length-1]-base.vals[base.vals.length-1];
-  const newSavM=aSavM+iD+vD-eD,newSavR=newSavM/(AI[2025]/12+iD)*100;
+  const newSavR=sMI/(((computeAI()['2025']||0)/12)+iD)*100;
   const acc=base.fy&&scen.fy?Math.max(0,parseInt(base.fy)-parseInt(scen.fy)):0;
   document.getElementById('wi-kpi').innerHTML=kpi([
-    {l:'Nowe oszczędności/mies.',v:fmt(newSavM),c:newSavM>aSavM?'green':'red',s:`baseline: ${fmt(aSavM)}`,b:`stopa: ${fmtP(Math.max(0,newSavR))}`,bc:newSavR>30?'bu':'bn'},
-    {l:'Portfel za 30 lat (scen.)',v:fmtK(scen.vals[scen.vals.length-1]),c:'blue',s:`${diff>=0?'+':''}${fmtK(diff)} vs baseline`,b:scen.fy?'FIRE ok. '+scen.fy:'FIRE poza horyzontem',bc:scen.fy?'bu':'bd'},
-    {l:'Przyspieszenie FIRE',v:acc?acc+' lat':'—',c:'teal',s:base.fy?'baseline FIRE: '+base.fy:'baseline poza horyzontem',b:'',bc:'bn'},
+    {l:'Nowe oszczędności/mies.',v:fmt(sMI),c:sMI>bMI?'green':'red',s:`baseline: ${fmt(bMI)}`,b:`stopa: ${fmtP(Math.max(0,newSavR))}`,bc:newSavR>30?'bu':'bn'},
+    {l:'Portfel za 30 lat',v:fmtK(scen.vals[scen.vals.length-1]),c:'blue',s:`${diff>=0?'+':''}${fmtK(diff)} vs baseline`,b:scen.fy?'FIRE ok. '+scen.fy:'FIRE poza horyzontem',bc:scen.fy?'bu':'bd'},
+    {l:'Przyspieszenie FIRE',v:acc?acc+' lat':'—',c:'teal',s:base.fy?'baseline: '+base.fy:'',b:'',bc:'bn'},
   ]);
-  document.getElementById('wi-res').innerHTML=`
-    <div style="font-size:13px;line-height:2.1;color:var(--muted)">
-      <div>Nowe wydatki/mies.: <span style="color:var(--text);font-family:var(--fm)">${fmt(aExpM+eD)}</span></div>
-      <div>Nowe dochody/mies.: <span style="color:var(--text);font-family:var(--fm)">${fmt(AI[2025]/12+iD)}</span></div>
-      <div>Inwestycje/mies.: <span style="color:var(--text);font-family:var(--fm)">${fmt(aSavM+vD)}</span></div>
-      <div>FIRE baseline: <span style="color:var(--text);font-family:var(--fm)">${base.fy||'poza horyzontem'}</span></div>
-      <div>FIRE scenariusz: <span style="color:${scen.fy?'var(--accent)':'var(--red)'};font-family:var(--fm);font-weight:500">${scen.fy||'poza horyzontem'}</span></div>
-      ${scen.fy&&base.fy&&acc>0?`<div style="margin-top:.75rem" class="abar aok">✓ Przyspieszasz FIRE o <strong>${acc} lat</strong>!</div>`:''}
-      ${!scen.fy&&base.fy?`<div style="margin-top:.75rem" class="abar ae">⚠ Scenariusz oddala cel FIRE!</div>`:''}
-    </div>`;
+  document.getElementById('wi-res').innerHTML=`<div style="font-size:13px;line-height:2.1;color:var(--muted)">
+    <div>Nowe wydatki/mies.: <span style="color:var(--text);font-family:var(--fm)">${fmt(aExpM+eD)}</span></div>
+    <div>FIRE baseline: <span style="color:var(--text);font-family:var(--fm)">${base.fy||'poza horyzontem'}</span></div>
+    <div>FIRE scenariusz: <span style="color:${scen.fy?'var(--accent)':'var(--red)'};font-family:var(--fm);font-weight:500">${scen.fy||'poza horyzontem'}</span></div>
+    ${acc>0?`<div style="margin-top:.75rem" class="abar aok">✓ Przyspieszasz FIRE o <strong>${acc} lat</strong>!</div>`:''}
+  </div>`;
   if(C.wi)C.wi.destroy();
   C.wi=new Chart(document.getElementById('wiChart'),{type:'line',data:{labels:base.labs,datasets:[{data:base.vals,borderColor:'#7a8278',fill:false,tension:.3,pointRadius:2,borderWidth:1.5,borderDash:[4,3]},{data:scen.vals,borderColor:'#b8e04a',backgroundColor:'rgba(184,224,74,.05)',fill:true,tension:.3,pointRadius:2,borderWidth:2},{data:base.labs.map(()=>tFIRE),borderColor:'#e05a5a',borderDash:[6,4],pointRadius:0,fill:false,borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:10}}}}});
 }
 
-// ── ADD ENTRIES ───────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// ADD ENTRIES + LIVE UPDATE
+// ═══════════════════════════════════════════════════════════════
 function addEntry(){
-  const t=document.getElementById('add-type').value,d=document.getElementById('add-date').value,a=parseFloat(document.getElementById('add-amt').value),c=document.getElementById('add-cat').value||'—',ds=document.getElementById('add-desc').value||'';
-  if(!a||!d)return;addedE.unshift({t,d,a,c,ds});renderE();document.getElementById('add-amt').value='';document.getElementById('add-desc').value='';
+  const t=document.getElementById('add-type').value;
+  const d=document.getElementById('add-date').value;
+  const a=parseFloat(document.getElementById('add-amt').value);
+  const c=document.getElementById('add-cat').value||'—';
+  const ds=document.getElementById('add-desc').value||'';
+  if(!a||a<=0||!d){alert('Podaj poprawną datę i kwotę.');return;}
+
+  const mk=d.slice(0,7); // "2026-04"
+  const future=mk>LAST_REAL;
+
+  if(t==='Przychód'){
+    MI[mk]=(MI[mk]||0)+a;
+  } else {
+    ME[mk]=(ME[mk]||0)+a;
+  }
+
+  addedE.unshift({t,d,a,c,ds,future});
+  renderEntries();
+
+  // Update all live charts
+  liveUpdateCharts();
+
+  document.getElementById('add-amt').value='';
+  document.getElementById('add-desc').value='';
+  document.getElementById('add-cat').value='';
 }
-function renderE(){
-  const el=document.getElementById('added-entries');
-  if(!addedE.length){el.innerHTML='';return;}
-  el.innerHTML=addedE.slice(0,30).map(e=>`<div class="ti"><div><div class="tn">${e.c}</div><div class="tm">${e.d} · ${e.t}${e.ds?' · '+e.ds:''}</div></div><div class="ta ${e.t==='Przychód'?'inc':'exp'}">${e.t==='Przychód'?'+':'-'}${fmt(e.a)}</div></div>`).join('');
-}
+
 function addInv(){
-  const d=document.getElementById('inv-date').value,t=document.getElementById('inv-type').value,a=parseFloat(document.getElementById('inv-amt').value),n=document.getElementById('inv-note').value;
-  if(!a||!d)return;xPF+=a;addedI.unshift({d,t,a,n});renderI();document.getElementById('inv-amt').value='';document.getElementById('inv-note').value='';
-}
-function renderI(){
-  document.getElementById('added-invs').innerHTML=addedI.slice(0,20).map(e=>`<div class="ti"><div><div class="tn">${e.t}</div><div class="tm">${e.d}${e.n?' · '+e.n:''}</div></div><div class="ta inv">+${fmt(e.a)}</div></div>`).join('');
+  const d=document.getElementById('inv-date').value;
+  const t=document.getElementById('inv-type').value;
+  const a=parseFloat(document.getElementById('inv-amt').value);
+  const n=document.getElementById('inv-note').value;
+  if(!a||a<=0||!d){alert('Podaj poprawną datę i kwotę.');return;}
+  xPF+=a;
+  addedI.unshift({d,t,a,n});
+  document.getElementById('inv-amt').value='';
+  document.getElementById('inv-note').value='';
+
   const tot=pfT(PF[PF.length-1])+xPF;
   document.getElementById('new-passive').innerHTML=`<div class="mc teal"><div class="ml">Dochód pasywny/mies. (zaktualizowany)</div><div class="mv teal">${fmt(tot*0.04/12)}</div><div class="ms">portfel ${fmt(tot)} · reguła 4%</div></div>`;
+  liveUpdateCharts();
+  renderEntries();
 }
+
+// ─── The core function: mutate chart data in place, call .update() ────────
+function liveUpdateCharts(){
+  // Always rebuild overview (always visible)
+  buildOverview();
+
+  // If cashflow charts exist, patch them without destroy
+  if(C.cf) buildCF();
+
+  // Summary on add page
+  buildLiveSummary();
+  buildPlanTable();
+}
+
+function buildLiveSummary(){
+  const el=document.getElementById('live-summary');
+  if(!el)return;
+  const addedInc=addedE.filter(e=>e.t==='Przychód').reduce((a,e)=>a+e.a,0);
+  const addedExp=addedE.filter(e=>e.t==='Wydatek').reduce((a,e)=>a+e.a,0);
+  const addedSav=addedInc-addedExp;
+  const tot=pfT(PF[PF.length-1])+xPF;
+  el.innerHTML=kpi([
+    {l:'Dodane przychody',v:fmt(addedInc),c:'green',s:addedE.filter(e=>e.t==='Przychód').length+' wpisów',b:'',bc:'bn'},
+    {l:'Dodane wydatki',v:fmt(addedExp),c:'red',s:addedE.filter(e=>e.t==='Wydatek').length+' wpisów',b:'',bc:'bn'},
+    {l:'Saldo wpisów',v:fmt(addedSav),c:addedSav>=0?'teal':'red',s:addedSav>=0?'nadwyżka':'deficyt',b:'',bc:'bn'},
+    {l:'Dochód pasywny/mies.',v:fmt(tot*0.04/12),c:'blue',s:`portfel ${fmt(tot)}`,b:'reguła 4%',bc:'bn'},
+  ]);
+}
+
+function renderEntries(){
+  const all=[...addedE,...addedI.map(e=>({t:'Inwestycja',d:e.d,a:e.a,c:e.t,ds:e.n||'',future:e.d.slice(0,7)>LAST_REAL}))].sort((a,b)=>b.d.localeCompare(a.d));
+  const el=document.getElementById('added-entries');
+  document.getElementById('entry-count').textContent=`(${all.length})`;
+  if(!all.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:1rem 0">Brak wpisów — dodaj pierwszy powyżej.</div>';return;}
+  el.innerHTML=all.slice(0,50).map(e=>`
+    <div class="ti">
+      <div>
+        <div class="tn">${e.c} ${e.future?'<span class="tag-future">prognoza</span>':'<span class="tag-hist">historia</span>'}</div>
+        <div class="tm">${e.d} · ${e.t}${e.ds&&e.ds!=='—'?' · '+e.ds:''}</div>
+      </div>
+      <div class="ta ${e.t==='Przychód'?'inc':e.t==='Inwestycja'?'inv':'exp'}">${e.t==='Przychód'?'+':e.t==='Inwestycja'?'+':'-'}${fmt(e.a)}</div>
+    </div>`).join('');
+  buildLiveSummary();
+}
+
+// Planning table — all months from MI/ME
+function buildPlanTable(){
+  const months=allMonths();
+  const tbody=document.getElementById('plan-body');
+  tbody.innerHTML=months.reverse().slice(0,36).map(mk=>{
+    const inc=MI[mk]||0, exp=ME[mk]||0, sav=inc-exp;
+    const rate=inc>0?sav/inc*100:0;
+    const fut=isFuture(mk);
+    return `<tr class="${fut?'future-row':''}">
+      <td><span style="font-family:var(--fm)">${mk}</span>${fut?'<span class="tag-future">prognoza</span>':'<span class="tag-hist">hist.</span>'}</td>
+      <td class="inc-cell">${inc>0?fmt(inc):'—'}</td>
+      <td class="exp-cell">${exp>0?fmt(exp):'—'}</td>
+      <td class="${sav>=0?'sav-cell-pos':'sav-cell-neg'}">${inc>0||exp>0?fmt(sav):'—'}</td>
+      <td style="color:var(--muted);font-family:var(--fm)">${inc>0?fmtP(rate):'—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${fut?'✦ prognoza':'● dane'}</td>
+    </tr>`;
+  }).join('');
+}
+
 function exportCSV(){
-  if(!addedE.length){alert('Brak wpisów do eksportu.');return;}
-  const rows=[['Data','Typ','Kategoria','Opis','Kwota (PLN)'],...addedE.map(e=>[e.d,e.t,e.c,e.ds,e.a])];
+  if(!addedE.length&&!addedI.length){alert('Brak wpisów do eksportu.');return;}
+  const rows=[['Data','Typ','Kategoria','Opis','Kwota (PLN)','Status']];
+  addedE.forEach(e=>rows.push([e.d,e.t,e.c,e.ds,e.a,e.future?'prognoza':'historia']));
+  addedI.forEach(e=>rows.push([e.d,'Inwestycja',e.t,e.n||'',e.a,e.d.slice(0,7)>LAST_REAL?'prognoza':'historia']));
+  rows.sort((a,b)=>b[0].localeCompare(a[0]));
   const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='finanse_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
-initOverview();
+// ═══ INIT ═══════════════════════════════════════════════════════
+buildOverview();
+buildLiveSummary();
+buildPlanTable();
 </script>
 </body>
 </html>
