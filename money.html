@@ -113,6 +113,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .edit-btn:hover{color:var(--gold);background:rgba(224,184,74,.1)}
 .corr-item{padding:7px 0;border-bottom:1px solid var(--border);font-size:11px;font-family:var(--fm);color:var(--muted)}
 .corr-item:last-child{border-bottom:none}
+/* Click-to-edit popup */
+.cf-popup{position:fixed;z-index:500;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:1.25rem 1.5rem;box-shadow:0 8px 40px rgba(0,0,0,.6);min-width:280px;display:none}
+.cf-popup.visible{display:block;animation:fi .15s ease}
+.cf-popup-title{font-size:11px;font-family:var(--fm);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
+.cf-popup-month{font-size:18px;font-weight:500;font-family:var(--fm);color:var(--text);margin-bottom:1rem}
+.cf-popup-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.cf-popup-row label{display:block;font-size:10px;font-family:var(--fm);color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.cf-popup-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 6px;border-radius:4px}
+.cf-popup-close:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.cf-popup-btns{display:flex;gap:8px;margin-top:4px}
 @media(max-width:1100px){.m4{grid-template-columns:repeat(2,1fr)}.m6{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:800px){.sidebar{width:54px}.logo,.ni span:not(.nicon),.nsec,.sfooter{display:none}.main{margin-left:54px;max-width:calc(100vw - 54px)}.g2,.g3{grid-template-columns:1fr}.fg{grid-template-columns:1fr}.m6,.m4{grid-template-columns:repeat(2,1fr)}}
 </style>
@@ -126,7 +136,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="ni" onclick="nav('cashflow',this)"><span class="nicon">⇅</span><span>Przepływy</span></div>
   <div class="nsec">Majątek</div>
   <div class="ni" onclick="nav('investments',this)"><span class="nicon">◎</span><span>Inwestycje</span></div>
-  <div class="ni" onclick="nav('mortgage',this)"><span class="nicon">⌂</span><span>Kredyt</span></div>
   <div class="nsec">Planowanie</div>
   <div class="ni" onclick="nav('fire',this)"><span class="nicon">◇</span><span>FIRE / 4%</span></div>
   <div class="ni" onclick="nav('whatif',this)"><span class="nicon">≈</span><span>Co jeśli?</span></div>
@@ -142,7 +151,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="ph"><div class="pt">Przegląd finansowy</div><div class="ps">YTD 2026 · DANE OD 2021</div></div>
   <div id="future-banner" style="display:none;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;font-size:12px;margin-bottom:1rem;background:rgba(224,184,74,.08);border:1px solid rgba(224,184,74,.2);color:var(--gold);font-family:var(--fm)">◈ Wykres zawiera dane prognozowane (jasne słupki z obwódką)</div>
   <div class="mrow m4" id="ov1"></div>
-  <div class="mrow m4" id="ov2"></div>
   <div class="g2">
     <div class="cc"><div class="ct">Roczne przychody, wydatki i oszczędności</div>
       <div class="leg"><div class="li"><div class="ld" style="background:#b8e04a"></div>Przychody</div><div class="li"><div class="ld" style="background:#e05a5a"></div>Wydatki</div><div class="li"><div class="ld" style="background:#4abeac"></div>Oszczędności</div></div>
@@ -165,7 +173,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <option value="all">Wszystkie miesiące</option>
     <option value="yr">Widok roczny</option>
   </select>
-  <div class="cc"><div class="ct">Przychody vs wydatki <span id="cf-future-note" style="display:none;font-size:10px;color:var(--gold)">· jasne słupki = prognoza</span></div>
+  <div class="cc"><div class="ct">Przychody vs wydatki <span id="cf-future-note" style="display:none;font-size:10px;color:var(--gold)">· jasne słupki = prognoza</span> <span style="font-size:10px;color:var(--muted)">· kliknij słupek aby edytować</span></div>
     <div class="leg"><div class="li"><div class="ld" style="background:#b8e04a"></div>Przychody</div><div class="li"><div class="ld" style="background:#e05a5a"></div>Wydatki</div></div>
     <div class="cw" style="height:300px"><canvas id="cfChart" role="img" aria-label="Przychody i wydatki"></canvas></div>
   </div>
@@ -360,6 +368,27 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     </div>
   </div>
 </div>
+<!-- Click-to-edit popup for cashflow chart -->
+<div id="cf-popup" class="cf-popup">
+  <button class="cf-popup-close" onclick="closeCFPopup()">✕</button>
+  <div class="cf-popup-title">Edytuj miesiąc</div>
+  <div class="cf-popup-month" id="popup-month-label">—</div>
+  <div class="cf-popup-row">
+    <div>
+      <label>Przychód (PLN)</label>
+      <input type="number" id="popup-inc" min="0" style="width:100%" oninput="updatePopupPreview()">
+    </div>
+    <div>
+      <label>Wydatki (PLN)</label>
+      <input type="number" id="popup-exp" min="0" style="width:100%" oninput="updatePopupPreview()">
+    </div>
+  </div>
+  <div id="popup-preview" style="font-size:12px;font-family:var(--fm);color:var(--muted);margin-bottom:12px"></div>
+  <div class="cf-popup-btns">
+    <button class="btn bta" onclick="applyPopupEdit()">Zastosuj →</button>
+    <button class="btn" onclick="closeCFPopup()">Anuluj</button>
+  </div>
+</div>
 
 </main>
 </div>
@@ -493,22 +522,12 @@ function buildOverview(){
   const mi25=(AI['2025']||0)/12, me25=(AE['2025']||0)/12;
   const lat=PF[PF.length-1], tot=pfT(lat)+xPF;
   const passive=tot*0.04/12;
-  const efM=s26/Math.max(me26,1);
-  const me21=(AE['2021']||1)/12;
-  const expCAGR=(me25>0&&me21>0)?((Math.pow(me25/me21,1/4)-1)*100):0;
-  const totSav=Object.values(computeAI()).reduce((a,v)=>a+v,0)-Object.values(computeAE()).reduce((a,v)=>a+v,0);
 
   document.getElementById('ov1').innerHTML=kpi([
     {l:`Przychód 2026 YTD (${m26}m)`,v:fmt(i26),c:'green',s:`śr. ${fmt(mi26)}/mies.`,b:`${mi26>=mi25?'▲':'▼'} ${Math.abs((mi26-mi25)/Math.max(mi25,1)*100).toFixed(1)}% vs śr. 2025`,bc:mi26>=mi25?'bu':'bd'},
     {l:`Wydatki 2026 YTD (${m26}m)`,v:fmt(e26),c:'red',s:`śr. ${fmt(me26)}/mies.`,b:`${me26<=me25?'▼':'▲'} ${Math.abs((me26-me25)/Math.max(me25,1)*100).toFixed(1)}% vs śr. 2025`,bc:me26<=me25?'bu':'bd'},
     {l:'Oszczędności 2026 YTD',v:fmt(s26),c:'teal',s:`stopa ${fmtP(i26>0?s26/i26*100:0)}`,b:`śr. ${fmt(s26/Math.max(m26,1))}/mies.`,bc:'bn'},
     {l:'Dochód pasywny/mies.',v:fmt(passive),c:'blue',s:'reguła 4% z portfela',b:`${fmtP(passive/Math.max(me25,1)*100)} pokrycia wydatków`,bc:passive>=me25?'bu':'bn'},
-  ]);
-  document.getElementById('ov2').innerHTML=kpi([
-    {l:'Poduszka bezpieczeństwa',v:efM.toFixed(1)+' mies.',c:efM>=6?'green':efM>=3?'gold':'red',s:`${fmt(s26)} oszcz. YTD`,b:efM>=6?'Bezpieczny ✓':efM>=3?'Minimalny':'Poniżej minimum!',bc:efM>=6?'bu':efM>=3?'bw':'bd'},
-    {l:'Stopa oszcz. 2025',v:fmtP(mi25>0?(mi25-me25)/mi25*100:0),c:'green',s:`${fmt((AI['2025']||0)-(AE['2025']||0))} oszczędności`,b:'',bc:'bn'},
-    {l:'Realny wzrost wydatków/rok',v:fmtP(expCAGR),c:expCAGR>5?'red':'gold',s:'CAGR 2021→2025',b:`z ${fmt(me21)} do ${fmt(me25)}/mies.`,bc:expCAGR>5?'bd':'bw'},
-    {l:'Łączne oszczędności',v:fmtK(totSav),c:'teal',s:'2021–2026 skumulowane',b:'',bc:'bn'},
   ]);
 
   // Future banner
@@ -547,6 +566,14 @@ function buildCF(){
   const savBC=barBorderColors(months,'rgba(255,255,255,.3)');
 
   const ttCb={callbacks:{title:t=>{const m=t[0].label;return m+(isFuture(m)?' ✦ prognoza':' ● historia');}}};
+  const onClickCF=(evt)=>{
+    if(!C.cf)return;
+    const pts=C.cf.getElementsAtEventForMode(evt,'nearest',{intersect:true},true);
+    if(!pts.length)return;
+    const idx=pts[0].index;
+    const mk=C.cf.data.labels[idx];
+    openCFPopup(mk, evt);
+  };
 
   if(!C.cf){
     C.cf=new Chart(document.getElementById('cfChart'),{type:'bar',
@@ -554,7 +581,7 @@ function buildCF(){
         {label:'Przychody',data:iA,backgroundColor:incC,borderColor:incBC,borderWidth:bw,borderRadius:3},
         {label:'Wydatki',data:eA,backgroundColor:expC,borderColor:expBC,borderWidth:bw,borderRadius:3}
       ]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttCb},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:16}}}}
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttCb},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false},ticks:{maxTicksLimit:16}}},onClick:onClickCF}
     });
     C.sv=new Chart(document.getElementById('savChart'),{type:'bar',
       data:{labels:months,datasets:[{label:'Oszcz.',data:sA,backgroundColor:savC,borderColor:savBC,borderWidth:bw,borderRadius:3}]},
@@ -892,12 +919,7 @@ function renderCorrections(){
 
 // ─── The core function: mutate chart data in place, call .update() ────────
 function liveUpdateCharts(){
-  buildOverview();
-  if(C.cf) buildCF();
-  buildLiveSummary();
-  buildPlanTable();
-  // Rebuild forecast if it was opened
-  if(C.fcChart) buildForecast();
+  liveUpdateAllDashboards();
 }
 
 function buildLiveSummary(){
@@ -1080,6 +1102,102 @@ function buildForecast(){
     C.fcCum.data.datasets[1].data=cumProjArr;
     C.fcCum.update('active');
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CASHFLOW CLICK-TO-EDIT POPUP
+// ═══════════════════════════════════════════════════════════════
+let popupMonth = null;
+
+function openCFPopup(mk, evt){
+  popupMonth = mk;
+  const popup = document.getElementById('cf-popup');
+  document.getElementById('popup-month-label').textContent = mk + (isFuture(mk) ? ' ✦ prognoza' : ' ● historia');
+  document.getElementById('popup-inc').value = Math.round(MI[mk]||0);
+  document.getElementById('popup-exp').value = Math.round(ME[mk]||0);
+  updatePopupPreview();
+
+  // Position popup near click, clamped to viewport
+  const canvas = document.getElementById('cfChart');
+  const rect = canvas.getBoundingClientRect();
+  const scrollTop = window.scrollY||document.documentElement.scrollTop;
+  const scrollLeft = window.scrollX||document.documentElement.scrollLeft;
+
+  let left = (evt.clientX||rect.left+rect.width/2) + scrollLeft + 12;
+  let top  = (evt.clientY||rect.top+rect.height/2) + scrollTop - 60;
+
+  popup.style.display = 'block'; // make visible to measure
+  const pw = popup.offsetWidth || 300;
+  const ph = popup.offsetHeight || 200;
+  if(left + pw > window.innerWidth + scrollLeft - 20) left = (evt.clientX||rect.right) + scrollLeft - pw - 12;
+  if(top + ph > document.body.scrollHeight - 20) top = top - ph - 20;
+  if(top < scrollTop + 8) top = scrollTop + 8;
+
+  popup.style.left = left + 'px';
+  popup.style.top  = top  + 'px';
+  popup.classList.add('visible');
+
+  // Close on outside click (with delay so current click doesn't close it)
+  setTimeout(()=>{ document.addEventListener('click', outsidePopupClick, {once:true}); }, 100);
+}
+
+function outsidePopupClick(e){
+  const popup = document.getElementById('cf-popup');
+  if(!popup.contains(e.target)) closeCFPopup();
+}
+
+function closeCFPopup(){
+  popupMonth = null;
+  const popup = document.getElementById('cf-popup');
+  popup.style.display = 'none';
+  popup.classList.remove('visible');
+  document.removeEventListener('click', outsidePopupClick);
+}
+
+function updatePopupPreview(){
+  if(!popupMonth) return;
+  const inc = parseFloat(document.getElementById('popup-inc').value)||0;
+  const exp = parseFloat(document.getElementById('popup-exp').value)||0;
+  const sav = inc - exp;
+  const rate = inc > 0 ? (sav/inc*100).toFixed(1) : '—';
+  document.getElementById('popup-preview').innerHTML =
+    `<span style="color:var(--accent)">${fmt(inc)}</span> przychód &nbsp;·&nbsp; <span style="color:var(--red)">${fmt(exp)}</span> wydatki &nbsp;·&nbsp; <span style="color:${sav>=0?'var(--a2)':'var(--red)'}">oszcz. ${fmt(sav)}</span> <span style="color:var(--muted)">(${rate}%)</span>`;
+}
+
+function applyPopupEdit(){
+  if(!popupMonth) return;
+  const mk = popupMonth;
+  const newInc = parseFloat(document.getElementById('popup-inc').value)||0;
+  const newExp = parseFloat(document.getElementById('popup-exp').value)||0;
+  const oldInc = MI[mk]||0;
+  const oldExp = ME[mk]||0;
+
+  // Log the correction
+  corrections.unshift({
+    mk, t:'Przychód+Wydatki',
+    oldAmt: oldInc, newAmt: newInc,
+    reason:`Edycja z wykresu — wydatki: ${fmt(oldExp)} → ${fmt(newExp)}`,
+    ts: new Date().toLocaleString('pl-PL')
+  });
+
+  MI[mk] = newInc;
+  ME[mk] = newExp;
+
+  closeCFPopup();
+  liveUpdateAllDashboards();
+  renderCorrections();
+}
+
+// Full dashboard refresh — hits every open chart
+function liveUpdateAllDashboards(){
+  buildOverview();
+  if(C.cf) buildCF();
+  buildLiveSummary();
+  buildPlanTable();
+  if(C.fcChart) buildForecast();
+  // Invalidate FIRE & WhatIf so they recompute on next open
+  if(C.fire){ C.fire.destroy(); C.fire=null; }
+  if(C.wi){ C.wi.destroy(); C.wi=null; }
 }
 
 // ═══ INIT ═══════════════════════════════════════════════════════
