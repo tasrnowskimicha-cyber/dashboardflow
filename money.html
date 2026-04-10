@@ -107,6 +107,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 /* flash animation when chart updates */
 @keyframes flash{0%{opacity:.4}100%{opacity:1}}
 .chart-flash{animation:flash .4s ease}
+.del-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:all .15s;flex-shrink:0}
+.del-btn:hover{color:var(--red);background:rgba(224,90,90,.1)}
+.edit-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:4px;transition:all .15s;flex-shrink:0;font-family:var(--fm)}
+.edit-btn:hover{color:var(--gold);background:rgba(224,184,74,.1)}
+.corr-item{padding:7px 0;border-bottom:1px solid var(--border);font-size:11px;font-family:var(--fm);color:var(--muted)}
+.corr-item:last-child{border-bottom:none}
 @media(max-width:1100px){.m4{grid-template-columns:repeat(2,1fr)}.m6{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:800px){.sidebar{width:54px}.logo,.ni span:not(.nicon),.nsec,.sfooter{display:none}.main{margin-left:54px;max-width:calc(100vw - 54px)}.g2,.g3{grid-template-columns:1fr}.fg{grid-template-columns:1fr}.m6,.m4{grid-template-columns:repeat(2,1fr)}}
 </style>
@@ -124,6 +130,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="nsec">Planowanie</div>
   <div class="ni" onclick="nav('fire',this)"><span class="nicon">◇</span><span>FIRE / 4%</span></div>
   <div class="ni" onclick="nav('whatif',this)"><span class="nicon">≈</span><span>Co jeśli?</span></div>
+  <div class="ni" onclick="nav('forecast',this)"><span class="nicon">◑</span><span>Prognoza 2026</span></div>
   <div class="nsec">Dane</div>
   <div class="ni" onclick="nav('add',this)"><span class="nicon">+</span><span>Dodaj wpis</span></div>
   <div class="sfooter">10.04.2026</div>
@@ -251,56 +258,102 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   </div>
 </div>
 
+<!-- FORECAST 2026 -->
+<div id="page-forecast" class="page">
+  <div class="ph"><div class="pt">Prognoza 2026</div><div class="ps">PROJEKCJA NA PODSTAWIE DANYCH Z 2025</div></div>
+  <div class="mrow m4" id="fc-kpi"></div>
+  <div class="g2">
+    <div class="cc">
+      <div class="ct">Prognoza miesięczna 2026 vs dane rzeczywiste</div>
+      <div class="leg"><div class="li"><div class="ld" style="background:#b8e04a"></div>Przychody</div><div class="li"><div class="ld" style="background:#e05a5a"></div>Wydatki</div><div class="li"><div class="ld" style="background:#4abeac"></div>Oszczędności</div><div class="li"><div class="ld" style="border:1px dashed #7a8278;background:transparent"></div>Prognoza</div></div>
+      <div class="cw" style="height:280px"><canvas id="fcChart" role="img" aria-label="Prognoza 2026"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Parametry projekcji</div>
+      <div class="sw"><label>Wzrost przychodów YoY <span id="fc-inc-v">+5.0%</span></label><input type="range" id="fc-inc" min="-20" max="40" step="1" value="5" oninput="buildForecast()"></div>
+      <div class="sw"><label>Wzrost wydatków YoY <span id="fc-exp-v">+3.0%</span></label><input type="range" id="fc-exp" min="-20" max="40" step="1" value="3" oninput="buildForecast()"></div>
+      <div style="margin-bottom:.75rem;font-size:11px;color:var(--muted);font-family:var(--fm)">Baza: dane miesięczne 2025 skalowane</div>
+      <div id="fc-table"></div>
+    </div>
+  </div>
+  <div class="cc">
+    <div class="ct">Kumulatywne oszczędności 2026 — rzeczywiste vs prognoza</div>
+    <div class="leg"><div class="li"><div class="ld" style="background:#4abeac"></div>Rzeczywiste</div><div class="li"><div class="ld" style="background:#b8e04a;opacity:.5"></div>Prognoza</div></div>
+    <div class="cw" style="height:220px"><canvas id="fcCumChart" role="img" aria-label="Kumulatywne oszczędności 2026"></canvas></div>
+  </div>
+</div>
+
 <!-- ADD -->
 <div id="page-add" class="page">
-  <div class="ph"><div class="pt">Dodaj wpis</div><div class="ps">HISTORIA · PROGNOZA · INWESTYCJA</div></div>
+  <div class="ph"><div class="pt">Dodaj wpis</div><div class="ps">HISTORIA · PROGNOZA · INWESTYCJA · KOREKTA</div></div>
 
   <!-- Live summary -->
   <div class="mrow m4" id="live-summary"></div>
 
   <div class="g2">
-    <!-- Left: form -->
-    <div class="cc">
-      <div class="ct">Nowy przychód lub wydatek</div>
-      <div class="fg">
-        <div><label>Typ</label><select id="add-type" style="width:100%"><option>Przychód</option><option>Wydatek</option></select></div>
-        <div><label>Data</label><input type="date" id="add-date" value="2026-04-10" style="width:100%"></div>
-        <div><label>Kwota (PLN)</label><input type="number" id="add-amt" placeholder="0.00" style="width:100%" min="0"></div>
-        <div><label>Kategoria</label><input type="text" id="add-cat" placeholder="np. Wynagrodzenie" style="width:100%"></div>
-      </div>
-      <div style="margin-bottom:12px"><label style="display:block;font-size:10px;font-family:var(--fm);color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Opis (opcjonalny)</label><input type="text" id="add-desc" placeholder="Krótki opis..." style="width:100%"></div>
-      <div style="display:flex;gap:8px;margin-bottom:1.5rem">
-        <button class="btn bta" onclick="addEntry()">Dodaj wpis →</button>
-        <button class="btn bts" onclick="exportCSV()">Eksportuj CSV ↓</button>
+    <!-- Left: forms -->
+    <div>
+      <div class="cc">
+        <div class="ct">Nowy przychód lub wydatek</div>
+        <div class="fg">
+          <div><label>Typ</label><select id="add-type" style="width:100%"><option>Przychód</option><option>Wydatek</option></select></div>
+          <div><label>Data</label><input type="date" id="add-date" value="2026-04-10" style="width:100%"></div>
+          <div><label>Kwota (PLN)</label><input type="number" id="add-amt" placeholder="0.00" style="width:100%" min="0"></div>
+          <div><label>Kategoria</label><input type="text" id="add-cat" placeholder="np. Wynagrodzenie" style="width:100%"></div>
+        </div>
+        <div style="margin-bottom:12px"><label style="display:block;font-size:10px;font-family:var(--fm);color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Opis (opcjonalny)</label><input type="text" id="add-desc" placeholder="Krótki opis..." style="width:100%"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn bta" onclick="addEntry()">Dodaj wpis →</button>
+          <button class="btn bts" onclick="exportCSV()">Eksportuj CSV ↓</button>
+        </div>
       </div>
 
-      <div class="ct">Nowa inwestycja</div>
-      <div class="fg">
-        <div><label>Data</label><input type="date" id="inv-date" value="2026-04-10" style="width:100%"></div>
-        <div><label>Instrument</label><select id="inv-type" style="width:100%"><option>MSCI ACWI + NASDAQ</option><option>PPE – Akcje USA</option><option>Obligacje skarbowe</option><option>Bitcoin</option><option>IKZE</option><option>IKE</option><option>Inne</option></select></div>
-        <div><label>Kwota (PLN)</label><input type="number" id="inv-amt" placeholder="0.00" style="width:100%" min="0"></div>
-        <div><label>Uwagi</label><input type="text" id="inv-note" placeholder="np. zakup ETF..." style="width:100%"></div>
+      <div class="cc">
+        <div class="ct">Korekta historii miesiąca</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:1rem">Nadpisz wartość przychodu lub wydatku dla wybranego miesiąca w danych historycznych.</div>
+        <div class="fg">
+          <div><label>Miesiąc</label><input type="month" id="edit-month" value="2026-03" style="width:100%"></div>
+          <div><label>Typ</label><select id="edit-type" style="width:100%"><option>Przychód</option><option>Wydatek</option></select></div>
+          <div><label>Nowa kwota (PLN)</label><input type="number" id="edit-amt" placeholder="0.00" style="width:100%" min="0"></div>
+          <div><label>Powód korekty</label><input type="text" id="edit-reason" placeholder="np. błąd kategorii" style="width:100%"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn bta" onclick="applyCorrection()">Zastosuj korektę →</button>
+          <span id="edit-preview" style="font-size:12px;color:var(--muted);font-family:var(--fm)"></span>
+        </div>
+        <div id="corrections-log" style="margin-top:1rem"></div>
       </div>
-      <div style="display:flex;gap:8px">
+
+      <div class="cc">
+        <div class="ct">Nowa inwestycja</div>
+        <div class="fg">
+          <div><label>Data</label><input type="date" id="inv-date" value="2026-04-10" style="width:100%"></div>
+          <div><label>Instrument</label><select id="inv-type" style="width:100%"><option>MSCI ACWI + NASDAQ</option><option>PPE – Akcje USA</option><option>Obligacje skarbowe</option><option>Bitcoin</option><option>IKZE</option><option>IKE</option><option>Inne</option></select></div>
+          <div><label>Kwota (PLN)</label><input type="number" id="inv-amt" placeholder="0.00" style="width:100%" min="0"></div>
+          <div><label>Uwagi</label><input type="text" id="inv-note" placeholder="np. zakup ETF..." style="width:100%"></div>
+        </div>
         <button class="btn bta" onclick="addInv()">Dodaj inwestycję →</button>
+        <div id="new-passive" style="margin-top:1rem"></div>
       </div>
-      <div id="new-passive" style="margin-top:1rem"></div>
     </div>
 
-    <!-- Right: entries list -->
-    <div class="cc">
-      <div class="ct">Historia wpisów <span id="entry-count" style="color:var(--muted)"></span></div>
-      <div class="tl" id="added-entries"></div>
+    <!-- Right: entries list with delete -->
+    <div class="cc" style="height:fit-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.875rem">
+        <div class="ct" style="margin-bottom:0">Historia wpisów <span id="entry-count" style="color:var(--muted)"></span></div>
+        <button class="btn" style="font-size:11px;padding:4px 12px;color:var(--red);border-color:rgba(224,90,90,.3)" onclick="clearAllEntries()">Wyczyść wszystkie</button>
+      </div>
+      <div class="tl" id="added-entries" style="max-height:520px"></div>
     </div>
   </div>
 
-  <!-- Planning table — all months with data -->
+  <!-- Planning table -->
   <div class="cc">
     <div class="ct">Tabela miesięczna — historia + prognozy</div>
     <div style="overflow-x:auto">
       <table class="plan-grid" id="plan-table">
         <thead><tr>
-          <th>Miesiąc</th><th>Przychód</th><th>Wydatki</th><th>Oszczędności</th><th>Stopa</th><th>Status</th>
+          <th>Miesiąc</th><th>Przychód</th><th>Wydatki</th><th>Oszczędności</th><th>Stopa</th><th>Status</th><th>Akcje</th>
         </tr></thead>
         <tbody id="plan-body"></tbody>
       </table>
@@ -372,6 +425,7 @@ function nav(id,el){
   if(id==='mortgage'&&!C.mort) buildMort();
   if(id==='fire') buildFire();
   if(id==='whatif') buildWI();
+  if(id==='forecast') buildForecast();
   if(id==='add') buildPlanTable();
 }
 
@@ -709,6 +763,8 @@ function updateWI(){
 // ═══════════════════════════════════════════════════════════════
 // ADD ENTRIES + LIVE UPDATE
 // ═══════════════════════════════════════════════════════════════
+let corrections=[]; // log of history corrections
+
 function addEntry(){
   const t=document.getElementById('add-type').value;
   const d=document.getElementById('add-date').value;
@@ -716,25 +772,43 @@ function addEntry(){
   const c=document.getElementById('add-cat').value||'—';
   const ds=document.getElementById('add-desc').value||'';
   if(!a||a<=0||!d){alert('Podaj poprawną datę i kwotę.');return;}
-
-  const mk=d.slice(0,7); // "2026-04"
+  const mk=d.slice(0,7);
   const future=mk>LAST_REAL;
-
-  if(t==='Przychód'){
-    MI[mk]=(MI[mk]||0)+a;
-  } else {
-    ME[mk]=(ME[mk]||0)+a;
-  }
-
-  addedE.unshift({t,d,a,c,ds,future});
+  if(t==='Przychód') MI[mk]=(MI[mk]||0)+a;
+  else ME[mk]=(ME[mk]||0)+a;
+  const id=Date.now()+Math.random();
+  addedE.unshift({id,t,d,mk,a,c,ds,future});
   renderEntries();
-
-  // Update all live charts
   liveUpdateCharts();
-
   document.getElementById('add-amt').value='';
   document.getElementById('add-desc').value='';
   document.getElementById('add-cat').value='';
+}
+
+function deleteEntry(id){
+  const idx=addedE.findIndex(e=>e.id===id);
+  if(idx<0)return;
+  const e=addedE[idx];
+  // Reverse the data mutation
+  if(e.t==='Przychód'){MI[e.mk]=Math.max(0,(MI[e.mk]||0)-e.a);if(MI[e.mk]===0&&isFuture(e.mk))delete MI[e.mk];}
+  else{ME[e.mk]=Math.max(0,(ME[e.mk]||0)-e.a);if(ME[e.mk]===0&&isFuture(e.mk))delete ME[e.mk];}
+  addedE.splice(idx,1);
+  renderEntries();
+  liveUpdateCharts();
+}
+
+function editEntry(id){
+  const e=addedE.find(x=>x.id===id);
+  if(!e)return;
+  // Fill form for re-entry
+  document.getElementById('add-type').value=e.t;
+  document.getElementById('add-date').value=e.d;
+  document.getElementById('add-amt').value=e.a;
+  document.getElementById('add-cat').value=e.c==='—'?'':e.c;
+  document.getElementById('add-desc').value=e.ds;
+  // Delete old entry
+  deleteEntry(id);
+  document.getElementById('add-amt').focus();
 }
 
 function addInv(){
@@ -743,28 +817,87 @@ function addInv(){
   const a=parseFloat(document.getElementById('inv-amt').value);
   const n=document.getElementById('inv-note').value;
   if(!a||a<=0||!d){alert('Podaj poprawną datę i kwotę.');return;}
+  const id=Date.now()+Math.random();
   xPF+=a;
-  addedI.unshift({d,t,a,n});
+  addedI.unshift({id,d,t,a,n});
   document.getElementById('inv-amt').value='';
   document.getElementById('inv-note').value='';
-
   const tot=pfT(PF[PF.length-1])+xPF;
   document.getElementById('new-passive').innerHTML=`<div class="mc teal"><div class="ml">Dochód pasywny/mies. (zaktualizowany)</div><div class="mv teal">${fmt(tot*0.04/12)}</div><div class="ms">portfel ${fmt(tot)} · reguła 4%</div></div>`;
   liveUpdateCharts();
   renderEntries();
 }
 
+function deleteInv(id){
+  const idx=addedI.findIndex(e=>e.id===id);
+  if(idx<0)return;
+  xPF=Math.max(0,xPF-addedI[idx].a);
+  addedI.splice(idx,1);
+  const tot=pfT(PF[PF.length-1])+xPF;
+  const el=document.getElementById('new-passive');
+  if(el)el.innerHTML=`<div class="mc teal"><div class="ml">Dochód pasywny/mies.</div><div class="mv teal">${fmt(tot*0.04/12)}</div><div class="ms">portfel ${fmt(tot)} · reguła 4%</div></div>`;
+  liveUpdateCharts();
+  renderEntries();
+}
+
+function clearAllEntries(){
+  if(!confirm('Usunąć wszystkie dodane wpisy?'))return;
+  // Reverse all mutations
+  addedE.forEach(e=>{if(e.t==='Przychód')MI[e.mk]=Math.max(0,(MI[e.mk]||0)-e.a);else ME[e.mk]=Math.max(0,(ME[e.mk]||0)-e.a);});
+  addedI.forEach(e=>{xPF=Math.max(0,xPF-e.a);});
+  addedE=[];addedI=[];
+  renderEntries();
+  liveUpdateCharts();
+}
+
+// ─── History correction: override a month's total ──────────────
+function applyCorrection(){
+  const mk=document.getElementById('edit-month').value;
+  const t=document.getElementById('edit-type').value;
+  const newAmt=parseFloat(document.getElementById('edit-amt').value);
+  const reason=document.getElementById('edit-reason').value||'korekta';
+  if(!mk||isNaN(newAmt)||newAmt<0){alert('Podaj miesiąc i nową kwotę.');return;}
+
+  const oldAmt=t==='Przychód'?(MI[mk]||0):(ME[mk]||0);
+  if(t==='Przychód') MI[mk]=newAmt;
+  else ME[mk]=newAmt;
+
+  corrections.unshift({mk,t,oldAmt,newAmt,reason,ts:new Date().toLocaleString('pl-PL')});
+  renderCorrections();
+  liveUpdateCharts();
+
+  document.getElementById('edit-amt').value='';
+  document.getElementById('edit-reason').value='';
+  document.getElementById('edit-preview').textContent=`✓ ${t} ${mk}: ${fmt(oldAmt)} → ${fmt(newAmt)}`;
+  setTimeout(()=>{const el=document.getElementById('edit-preview');if(el)el.textContent='';},3000);
+}
+
+// Live preview of what correction will do
+function updateEditPreview(){
+  const mk=document.getElementById('edit-month').value;
+  const t=document.getElementById('edit-type').value;
+  const newAmt=parseFloat(document.getElementById('edit-amt').value);
+  if(!mk||isNaN(newAmt))return;
+  const cur=t==='Przychód'?(MI[mk]||0):(ME[mk]||0);
+  document.getElementById('edit-preview').textContent=`Aktualnie: ${fmt(cur)} → ${fmt(newAmt)}`;
+}
+
+function renderCorrections(){
+  const el=document.getElementById('corrections-log');
+  if(!el)return;
+  if(!corrections.length){el.innerHTML='';return;}
+  el.innerHTML='<div style="font-size:10px;font-family:var(--fm);color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Dziennik korekt</div>'+
+    corrections.slice(0,8).map(c=>`<div class="corr-item">${c.ts} · ${c.t} ${c.mk}: <span style="color:var(--red)">${fmt(c.oldAmt)}</span> → <span style="color:var(--accent)">${fmt(c.newAmt)}</span> <span style="color:var(--muted)">(${c.reason})</span></div>`).join('');
+}
+
 // ─── The core function: mutate chart data in place, call .update() ────────
 function liveUpdateCharts(){
-  // Always rebuild overview (always visible)
   buildOverview();
-
-  // If cashflow charts exist, patch them without destroy
   if(C.cf) buildCF();
-
-  // Summary on add page
   buildLiveSummary();
   buildPlanTable();
+  // Rebuild forecast if it was opened
+  if(C.fcChart) buildForecast();
 }
 
 function buildLiveSummary(){
@@ -783,29 +916,40 @@ function buildLiveSummary(){
 }
 
 function renderEntries(){
-  const all=[...addedE,...addedI.map(e=>({t:'Inwestycja',d:e.d,a:e.a,c:e.t,ds:e.n||'',future:e.d.slice(0,7)>LAST_REAL}))].sort((a,b)=>b.d.localeCompare(a.d));
+  // Combine entries and investments into one sorted list
+  const eList=addedE.map(e=>({...e,kind:'entry'}));
+  const iList=addedI.map(e=>({...e,kind:'inv',t:'Inwestycja',c:e.t,ds:e.n||'',future:e.d.slice(0,7)>LAST_REAL}));
+  const all=[...eList,...iList].sort((a,b)=>b.d.localeCompare(a.d));
   const el=document.getElementById('added-entries');
   document.getElementById('entry-count').textContent=`(${all.length})`;
   if(!all.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:1rem 0">Brak wpisów — dodaj pierwszy powyżej.</div>';return;}
-  el.innerHTML=all.slice(0,50).map(e=>`
+  el.innerHTML=all.slice(0,60).map(e=>`
     <div class="ti">
-      <div>
-        <div class="tn">${e.c} ${e.future?'<span class="tag-future">prognoza</span>':'<span class="tag-hist">historia</span>'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="tn" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.c}</span>
+          ${e.future?'<span class="tag-future">prognoza</span>':'<span class="tag-hist">hist.</span>'}
+        </div>
         <div class="tm">${e.d} · ${e.t}${e.ds&&e.ds!=='—'?' · '+e.ds:''}</div>
       </div>
-      <div class="ta ${e.t==='Przychód'?'inc':e.t==='Inwestycja'?'inv':'exp'}">${e.t==='Przychód'?'+':e.t==='Inwestycja'?'+':'-'}${fmt(e.a)}</div>
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+        <span class="ta ${e.t==='Przychód'?'inc':e.t==='Inwestycja'?'inv':'exp'}">${e.t==='Przychód'?'+':e.t==='Inwestycja'?'+':'-'}${fmt(e.a)}</span>
+        ${e.kind==='entry'?`<button class="edit-btn" onclick="editEntry(${e.id})" title="Edytuj">✎</button>`:''}
+        <button class="del-btn" onclick="${e.kind==='inv'?'deleteInv':'deleteEntry'}(${e.id})" title="Usuń">✕</button>
+      </div>
     </div>`).join('');
   buildLiveSummary();
 }
 
-// Planning table — all months from MI/ME
+// Planning table with inline delete buttons per future month
 function buildPlanTable(){
   const months=allMonths();
   const tbody=document.getElementById('plan-body');
-  tbody.innerHTML=months.reverse().slice(0,36).map(mk=>{
+  tbody.innerHTML=months.slice().reverse().slice(0,36).map(mk=>{
     const inc=MI[mk]||0, exp=ME[mk]||0, sav=inc-exp;
     const rate=inc>0?sav/inc*100:0;
     const fut=isFuture(mk);
+    const delBtn=fut?`<button class="del-btn" onclick="deleteFutureMonth('${mk}')" title="Usuń miesiąc">✕</button>`:'<span style="font-size:11px;color:var(--muted)">—</span>';
     return `<tr class="${fut?'future-row':''}">
       <td><span style="font-family:var(--fm)">${mk}</span>${fut?'<span class="tag-future">prognoza</span>':'<span class="tag-hist">hist.</span>'}</td>
       <td class="inc-cell">${inc>0?fmt(inc):'—'}</td>
@@ -813,8 +957,19 @@ function buildPlanTable(){
       <td class="${sav>=0?'sav-cell-pos':'sav-cell-neg'}">${inc>0||exp>0?fmt(sav):'—'}</td>
       <td style="color:var(--muted);font-family:var(--fm)">${inc>0?fmtP(rate):'—'}</td>
       <td style="font-size:11px;color:var(--muted)">${fut?'✦ prognoza':'● dane'}</td>
+      <td>${delBtn}</td>
     </tr>`;
   }).join('');
+}
+
+function deleteFutureMonth(mk){
+  if(!isFuture(mk))return;
+  // Remove all addedE for this month
+  const toRemove=addedE.filter(e=>e.mk===mk);
+  toRemove.forEach(e=>deleteEntry(e.id));
+  // Also zero out if any residual
+  delete MI[mk]; delete ME[mk];
+  liveUpdateCharts();
 }
 
 function exportCSV(){
@@ -827,10 +982,114 @@ function exportCSV(){
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='finanse_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
+// ═══════════════════════════════════════════════════════════════
+// FORECAST 2026 — based on 2025 monthly data
+// ═══════════════════════════════════════════════════════════════
+function buildForecast(){
+  const incGrowth=1+(parseInt(document.getElementById('fc-inc').value)||5)/100;
+  const expGrowth=1+(parseInt(document.getElementById('fc-exp').value)||3)/100;
+  document.getElementById('fc-inc-v').textContent=(incGrowth>=1?'+':'')+(((incGrowth-1)*100).toFixed(0))+'%';
+  document.getElementById('fc-exp-v').textContent=(expGrowth>=1?'+':'')+(((expGrowth-1)*100).toFixed(0))+'%';
+
+  const months=['01','02','03','04','05','06','07','08','09','10','11','12'];
+  const labels=months.map(m=>`2026-${m}`);
+
+  // 2025 base data
+  const base25Inc=months.map(m=>MI_BASE[`2025-${m}`]||0);
+  const base25Exp=months.map(m=>ME_BASE[`2025-${m}`]||0);
+
+  // Projected 2026
+  const proj26Inc=base25Inc.map(v=>Math.round(v*incGrowth));
+  const proj26Exp=base25Exp.map(v=>Math.round(v*expGrowth));
+  const proj26Sav=proj26Inc.map((v,i)=>v-proj26Exp[i]);
+
+  // Actual 2026 (what's in MI/ME for 2026)
+  const act26Inc=labels.map(mk=>MI[mk]||null);
+  const act26Exp=labels.map(mk=>ME[mk]||null);
+  const act26Sav=labels.map((mk,i)=>act26Inc[i]!==null?act26Inc[i]-(act26Exp[i]||0):null);
+
+  // How many actual months do we have?
+  const realMonths=labels.filter(mk=>!isFuture(mk)&&(MI[mk]||ME[mk])).length;
+
+  // YTD actual vs projected
+  const ytdActInc=act26Inc.slice(0,realMonths).reduce((a,v)=>a+(v||0),0);
+  const ytdActExp=act26Exp.slice(0,realMonths).reduce((a,v)=>a+(v||0),0);
+  const ytdProjInc=proj26Inc.slice(0,realMonths).reduce((a,v)=>a+v,0);
+  const ytdProjExp=proj26Exp.slice(0,realMonths).reduce((a,v)=>a+v,0);
+  const fullYearProjInc=proj26Inc.reduce((a,v)=>a+v,0);
+  const fullYearProjExp=proj26Exp.reduce((a,v)=>a+v,0);
+  const fullYearProjSav=fullYearProjInc-fullYearProjExp;
+
+  // Variance
+  const varInc=ytdActInc-ytdProjInc;
+  const varExp=ytdActExp-ytdProjExp;
+
+  document.getElementById('fc-kpi').innerHTML=kpi([
+    {l:'Prognoza przychodów 2026',v:fmt(fullYearProjInc),c:'green',s:`baza 2025 × ${((incGrowth-1)*100).toFixed(0)}%`,b:`YTD: ${fmt(ytdActInc)} / ${fmt(ytdProjInc)} proj.`,bc:varInc>=0?'bu':'bd'},
+    {l:'Prognoza wydatków 2026',v:fmt(fullYearProjExp),c:'red',s:`baza 2025 × ${((expGrowth-1)*100).toFixed(0)}%`,b:`YTD: ${fmt(ytdActExp)} / ${fmt(ytdProjExp)} proj.`,bc:varExp<=0?'bu':'bd'},
+    {l:'Prognoza oszczędności 2026',v:fmt(fullYearProjSav),c:'teal',s:fmtP(fullYearProjInc>0?fullYearProjSav/fullYearProjInc*100:0)+' stopa',b:`vs ${fmtP((228606.72-157354.3)/228606.72*100)} w 2025`,bc:'bn'},
+    {l:'Odchylenie przychodów YTD',v:(varInc>=0?'+':'')+fmt(varInc),c:varInc>=0?'green':'red',s:`${realMonths} mies. rzeczywistych danych`,b:varInc>=0?'Powyżej prognozy':'Poniżej prognozy',bc:varInc>=0?'bu':'bd'},
+  ]);
+
+  // Monthly table in sidebar
+  document.getElementById('fc-table').innerHTML=`
+    <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:var(--fm)">
+      <thead><tr style="color:var(--muted)"><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border)">Mies.</th><th style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right">Proj. oszcz.</th><th style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right">Rzecz. oszcz.</th></tr></thead>
+      <tbody>${labels.map((mk,i)=>{
+        const ps=proj26Sav[i],as=act26Sav[i];
+        const isReal=act26Inc[i]!==null;
+        return `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--border);color:var(--muted)">${mk.slice(5)}</td><td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right;color:${ps>=0?'var(--accent)':'var(--red)'}">${fmt(ps)}</td><td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right;color:${isReal?(as>=0?'var(--a2)':'var(--red)'):'var(--muted)'}">${isReal?fmt(as):'—'}</td></tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // Main chart: grouped bars for projected + actual, line for savings
+  const datasets=[
+    {type:'bar',label:'Proj. przychód',data:proj26Inc,backgroundColor:'rgba(184,224,74,.25)',borderColor:'rgba(184,224,74,.7)',borderWidth:1.5,borderRadius:3,stack:'proj'},
+    {type:'bar',label:'Proj. wydatki',data:proj26Exp,backgroundColor:'rgba(224,90,90,.25)',borderColor:'rgba(224,90,90,.7)',borderWidth:1.5,borderRadius:3,stack:'proj'},
+    {type:'bar',label:'Rzecz. przychód',data:act26Inc,backgroundColor:'rgba(184,224,74,.75)',borderRadius:3,stack:'real'},
+    {type:'bar',label:'Rzecz. wydatki',data:act26Exp,backgroundColor:'rgba(224,90,90,.75)',borderRadius:3,stack:'real'},
+    {type:'line',label:'Proj. oszcz.',data:proj26Sav,borderColor:'rgba(184,224,74,.5)',borderDash:[5,3],pointRadius:3,borderWidth:1.5,fill:false,tension:.3,yAxisID:'y'},
+    {type:'line',label:'Rzecz. oszcz.',data:act26Sav,borderColor:'#4abeac',pointRadius:4,borderWidth:2,fill:false,tension:.3,yAxisID:'y'},
+  ];
+
+  if(!C.fcChart){
+    C.fcChart=new Chart(document.getElementById('fcChart'),{data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false}}}}});
+  } else {
+    C.fcChart.data.labels=labels;
+    C.fcChart.data.datasets=datasets;
+    C.fcChart.update('active');
+  }
+
+  // Cumulative savings chart
+  let cumActual=0, cumProj=0;
+  const cumActArr=[],cumProjArr=[];
+  labels.forEach((_,i)=>{
+    cumProj+=proj26Sav[i];
+    cumProjArr.push(Math.round(cumProj));
+    if(act26Sav[i]!==null){cumActual+=act26Sav[i];cumActArr.push(Math.round(cumActual));}
+    else cumActArr.push(null);
+  });
+
+  if(!C.fcCum){
+    C.fcCum=new Chart(document.getElementById('fcCumChart'),{type:'line',data:{labels,datasets:[
+      {label:'Rzeczywiste',data:cumActArr,borderColor:'#4abeac',backgroundColor:'rgba(74,190,172,.1)',fill:true,tension:.3,pointRadius:4,borderWidth:2},
+      {label:'Prognoza',data:cumProjArr,borderColor:'rgba(184,224,74,.6)',borderDash:[6,3],fill:false,tension:.3,pointRadius:3,borderWidth:1.5},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.04)'}},x:{grid:{display:false}}}}});
+  } else {
+    C.fcCum.data.datasets[0].data=cumActArr;
+    C.fcCum.data.datasets[1].data=cumProjArr;
+    C.fcCum.update('active');
+  }
+}
+
 // ═══ INIT ═══════════════════════════════════════════════════════
 buildOverview();
 buildLiveSummary();
 buildPlanTable();
+// Wire up correction preview
+document.getElementById('edit-month').addEventListener('input',updateEditPreview);
+document.getElementById('edit-type').addEventListener('change',updateEditPreview);
+document.getElementById('edit-amt').addEventListener('input',updateEditPreview);
 </script>
 </body>
 </html>
