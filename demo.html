@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DnD System Team — Backlog Forecast</title>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* (styles unchanged) */
+:root{
+  --bg:#08090c;--surf:#0f1116;--surf2:#161820;
+  --border:#1e2130;--bord2:#262c3e;
+  --text:#e2e6f4;--muted:#52596e;
+  --accent:#5b8cff;--green:#3ecf82;--red:#f0504f;
+  --amber:#f5a623;--purple:#b47fff;--cyan:#38c9d4;
+  --median:#f5c842;--signal:#ff6eb4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Familjen Grotesk',sans-serif}
+svg text{font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <h1>DnD System Team — <em>Backlog Forecast</em></h1>
+    <span class="badge">Monte Carlo · 10,000 simulations</span>
+  </div>
+  <div class="topbar-meta">
+    Backlog: 113 items · Throughput: Oct 2025 – Mar 2026<br>
+    Forecast from: Mar 27, 2026
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi" style="--kc:#5b8cff">
+      <div class="kpi-lbl">Backlog (active)</div>
+      <div class="kpi-val">113</div>
+      <div class="kpi-sub">US: 83 · Issue: 19 · Task: 11</div>
+    </div>
+    <div class="kpi" style="--kc:#f5c842">
+      <div class="kpi-lbl">Median throughput</div>
+      <div class="kpi-val">20</div>
+      <div class="kpi-sub">items/week · 26 weeks history</div>
+    </div>
+    <div class="kpi" style="--kc:#ff6eb4">
+      <div class="kpi-lbl">85% of backlog (P85)</div>
+      <div class="kpi-val">May 15, 2026</div>
+      <div class="kpi-sub">96/113 items · 85% confidence · 7 weeks</div>
+    </div>
+    <div class="kpi" style="--kc:#3ecf82">
+      <div class="kpi-lbl">By end of August</div>
+      <div class="kpi-val">100%</div>
+      <div class="kpi-sub">all scenarios · even pessimistic</div>
+    </div>
+  </div>
+
+  <!-- METHOD -->
+  <div class="note">
+    <strong>Methodology:</strong> Monte Carlo (10,000 runs). Each simulation draws weekly throughput from historical distribution (26 weeks: min=5, median=20, P85=31, max=35 items/week). 
+    Backlog: 113 active items (User Story + Issue + Task, states: New / Analysing / Ready / Committed / To Do / In Progress). 
+    Features and Objectives excluded to match throughput data. 
+    <strong>P50 = 50% probability</strong> · <strong>P85 = 85% probability (recommended)</strong>.
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">Answers to <em>questions</em></div>
+      <div class="sec-sub">three confidence scenarios · Monte Carlo</div>
+    </div>
+
+    <div class="fc-grid">
+
+      <div class="fc-card" style="--fc-col:#ff6eb4">
+        <div class="fc-badge">📦 Question 1 — 85% of backlog</div>
+        <div class="fc-question">When will we complete 85% of items (96 of 113)?</div>
+        <div class="fc-rows">
+          <div class="fc-row">
+            <div class="fc-conf">P50 · 50% confidence</div>
+            <div class="fc-date">May 8, 2026</div>
+            <div class="fc-weeks">in 6 weeks</div>
+          </div>
+          <div class="fc-row">
+            <div class="fc-conf">P70 · 70% confidence</div>
+            <div class="fc-date">May 8, 2026</div>
+            <div class="fc-weeks">in 6 weeks</div>
+          </div>
+          <div class="fc-row">
+            <div class="fc-conf">★ P85 · 85% confidence</div>
+            <div class="fc-date">May 15, 2026</div>
+            <div class="fc-weeks">in 7 weeks</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-card" style="--fc-col:#5b8cff">
+        <div class="fc-badge">✅ Question 2 — 100% of backlog</div>
+        <div class="fc-question">When will we complete all 113 items?</div>
+        <div class="fc-rows">
+          <div class="fc-row">
+            <div class="fc-conf">P50 · 50% confidence</div>
+            <div class="fc-date">May 8, 2026</div>
+          </div>
+          <div class="fc-row">
+            <div class="fc-conf">P70 · 70% confidence</div>
+            <div class="fc-date">May 15, 2026</div>
+          </div>
+          <div class="fc-row">
+            <div class="fc-conf">★ P85 · recommended</div>
+            <div class="fc-date">May 22, 2026</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-card" style="--fc-col:#3ecf82">
+        <div class="fc-badge">📅 Question 3 — by Aug 31, 2026</div>
+        <div class="fc-question">How many items will be completed?</div>
+        <div class="fc-rows">
+          <div class="fc-row">
+            <div class="fc-conf">P15 · pessimistic</div>
+            <div class="fc-date">113 / 113</div>
+          </div>
+          <div class="fc-row">
+            <div class="fc-conf">P50 · baseline</div>
+            <div class="fc-date">113 / 113</div>
+          </div>
+          <div class="fc-row">
+            <div class="fc-conf">P85 · optimistic</div>
+            <div class="fc-date">113 / 113</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
